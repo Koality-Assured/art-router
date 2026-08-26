@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "paths": {
+    "skills": "ai-tooling/skills",
+    "agents": "ai-tooling/agents",
+    "memory": "ai-tooling/memory",
+    "worktrees": "scratch/worktrees",
+    "docs": "docs",
+    "routing": "routing"
+  },
+  "adapters": {
+    "qmd": {
+      "command": "qmd",
+      "default_min_score": 0.5,
+      "default_limit": 5,
+      "collections": [
+        "routing",
+        "docs",
+        "projects",
+        "references",
+        "research",
+        "supporting",
+        "ai-tooling",
+        "scripts",
+        "actionable",
+        "results"
+      ],
+      "timeout_sec": 60
+    },
+    "ast_grep": {
+      "command": "ast-grep",
+      "timeout_sec": 60,
+      "default_languages": [
+        "python",
+        "typescript",
+        "javascript",
+        "json",
+        "yaml",
+        "markdown"
+      ]
+    },
+    "headroom": {
+      "base_url": "http://127.0.0.1:8787",
+      "port": 8787,
+      "timeout_sec": 15,
+      "enabled": true
+    },
+    "git": {
+      "command": "git",
+      "timeout_sec": 30,
+      "branch_prefix": "agent"
+    }
+  },
+  "cache": {
+    "anthropic": {
+      "max_breakpoints": 4,
+      "ttl_seconds": 300,
+      "min_tokens_threshold": 1024
+    },
+    "openai": {
+      "min_tokens_prefix": 1024,
+      "prefix_alignment_tokens": 128
+    },
+    "gemini": {
+      "min_tokens_threshold": 32768,
+      "default_ttl_seconds": 3600,
+      "mode": "context_cache"
+    }
+  },
+  "a2a": {
+    "default_budget": 8,
+    "max_budget": 24,
+    "require_clean_state": true,
+    "disallow_destructive": true
+  }
+}
