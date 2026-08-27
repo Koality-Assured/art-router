@@ -5,6 +5,16 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 ## Entries
 
 
+
+### 2026-08-27 — Add art-router validation harness
+
+- **Requesting user:** workspace-user
+- **AI agent:** script-ops
+- **User request:** Implement deterministic art-router next-steps manifest validation
+- **Summary:**
+  - Added standard-library JSON validation for declared controls, rights, safety, accessibility, delivery, review, and medium criteria.
+  - Added a seven-case fixture and focused tests; no network calls or asset inspection.
+
 ### 2026-08-27 — configure art-specific artistic standards harness
 
 - **Requesting user:** Distasteful

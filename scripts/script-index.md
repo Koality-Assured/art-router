@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: script-index
 topics: [scripts, routing]
-generated_at_utc: 2026-08-27T17:08:08Z
+generated_at_utc: 2026-08-27T19:33:52Z
 generator: scripts/routing/generate_script_index.py
 ---
 
@@ -44,14 +44,17 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 | [`tests/test_qmd_preflight.py`](./tests/test_qmd_preflight.py) | `tests`, `qmd` | qmd, preflight, onboarding | Unit tests for the non-mutating qmd lifecycle preflight. |
 | [`tests/test_skill_graph.py`](./tests/test_skill_graph.py) | `tests`, `routing`, `skills`, `dag` | tests, dag, topological-sort, dependencies, prerequisites | Unit tests for skill dependency DAG resolution, topological ordering, and Schema V2 conventions. |
 | [`tests/test_validate_agent.py`](./tests/test_validate_agent.py) | `tests`, `ai-tooling`, `agents`, `schema-v2` | tests, validate-agent, agents | Unit tests for Schema V2 agent validation. |
+| [`tests/test_validate_art_router.py`](./tests/test_validate_art_router.py) | `tests`, `validation`, `art-router` | manifest, fixtures, provenance, accessibility, delivery, review | Focused tests for the portable art-router manifest validator. |
 | [`tests/test_validate_router_structure.py`](./tests/test_validate_router_structure.py) | `tests`, `docs`, `validation`, `results` | tests, validate_router_structure, results-layout | Unit tests for router structure validator results-layout check. |
 | [`tests/test_validate_skill.py`](./tests/test_validate_skill.py) | `tests`, `ai-tooling`, `skills`, `schema-v2` | tests, validate-skill, skills | Unit tests for Schema V2 skill validation. |
 | [`tests/test_validate_structure_fast.py`](./tests/test_validate_structure_fast.py) | `tests`, `docs`, `validation` | tests, validate_structure_fast, markdown | Unit tests for fast structural validator. |
+| [`validation/validate_art_router.py`](./validation/validate_art_router.py) | `validation`, `art-router`, `scripts` | manifest, fixtures, provenance, accessibility, delivery, review | Validate art-router next-steps case manifests without external services. |
 
 ## By tag
 
 - **agents:** `ai-tooling/validate_agent.py`, `tests/test_validate_agent.py`
 - **ai-tooling:** `ai-tooling/model_memory.py`, `ai-tooling/validate_agent.py`, `ai-tooling/validate_skill.py`, `routing/generate_skill_dispatch.py`, `routing/hybrid_dispatch.py`, `tests/test_hybrid_dispatch.py`, `tests/test_validate_agent.py`, `tests/test_validate_skill.py`
+- **art-router:** `tests/test_validate_art_router.py`, `validation/validate_art_router.py`
 - **ast-grep:** `cost-layers/extract_ast_facts.py`, `cost-layers/validate_ast_grep.py`, `cost-layers/validate_cost_layers.py`
 - **change-history:** `change-history/append_change_history.py`, `change-history/ensure_change_history_quarter.py`
 - **dag:** `routing/resolve_skill_graph.py`, `tests/test_skill_graph.py`
@@ -73,8 +76,9 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 - **routing:** `ai-tooling/validate_agent.py`, `ai-tooling/validate_skill.py`, `docs/validate_router_structure.py`, `routing/generate_routing_index.py`, `routing/generate_script_index.py`, `routing/generate_skill_dispatch.py`, `routing/hybrid_dispatch.py`, `routing/resolve_skill_graph.py`, `routing/spawn_worktree.py`, `tests/test_hybrid_dispatch.py`, `tests/test_pacing.py`, `tests/test_skill_graph.py`
 - **scaffold:** `repos/scaffold_public_repos.py`
 - **schema-v2:** `tests/test_validate_agent.py`, `tests/test_validate_skill.py`
+- **scripts:** `validation/validate_art_router.py`
 - **security:** `sync/sync_public_repos.py`, `tests/test_pretty_docs_security.py`
 - **skills:** `routing/resolve_skill_graph.py`, `tests/test_skill_graph.py`, `tests/test_validate_skill.py`
 - **sync:** `sync/sync_and_push_downstreams.py`, `sync/sync_public_repos.py`
-- **tests:** `tests/test_hybrid_dispatch.py`, `tests/test_pacing.py`, `tests/test_pretty_docs_security.py`, `tests/test_qmd_preflight.py`, `tests/test_skill_graph.py`, `tests/test_validate_agent.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_skill.py`, `tests/test_validate_structure_fast.py`
-- **validation:** `docs/validate_structure_fast.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_structure_fast.py`
+- **tests:** `tests/test_hybrid_dispatch.py`, `tests/test_pacing.py`, `tests/test_pretty_docs_security.py`, `tests/test_qmd_preflight.py`, `tests/test_skill_graph.py`, `tests/test_validate_agent.py`, `tests/test_validate_art_router.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_skill.py`, `tests/test_validate_structure_fast.py`
+- **validation:** `docs/validate_structure_fast.py`, `tests/test_validate_art_router.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_structure_fast.py`, `validation/validate_art_router.py`
