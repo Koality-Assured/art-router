@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Short motion study with captions</title>
+  <style>
+    :root { color-scheme: dark; --ink: #e9edf0; --muted: #b7c0c7; --bg: #17242c; --accent: #f0b34c; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    main { width: min(56rem, calc(100% - 2rem)); margin: 2rem auto; }
+    h1 { max-width: 14ch; font: 700 clamp(2.4rem, 7vw, 5rem)/.95 Georgia, serif; letter-spacing: -.04em; }
+    figure { margin: 0; border: 1px solid #61717c; background: #0d161b; }
+    svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    .orbit { transform-origin: 400px 225px; animation: orbit 8s linear infinite; }
+    @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .caption { min-height: 3.2rem; margin: 0; padding: .7rem 1rem; background: #0a1014; color: #fff; font-size: 1.05rem; }
+    .controls { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1rem 0; }
+    button { border: 2px solid var(--accent); border-radius: 0; background: var(--accent); color: #17242c; cursor: pointer; font: inherit; padding: .65rem .9rem; }
+    button.secondary { background: transparent; color: var(--ink); }
+    button:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+    .note, details { color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) { .orbit { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p>MOTION STUDY / 00:08 / CAPTIONED</p>
+    <h1>Three stones, one slow orbit.</h1>
+    <figure aria-labelledby="animation-title" aria-describedby="animation-description">
+      <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" role="img">
+        <title id="animation-title">Three colored stones on a dark blue field</title>
+        <desc id="animation-description">A small amber stone travels around two larger blue stones. The orbit can be paused, and reduced-motion mode leaves the stones still.</desc>
+        <rect width="800" height="450" fill="#172f3d"/>
+        <circle cx="400" cy="225" r="150" fill="none" stroke="#56798a" stroke-width="2" stroke-dasharray="5 12"/>
+        <g class="orbit">
+          <circle cx="400" cy="75" r="24" fill="#f0b34c"/>
+        </g>
+        <circle cx="337" cy="253" r="68" fill="#6d9eb3"/>
+        <circle cx="486" cy="260" r="84" fill="#356276"/>
+        <path d="M0 380c180-38 245 44 410 8 149-32 211-9 390-34v96H0Z" fill="#0d202b"/>
+      </svg>
+      <p id="caption" class="caption" role="status" aria-live="polite">0:00 — A dark field holds three stones.</p>
+    </figure>
+    <div class="controls">
+      <button id="pause" type="button" aria-pressed="false">Pause motion</button>
+      <button id="restart" class="secondary" type="button">Restart captions</button>
+    </div>
+    <p class="note"><strong>Reduced-motion behavior:</strong> when the operating system requests less motion, the orbit is disabled and the caption remains available.</p>
+    <details>
+      <summary>Text transcript</summary>
+      <p>At 0:00, a dark field holds three stones. From 0:02 to 0:05, an amber stone moves slowly around two blue stones. At 0:06, the orbit settles. At 0:08, the study ends.</p>
+    </details>
+  </main>
+  <script>
+    (() => {
+      const orbit = document.querySelector('.orbit');
+      const pause = document.querySelector('#pause');
+      const restart = document.querySelector('#restart');
+      const caption = document.querySelector('#caption');
+      const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const cues = [
+        [0, 'A dark field holds three stones.'],
+        [2, 'An amber stone begins a slow orbit around two blue stones.'],
+        [6, 'The orbit settles.'],
+        [8, 'The study ends.']
+      ];
+      let started = performance.now();
+      let paused = reduceQuery.matches;
+      let raf;
+      function update(now) {
+        const seconds = Math.min(8, (now - started) / 1000);
+        const cue = cues.slice().reverse().find(item => seconds >= item[0]) || cues[0];
+        caption.textContent = `0:${String(Math.floor(seconds)).padStart(2, '0')} — ${cue[1]}`;
+        if (!paused && !reduceQuery.matches && seconds < 8) raf = requestAnimationFrame(update);
+      }
+      function announce() {
+        pause.textContent = paused ? 'Resume motion' : 'Pause motion';
+        pause.setAttribute('aria-pressed', String(paused));
+      }
+      pause.addEventListener('click', () => { paused = !paused; if (!paused) { started = performance.now(); raf = requestAnimationFrame(update); } else cancelAnimationFrame(raf); announce(); });
+      restart.addEventListener('click', () => { started = performance.now(); paused = reduceQuery.matches; cancelAnimationFrame(raf); update(started); announce(); });
+      reduceQuery.addEventListener('change', () => { paused = reduceQuery.matches; if (paused) cancelAnimationFrame(raf); else { started = performance.now(); raf = requestAnimationFrame(update); } announce(); });
+      announce();
+      update(started);
+    })();
+  </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ Human index (not agent SoT):
 | [`architecture-diagram/`](./reporting/architecture-diagram/) | artifact-agent | mutate |
 | [`as-code-builder/`](./reporting/as-code-builder/) | as-code-agent | mutate |
 | [`ast-grep/`](./cost-layers/ast-grep/) | router-maintenance | read-only |
+| [`evidence-validation/`](./artistic/evidence-validation/) | artistic-standards-reviewer | read-only |
 | [`aws-logs/`](./aws/aws-logs/) | cloud-operator | mutate |
 | [`aws-read/`](./aws/aws-read/) | cloud-operator | mutate |
 | [`aws-write/`](./aws/aws-write/) | cloud-operator | mutate |
@@ -58,6 +59,7 @@ Human index (not agent SoT):
 | [`qmd-efficiency/`](./meta/qmd-efficiency/) | qmd-ops | mutate |
 | [`qmd-usage/`](./meta/qmd-usage/) | qmd-ops | read-only |
 | [`reference-maintain/`](./meta/reference-maintain/) | reference-ops | mutate |
+| [`representation-routing/`](./artistic/representation-routing/) | artistic-standards-reviewer | read-only |
 | [`scratch-cleanup/`](./meta/scratch-cleanup/) | router-maintenance | mutate |
 | [`script-builder/`](./meta/script-builder/) | script-ops | mutate |
 | [`skill-builder/`](./meta/skill-builder/) | ai-tooling-ops | mutate |

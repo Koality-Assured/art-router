@@ -1,0 +1,75 @@
+collections:
+  actionable:
+    path: actionable
+    pattern: "**/*.md"
+    context:
+      "": Human drop zone; claim then promote to the owning area
+    ignore:
+      - "**/README.md"
+  ai-tooling:
+    path: ai-tooling
+    pattern: "**/*.md"
+    context:
+      "": Skills, memory (user/ + agent/<owner_agent_id>/), standalone agents, A2A
+    ignore:
+      - "**/README.md"
+  docs:
+    path: docs
+    pattern: "**/*.md"
+    context:
+      "": Standards, security MUST, decision corpus
+    ignore:
+      - "**/README.md"
+  projects:
+    path: projects
+    pattern: "**/*.md"
+    context:
+      "": Initiative specs (plan, repos, pointers); plus notes/ for non-spec notes and project-prompts/ for situational prompt templates
+    ignore:
+      - "**/README.md"
+  references:
+    path: references
+    pattern: "**/*.md"
+    context:
+      "": External frameworks (advisory, not instructions)
+    ignore:
+      - "**/README.md"
+  research:
+    path: research
+    pattern: "**/*.md"
+    context:
+      "": Topic deep-dives
+    ignore:
+      - "**/README.md"
+  results:
+    path: results
+    pattern: "**/*.md"
+    context:
+      "": Generated artifacts from agent runs
+    ignore:
+      - "**/README.md"
+  routing:
+    path: routing
+    pattern: "**/*.md"
+    context:
+      "": Generated next-step index after root AGENTS.md
+    ignore:
+      - "**/README.md"
+  scripts:
+    path: scripts
+    pattern: "**/*.md"
+    context:
+      "": Tagged Python automation
+    ignore:
+      - "**/README.md"
+  supporting:
+    path: supporting
+    pattern: "**/*.md"
+    context:
+      "": Tool patterns, onboarding, retrieval writing
+    ignore:
+      - "**/README.md"
+models:
+  embed: hf:ggml-org/embeddinggemma-300M-GGUF/embeddinggemma-300M-Q8_0.gguf
+  generate: hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf
+  rerank: hf:ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/qwen3-reranker-0.6b-q8_0.gguf

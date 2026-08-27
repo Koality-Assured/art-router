@@ -1,0 +1,18 @@
+{
+  "case_count": 7,
+  "cases": [
+    {"id": "illustration-constrained", "medium": "illustration", "status": "hold", "reasons": [{"code": "rights_hold", "message": "provenance.rights_status does not authorize delivery"}, {"code": "review_hold", "message": "reviewer.decision is hold"}]},
+    {"id": "mark-small-size", "medium": "icon", "status": "pass", "reasons": []},
+    {"id": "ethical-photo-scene", "medium": "photography", "status": "hold", "reasons": [{"code": "rights_hold", "message": "provenance.rights_status does not authorize delivery"}, {"code": "review_hold", "message": "reviewer.decision is hold"}, {"code": "criterion_failed", "message": "measurements.width_px must be at least 2000"}, {"code": "criterion_failed", "message": "measurements.height_px must be at least 1500"}]},
+    {"id": "consented-body-art", "medium": "tattoo", "status": "hold", "reasons": [{"code": "rights_hold", "message": "provenance.rights_status does not authorize delivery"}, {"code": "review_hold", "message": "reviewer.decision is hold"}]},
+    {"id": "accessible-art-web", "medium": "web", "status": "pass", "reasons": []},
+    {"id": "short-captioned-animation", "medium": "animation", "status": "pass", "reasons": []},
+    {"id": "cgi-scene-delivery", "medium": "cgi", "status": "hold", "reasons": [{"code": "rights_hold", "message": "provenance.rights_status does not authorize delivery"}, {"code": "review_hold", "message": "reviewer.decision is hold"}]}
+  ],
+  "held": 4,
+  "manifest_id": "art-router-results-2026-08-27",
+  "passed": 3,
+  "reasons": [],
+  "scope_note": "Validates declared controls and supplied measurements only; it does not prove artistic quality, rights, safety, accessibility, or asset existence.",
+  "status": "hold"
+}
