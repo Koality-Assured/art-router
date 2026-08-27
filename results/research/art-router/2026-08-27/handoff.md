@@ -9,7 +9,7 @@ topics: [art, representation, accessibility, provenance, delivery, fixity]
 
 # Art-router representation fixture handoff
 
-This package exercises the seven cases named in `research/art-router/representation-gaps.md`. The machine-readable manifest is [`manifest.json`](./manifest.json); the per-file SHA-256 record is [`SHA256SUMS.txt`](./SHA256SUMS.txt); the validator output is [`validation-report.json`](./validation-report.json).
+This package exercises the seven cases named in the repository research note [`representation-gaps.md`](../../../../research/art-router/representation-gaps.md). The machine-readable manifest is [`manifest.json`](./manifest.json); the per-file SHA-256 record is [`SHA256SUMS.txt`](./SHA256SUMS.txt); the validator output is [`validation-report.json`](./validation-report.json).
 
 ## Case matrix
 
@@ -25,7 +25,7 @@ This package exercises the seven cases named in `research/art-router/representat
 
 ## Provenance and fixity
 
-The four bitmap inputs were supplied as real built-in image-generation outputs already present in the worktree. Prompt summaries, the declared unknown rights status, and the missing exact-provider/model/seed limitation are recorded per case in [`manifest.json`](./manifest.json). In brief: the illustration prompt describes a square dusk community garden with raised beds and a blue-and-ochre painterly palette; the still-life prompt describes a ceramic bowl, linen, leafy branch, and warm window light; the body-art prompt describes a black botanical sprig with three leaves and no lettering; the CGI prompt describes three translucent blue/amber stones on a round plinth with controlled studio light.
+The four bitmap inputs were supplied as real built-in image-generation outputs already present in the worktree. Prompt summaries, the declared unknown rights status, and the missing exact-provider/model/seed limitation are recorded per case in [`manifest.json`](./manifest.json). In brief: the illustration prompt describes a square first-light community garden with raised beds and a blue-and-ochre painterly palette; the still-life prompt describes a ceramic bowl, linen, leafy branch, and warm window light; the body-art prompt describes a black botanical sprig with three leaves and no lettering; the CGI prompt describes three translucent blue/amber stones on a round plinth with controlled studio light.
 
 The package is fixed by SHA-256 entries in [`SHA256SUMS.txt`](./SHA256SUMS.txt). Recompute each listed path from this directory and compare the uppercase digest. The four supplied bitmap paths are exact and remain under `assets/`; no scratch or user-home path is required to open the package.
 

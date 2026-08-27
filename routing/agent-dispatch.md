@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: agent-dispatch
 topics: [routing, agents, specialists]
-generated_at_utc: 2026-08-27T17:08:07Z
+generated_at_utc: 2026-08-27T19:56:31Z
 generator: scripts/routing/generate_routing_index.py
 ---
 

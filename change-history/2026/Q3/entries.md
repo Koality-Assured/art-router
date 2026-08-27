@@ -7,6 +7,16 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-27 — Correct art-router fixture provenance and fixity
+
+- **Requesting user:** Distasteful
+- **AI agent:** router
+- **User request:** Coordinate art-router next-steps research, standards, validation, and generated fixtures
+- **Summary:**
+  - Corrected first-light provenance wording and linked the research note in the handoff.
+  - Recomputed SHA-256 entries after Windows line-ending normalization and verified all 16 payload files.
+
 ### 2026-08-27 — Art-router fixture handoff
 
 - **Requesting user:** workspace-user
