@@ -1,6 +1,6 @@
 # Projects AGENTS
 
-Specs for initiatives — plan, repos, research/results pointers — not chronicles.
+Specs for initiatives — plan, repos, research/results pointers — not chronicles. Human-initiated follow-up prompts live in [`project-prompts/`](./project-prompts/) and are situational, non-authoritative templates.
 
 Ingest simply; do not duplicate skills or paste root Critical — link [`../AGENTS.md`](../AGENTS.md). Flat taxonomy: each initiative lives in `projects/<slug>/README.md` with YAML frontmatter `status: proposed | active | ongoing | completed`. Human-requested non-spec notes: [`notes/`](./notes/) (see nested [`notes/AGENTS.md`](./notes/AGENTS.md)).
 
