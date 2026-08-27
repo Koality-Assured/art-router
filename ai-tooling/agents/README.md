@@ -14,6 +14,7 @@ Human index (not agent SoT):
 | [`router-maintenance/`](./router-maintenance/) | worktrees, routing maps, scratch, Headroom, ast-grep | standard |
 | [`qmd-ops/`](./qmd-ops/) | qmd search + efficiency dry runs | standard |
 | [`ai-tooling-ops/`](./ai-tooling-ops/) | skills, user/agent memory, agent defs | standard |
+| [`artistic-standards-reviewer/`](./artistic-standards-reviewer/) | art representation routing and evidence review | standard |
 | [`memory-operator/`](./memory-operator/) | evidence-backed model-family capability memory | standard |
 | [`script-ops/`](./script-ops/) | tagged Python under scripts/ | standard |
 | [`detailed-activity/`](./detailed-activity/) | antagonistic review + deep research | high |

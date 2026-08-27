@@ -8,6 +8,16 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-27 — Add artistic standards review tooling
+
+- **Requesting user:** Distasteful
+- **AI agent:** router
+- **User request:** Create reusable skills and agent for art standards decomposition and evidence review
+- **Summary:**
+  - Added evidence-validation and representation-routing skills plus the read-only artistic-standards-reviewer agent.
+  - Regenerated routing catalogs and updated human indexes; all skill, agent, graph, router, and focused test checks pass.
+
 ### 2026-08-27 — Correct art-router fixture provenance and fixity
 
 - **Requesting user:** Distasteful
