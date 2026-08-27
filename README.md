@@ -34,6 +34,12 @@ The repository is organized into a clean, decoupled taxonomy where each top-leve
 3. **Web Mockups & Creative UI**: Multi-theme aesthetic layouts, Tailwind/CSS animations, SVG asset synthesis, and Three.js / WebGL scenes.
 4. **Design Systems & Style Guides**: Automated color harmony calculation, typography pairing validation, and icon kits.
 
+## Artistic standards
+
+- [`docs/standards/artistic-practice.md`](./docs/standards/artistic-practice.md) defines the intent, meaning, cultural, provenance, critique, and release contract.
+- [`docs/standards/artistic-representations.md`](./docs/standards/artistic-representations.md) maps medium-specific decisions and handoff checks across visual, time-based, interactive, embodied, and spatial work.
+- [`projects/project-prompts/art-router-next-steps.md`](./projects/project-prompts/art-router-next-steps.md) is the human-launched follow-up prompt for expanding and validating the harness.
+
 ---
 
 ## Quick Start

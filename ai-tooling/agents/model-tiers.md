@@ -28,6 +28,12 @@ Product names in the table are the human-facing map. Host picker IDs change and 
 
 New agents get `model_tier: standard` unless the human specifies otherwise.
 
+## Secondary model quotas and pacing
+
+When using secondary or quota-metered models, down-tier research and inspection workers to the configured research tier. Keep expensive models for orchestration and synthesis. The runtime profiles in [`../../config/harness.config.json`](../../config/harness.config.json) define concurrency, pacing, and 429 recovery policy; the reusable parsing and batching helpers live in [`../../scripts/_lib/pacing.py`](../../scripts/_lib/pacing.py).
+
+Under `metered_secondary`, limit active subagents to the configured profile maximum and honor reset windows instead of retrying aggressively. Enterprise or explicitly unmetered hosts may use the `unmetered` profile.
+
 ## Related
 
 | Doc | Role |

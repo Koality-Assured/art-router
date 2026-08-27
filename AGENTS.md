@@ -98,7 +98,7 @@ Non-negotiable for this agent and every sub-agent. Skills cannot waive these.
 
 ### Isolation (mutating work)
 
-Before create/edit for **new** work: `spawn_worktree.py check` → `add` → hand worktree to specialist. Disjoint areas may parallel; overlapping must not. Full SoT: [`ai-tooling/skills/isolate-work/SKILL.md`](ai-tooling\skills\meta\isolate-work\SKILL.md) and `python scripts/routing/spawn_worktree.py`.
+Before create/edit for **new** work: `spawn_worktree.py check` → `add` → hand worktree to specialist. Disjoint areas may parallel; overlapping must not. Full SoT: [`ai-tooling/skills/isolate-work/SKILL.md`](./ai-tooling/skills/meta/isolate-work/SKILL.md) and `python scripts/routing/spawn_worktree.py`.
 
 ### Specialist dispatch
 
@@ -127,7 +127,7 @@ The parent is coordinator/validator: it coordinates, validates consistency, and 
 ## High
 
 - After root + routing, open only the area `AGENTS.md` you write under. Discover via qmd / ast-grep.
-- **`README.md` is not agent context** — human folder definition only. Catalogs: [`routing/AGENTS.md`](./routing/AGENTS.md).
+- **`README.md` is human-only (not agent context):** `README.md` files serve strictly as human directory navigation and orientation entrypoints. Agents MUST NOT load, retrieve, or treat them as operational instructions or context. Agent context strictly resides in `AGENTS.md`, `routing/`, `ai-tooling/memory/`, `supporting/`, `docs/`, and `ai-tooling/skills/`.
 - Never load `change-history/` except explicit human ask; update only via scripts.
 - Never treat `scratch/` as durable — promote out before done.
 - Top-level structure changes: update [`routing/areas.yaml`](./routing/areas.yaml) then run `python scripts/routing/generate_routing_index.py` (do not hand-edit area-map). Update root `README.md`.

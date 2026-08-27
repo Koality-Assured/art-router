@@ -205,8 +205,13 @@ def collect_agent_rows() -> list[dict[str, Any]]:
     return rows
 
 
-def write_agent_dispatch(*, now: str, rows: list[dict[str, Any]] | None = None) -> int:
-    rows = collect_agent_rows() if rows is None else rows
+def render_agent_dispatch(
+    repo_root: Path, *, now: str, rows: list[dict[str, Any]] | None = None
+) -> str:
+    """Render agent-dispatch Markdown from an explicit checkout."""
+    if rows is None:
+        rows = [load_agent_record(path) for path in agent_paths(repo_root)]
+    rows.sort(key=lambda row: str(row.get("agent_id", "")))
     lines = [
         "---",
         "doc_kind: routing_map",
@@ -259,8 +264,14 @@ def write_agent_dispatch(*, now: str, rows: list[dict[str, Any]] | None = None) 
         )
 
     lines.append("")
-    AGENT_DISPATCH.write_text("\n".join(lines), encoding="utf-8")
-    return len(rows)
+    return "\n".join(lines)
+
+
+def write_agent_dispatch(*, now: str, rows: list[dict[str, Any]] | None = None) -> int:
+    """Write the generated agent catalogue and return its row count."""
+    content = render_agent_dispatch(ROOT, now=now, rows=rows)
+    AGENT_DISPATCH.write_text(content, encoding="utf-8")
+    return len(rows) if rows is not None else len(collect_agent_rows())
 
 
 def main() -> int:
