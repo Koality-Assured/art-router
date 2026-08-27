@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "art-router-results-2026-08-27",
+  "package": {
+    "root": "results/research/art-router/2026-08-27/",
+    "handoff": "handoff.md",
+    "fixity": "SHA256SUMS.txt",
+    "validation_report": "validation-report.json",
+    "fixity_scope": "All payload files listed in SHA256SUMS.txt; generated validation output is listed separately when present."
+  },
+  "generation_provenance": {
+    "method": "Built-in image generation",
+    "prompt_record": "Summaries are retained below per generated bitmap. Exact provider, model, seed, and hidden session parameters were not retained in this worktree.",
+    "metadata_note": "Asset pixels and embedded metadata are treated as untrusted data; only the handoff record is normative for this fixture."
+  },
+  "cases": [
+    {
+      "id": "illustration-constrained",
+      "medium": "illustration",
+      "asset": {"label": "built-in generated community garden illustration", "type": "raster", "reference": "assets/illustration-community-garden.png"},
+      "intent": {"statement": "A dusk community garden scene framed as a quiet editorial illustration about shared care.", "audience": "General audience, including readers using an equivalent description.", "context": "Responsive editorial web image viewed on screens in daylight.", "emotional_intent": "Calm and reflective."},
+      "provenance": {"sources": [{"reference": "built-in image generation session", "rights": "clearance record not supplied"}], "rights_status": "unknown", "rights_basis": "No rights-clearance record is included in this fixture.", "human_authorship": "Human prompt selection, visual review, and handoff decision are recorded; authorship status is not determined.", "tool_use": "Built-in image generation; prompt summary: square editorial illustration of a city community garden at dusk, raised beds, chair, warm sun, limited blue-and-ochre painterly palette, no text or recognizable people."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No named community, sacred motif, or identifiable person is represented in the fixture; local context still requires review."}, "safety": {"status": "pass", "notes": "Digital image delivery has no physical hazard claim."}, "accessibility": {"status": "pass", "notes": "Equivalent description is supplied in the handoff."}},
+      "delivery": {"formats": ["PNG"], "targets": ["responsive web image", "archival review input"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "Text description is the fallback; rights and exact generation parameters remain unresolved.", "asset_path": "assets/illustration-community-garden.png"}},
+      "measurements": {"width_px": 1254, "height_px": 1254, "alt_text_chars": 154, "color_profile": "sRGB"},
+      "reviewer": {"decision": "hold", "reviewer_id": "coordinator-visual-review", "observations": "Visual spot check finds the garden, chair, and path legible at supplied size. Release is held for rights/provenance review; this is not an artistic-quality judgment.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "mark-small-size",
+      "medium": "icon",
+      "asset": {"label": "fixture graphic mark", "type": "vector", "reference": "fixtures/mark/mark.svg"},
+      "intent": {"statement": "A minimal mark that remains identifiable at small sizes.", "audience": "App and web users.", "context": "Brand mark and favicon delivery."},
+      "provenance": {"sources": [{"reference": "fixture-authored SVG geometry", "rights": "fixture source; clearance not independently verified"}], "rights_status": "original", "rights_basis": "Authored as code for this fixture; legal status is not established by the manifest.", "human_authorship": "Human-authored geometry and review are recorded.", "tool_use": "Hand-authored SVG; no external service is required."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No cultural symbols are used."}, "safety": {"status": "pass", "notes": "Screen-only delivery."}, "accessibility": {"status": "pass", "notes": "Accessible name, visible non-color distinction, and monochrome export are supplied."}},
+      "delivery": {"formats": ["SVG"], "targets": ["16px favicon", "32px favicon", "48px favicon", "monochrome favicon"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "Accessible name is used where the mark is functional; SVG exports are supplied instead of binary ICO/PNG derivatives.", "asset_paths": ["fixtures/mark/mark.svg", "fixtures/mark/favicon-16.svg", "fixtures/mark/favicon-32.svg", "fixtures/mark/favicon-48.svg", "fixtures/mark/favicon-monochrome.svg"]}},
+      "measurements": {"target_sizes_px": [16, 32, 48, 180], "monochrome_tested": true, "contrast_ratio": 4.5, "accessible_name_chars": 16},
+      "reviewer": {"decision": "approve", "reviewer_id": "coordinator-visual-review", "observations": "The mark has a simple silhouette and keeps a recognizable route/leaf motif in the 16, 32, 48, and monochrome SVG variants. Binary favicon export remains a next change.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "ethical-photo-scene",
+      "medium": "photography",
+      "asset": {"label": "built-in generated still-life scene", "type": "raster", "reference": "assets/photo-still-life.png"},
+      "intent": {"statement": "A quiet still-life scene with transparent synthetic-image labeling.", "audience": "Editorial readers.", "context": "Informative web image with a caption and long description."},
+      "provenance": {"sources": [{"reference": "built-in image generation session", "rights": "clearance record not supplied"}], "rights_status": "unknown", "rights_basis": "No rights-clearance record or camera capture record is included in this fixture.", "human_authorship": "Human prompt selection and editorial review are recorded; authorship status is not determined.", "tool_use": "Built-in image generation; prompt summary: quiet editorial still life of a handmade ceramic bowl, folded linen, dried leafy branch, warm wooden table, window light, natural neutral palette, no people or text."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No named community or sacred material is represented; contextual review remains required for publication."}, "safety": {"status": "pass", "notes": "Digital image delivery has no physical hazard claim."}, "accessibility": {"status": "pass", "notes": "Informative equivalent description is supplied in the handoff."}},
+      "delivery": {"formats": ["PNG"], "targets": ["editorial web image"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "Long description is supplied; source is synthetic and below the validator's preferred photographic delivery size.", "asset_path": "assets/photo-still-life.png"}},
+      "measurements": {"width_px": 1535, "height_px": 1024, "lens_mm": 50, "alt_text_chars": 136, "edit_history_recorded": true, "measurement_note": "lens_mm is a synthetic scene parameter for the validator criterion, not camera metadata; dimensions are the supplied bitmap dimensions."},
+      "reviewer": {"decision": "hold", "reviewer_id": "coordinator-visual-review", "observations": "Visual spot check finds the bowl, linen, branch, and tabletop readable. Release is held for rights/provenance review and for delivery enlargement or acceptance of the 1535x1024 limitation; this is not a photographic-quality judgment.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "consented-body-art",
+      "medium": "tattoo",
+      "asset": {"label": "built-in generated botanical body-art reference", "type": "raster", "reference": "assets/tattoo-botanical-sprig.png"},
+      "intent": {"statement": "A botanical body-art reference with a restrained line vocabulary.", "audience": "The consenting wearer and licensed practitioner.", "context": "Permanent forearm placement reviewed first as a non-body image."},
+      "provenance": {"sources": [{"reference": "built-in image generation session", "rights": "clearance record not supplied"}], "rights_status": "unknown", "rights_basis": "No rights-clearance record or wearer consent record is included in this fixture.", "human_authorship": "Human prompt selection and placement-review decision are recorded; authorship status is not determined.", "tool_use": "Built-in image generation; prompt summary: single botanical sprig in clean black line art on white, three leaves, narrow stem, no lettering, no body photograph."},
+      "checks": {"cultural": {"status": "pass", "notes": "The form is not presented as community-owned or sacred imagery; local cultural review remains a delivery responsibility."}, "safety": {"status": "pass", "notes": "Practitioner licensing, sanitation, ink records, aftercare, and local requirements remain delivery responsibilities."}, "accessibility": {"status": "not_applicable", "notes": "A non-body preview is supplied for review."}},
+      "delivery": {"formats": ["PNG"], "targets": ["wearer review", "non-body preview"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "The design file does not establish medical, studio, consent, or rights clearance.", "asset_path": "assets/tattoo-botanical-sprig.png"}},
+      "measurements": {"placement_approved": true, "line_weight_mm": 0.5, "aging_reviewed": true, "consent_confirmed": true, "non_body_preview": true},
+      "reviewer": {"decision": "hold", "reviewer_id": "coordinator-visual-review", "observations": "Visual spot check finds a clear, non-body botanical preview. Release is held because the generated input has no rights or wearer-consent record; the declared controls are fixture fields, not evidence of a safe tattoo session.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "accessible-art-web",
+      "medium": "web",
+      "asset": {"label": "fixture responsive interactive canvas", "type": "web", "reference": "fixtures/site/index.html"},
+      "intent": {"statement": "An interactive canvas that uses a slow moving point to reveal a visual relationship without making motion necessary.", "audience": "Keyboard, pointer, and reduced-motion users.", "context": "Responsive artistic website delivered as a self-contained HTML fixture."},
+      "provenance": {"sources": [{"reference": "fixture source file", "rights": "fixture source; clearance not independently verified"}], "rights_status": "original", "rights_basis": "Authored as code for this fixture; legal status is not established by the manifest.", "human_authorship": "Human interaction design and content decisions are recorded.", "tool_use": "Hand-authored HTML, CSS, SVG, Canvas, and browser APIs; no external service is required."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned cultural material is used."}, "safety": {"status": "pass", "notes": "No hazardous physical interaction is specified."}, "accessibility": {"status": "pass", "notes": "Keyboard controls, visible focus, reduced-motion handling, contrast, non-color meaning, and a static no-script fallback are present in the fixture."}},
+      "delivery": {"formats": ["HTML", "CSS", "JavaScript", "SVG"], "targets": ["responsive browser delivery"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "Static visual and text alternative remain available when scripting is unavailable; browser/assistive-technology compatibility still needs receiving-environment testing.", "asset_path": "fixtures/site/index.html"}},
+      "measurements": {"keyboard_accessible": true, "visible_focus": true, "reduced_motion": true, "contrast_ratio": 4.5, "non_color_meaning": true, "fallback_behavior": true},
+      "reviewer": {"decision": "approve", "reviewer_id": "coordinator-code-review", "observations": "Source review confirms labeled controls, focus styling, reduced-motion branch, and a persistent static/text fallback. A browser and assistive-technology pass is still required before a compatibility claim.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "short-captioned-animation",
+      "medium": "animation",
+      "asset": {"label": "fixture short captioned animation", "type": "web-animation", "reference": "fixtures/animation/animation.html"},
+      "intent": {"statement": "A short looping motion study with a clear beginning and end, captions, pause control, and a reduced-motion mode.", "audience": "Screen viewers with captions or transcript access.", "context": "Self-contained web animation fixture with delivery metadata."},
+      "provenance": {"sources": [{"reference": "fixture source files", "rights": "fixture source; clearance not independently verified"}], "rights_status": "original", "rights_basis": "Authored as code for this fixture; legal status is not established by the manifest.", "human_authorship": "Human timing, composition, caption, and fallback decisions are recorded.", "tool_use": "Hand-authored HTML, CSS, SVG, JavaScript, and WebVTT; no external service is required."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No living heritage or community symbols are used."}, "safety": {"status": "pass", "notes": "The fixture uses slow motion, no flashing, and a pause control; production delivery still needs a player test."}, "accessibility": {"status": "pass", "notes": "WebVTT captions, visible timed captions, transcript, pause control, and reduced-motion behavior are supplied."}},
+      "delivery": {"formats": ["HTML", "SVG", "WebVTT"], "targets": ["responsive web player", "reduced-motion fallback"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "This is a code-native animated SVG fixture, not a compressed MP4/WebM delivery encode; metadata is in fixtures/animation/delivery-metadata.json.", "asset_paths": ["fixtures/animation/animation.html", "fixtures/animation/captions.vtt", "fixtures/animation/delivery-metadata.json"]}},
+      "measurements": {"duration_seconds": 8, "fps": 24, "captions_or_transcript": true, "pause_control": true, "flash_rate_hz": 0, "delivery_colorimetry": "BT.709"},
+      "reviewer": {"decision": "approve", "reviewer_id": "coordinator-code-review", "observations": "Source review confirms a short timed study, caption file, visible transcript, pause control, and reduced-motion branch. Player synchronization and user-agent coverage remain untested.", "reviewed_at": "2026-08-27"}
+    },
+    {
+      "id": "cgi-scene-delivery",
+      "medium": "cgi",
+      "asset": {"label": "built-in generated CGI-style render", "type": "raster-render", "reference": "assets/cgi-stones.png"},
+      "intent": {"statement": "A stylized CGI-style scene that makes scale and material response legible in a review render.", "audience": "Render reviewers and downstream 3D artists.", "context": "Bitmap review render with an explicitly missing source-scene handoff."},
+      "provenance": {"sources": [{"reference": "built-in image generation session", "rights": "clearance record not supplied"}], "rights_status": "unknown", "rights_basis": "No rights-clearance record or source-scene package is included in this fixture.", "human_authorship": "Human prompt selection, visual review, and delivery decision are recorded; authorship status is not determined.", "tool_use": "Built-in image generation; prompt summary: studio CGI-style render of three translucent stones on a round plinth, blue and amber materials, soft gray background, controlled lighting, no text or people."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No cultural material is represented."}, "safety": {"status": "pass", "notes": "Digital review-render delivery has no physical venue risk claim."}, "accessibility": {"status": "pass", "notes": "A descriptive handoff is supplied in the matrix."}},
+      "delivery": {"formats": ["PNG"], "targets": ["review render"], "metadata_complete": true, "metadata": {"owner": "art-router fixture team", "version": "1.0", "fallback_or_limitation": "Only a bitmap review render is supplied; USD/glTF source, EXR, and render settings are not packaged.", "asset_path": "assets/cgi-stones.png"}},
+      "measurements": {"scene_format": "USD", "frame_start": 1001, "frame_end": 1240, "fps": 24, "camera_defined": true, "lighting_defined": true, "units_defined": true, "render_settings_defined": true, "measurement_note": "These are declared target-handoff fields exercised by the validator, not evidence that a USD scene exists in this package."},
+      "reviewer": {"decision": "hold", "reviewer_id": "coordinator-visual-review", "observations": "Visual spot check finds the three materials and plinth clearly separated in the supplied render. Release is held for rights/provenance review and the missing source-scene package; this is not a render-quality judgment.", "reviewed_at": "2026-08-27"}
+    }
+  ]
+}

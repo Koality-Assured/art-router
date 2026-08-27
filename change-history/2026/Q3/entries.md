@@ -6,6 +6,15 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-27 — Art-router fixture handoff
+
+- **Requesting user:** workspace-user
+- **AI agent:** artifact-agent
+- **User request:** Assemble and validate the seven-case art-router handoff package.
+- **Summary:**
+  - Added self-contained bitmap and code-native fixtures, manifest, validation report, handoff matrix, and SHA-256 fixity.
+
 ### 2026-08-27 — Add art-router validation harness
 
 - **Requesting user:** workspace-user

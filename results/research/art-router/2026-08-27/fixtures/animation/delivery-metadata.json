@@ -1,0 +1,11 @@
+{
+  "fixture_id": "short-captioned-animation",
+  "duration_seconds": 8,
+  "frame_rate": 24,
+  "colorimetry": "BT.709",
+  "captions": "fixtures/animation/captions.vtt",
+  "transcript": "Embedded in fixtures/animation/animation.html",
+  "reduced_motion": "prefers-reduced-motion disables orbit; caption and transcript remain available",
+  "fallback": "Static SVG frame and text transcript remain in the HTML fixture",
+  "limitation": "This is a code-native animated SVG fixture, not a compressed MP4/WebM delivery encode."
+}
