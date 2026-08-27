@@ -15,6 +15,14 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
   - Added standard-library JSON validation for declared controls, rights, safety, accessibility, delivery, review, and medium criteria.
   - Added a seven-case fixture and focused tests; no network calls or asset inspection.
 
+### 2026-08-27 — Expand art representation controls
+
+- **Requesting user:** Distasteful
+- **AI agent:** documentation-ops
+- **User request:** Update art-router standards from completed representation-gap research
+- **Summary:**
+  - Added scoped representation families, evidence and exception recording, consent and authority controls, synthetic-media disclosure, accessibility evidence, safety escalation, and package preservation checks.
+
 ### 2026-08-27 — configure art-specific artistic standards harness
 
 - **Requesting user:** Distasteful

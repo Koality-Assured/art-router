@@ -4,7 +4,7 @@ canonical_id: artistic-representations
 purpose: [requirement, reinforcement]
 rank: high
 topics: [art, media-production, accessibility, color-management, cultural-respect, safety]
-rag_keywords: [painting, illustration, graphic-design, logos, icons, typography, photography, collage, raster, vector, sprites, websites, tattoos, print, packaging, animation, video, projection, CGI, 3D, VFX, audio, haptic, installation, signage, data-visualization, participatory, XR, AR, VR, handoff, release-gates]
+rag_keywords: [painting, illustration, graphic-design, logos, icons, typography, photography, collage, raster, vector, sprites, websites, tattoos, print, packaging, animation, video, projection, CGI, 3D, VFX, audio, haptic, installation, signage, data-visualization, participatory, XR, AR, VR, literary, poetry, performance, theatre, dance, music, sculpture, ceramics, textiles, comics, sequential-art, games, software-art, cartography, geospatial, generative-art, synthetic-media, consent, community-authority, accessibility-evidence, safety-escalation, fixity, preservation, handoff, release-gates]
 ---
 
 # Artistic representations standard
@@ -134,14 +134,81 @@ Choose the row that describes the delivery risk, then add adjacent rows when a w
 - **Gates:** Provide seated/standing and non-immersive alternatives where feasible; support clear entry, pause, exit, recentering, captions/transcripts, audio description or spatial descriptions, readable text, and safe boundaries. Follow applicable WCAG practices for non-text and time-based media ([WCAG 2.2](https://www.w3.org/TR/WCAG22/)) and record platform limitations against the W3C WebXR device model ([WebXR Device API](https://www.w3.org/TR/webxr/)). Test motion comfort, photosensitivity, fall/collision risk, privacy permissions, tracking loss, and bystander consent.
 - **Handoff:** Platform/device matrix, runtime/build, scene scale and units, anchors/reference space, frame rate, input map, locomotion modes, accessibility alternatives, safety briefing, privacy/data flows, spatial audio/haptics, calibration, and known tracking failures.
 
+## Additional representation families
+
+These rows cover distinct production and preservation risks. Add them to the existing row when a work crosses media.
+
+### Literary, textual, and poetic work
+
+- **Context:** Poetry, prose, script, artist book, text-based installation, or visual treatment of language; identify the canonical words and intended reading conditions.
+- **Key decisions:** Lineation, sequence, language and script, translation, typography, spacing, voice, and what meaning depends on layout rather than words.
+- **Gates:** Preserve an author-approved plain-text or structured-text master; test reading order, text extraction, direction, and visual-text alternatives. Use WCAG where the delivery is web or ICT, without treating it as a complete measure of literary or visual quality ([WCAG 2.2](https://www.w3.org/TR/WCAG22/)).
+- **Handoff:** Text master, rendered presentation, language/direction metadata, translation status, font and license record, version history, and a description of layout-dependent meaning.
+
+### Performance, theatre, and dance
+
+- **Context:** Live or recorded performance; define casting, rehearsal, audience proximity, venue, recording, and reuse conditions.
+- **Key decisions:** Embodiment, role and credit, timing, staging, audience interaction, improvisation, warnings, and the emergency or stop procedure.
+- **Gates:** Record performer consent and recording/reuse scope; plan venue access, live captions or interpretation where needed, audience communication, and a stop or incident path. For recordings, provide the applicable captions, transcript, audio description, sign language, and accessible-player checks ([W3C media guidance](https://www.w3.org/WAI/media/av/)).
+- **Handoff:** Cast and credit record, rehearsal/access plan, cue or score lineage, venue plan, consent and recording restrictions, audience notices, accessibility delivery test, and emergency contact.
+
+### Music, composition, and live sound
+
+- **Context:** Composition, performance, improvisation, recording, sound art, or amplified public event; identify performers, listeners, and exposure conditions.
+- **Key decisions:** Score or session lineage, lyrics, timbre, dynamics, silence, spatialization, improvisation, monitoring, and whether a cue is expressive or informational.
+- **Gates:** Provide lyrics, spoken-content alternatives, or an equivalent where needed; test playback, monitoring, opt-out, quiet-space, and hearing-protection paths. For amplified public events, apply the relevant local rule and record calibrated monitoring when adopting the WHO venue standard, including its 100 dB LAeq,15 min reference ([WHO global standard for safe listening venues and events](https://www.who.int/publications/i/item/9789240043114)).
+- **Handoff:** Score/session lineage, stems or notation, performer and recording permissions, sample rate/bit depth, loudness and dynamic targets, channel map, cue sheet, alternatives, monitoring record, and opt-out contact.
+
+### Sculpture, ceramics, textiles, and material fabrication
+
+- **Context:** Object, wearable, prop, vessel, textile, or fabricated work; define making, handling, display, skin contact, aging, and disposal conditions.
+- **Key decisions:** Material behavior, surface, structure, tactility, weight, heat, fragility, maintenance, and whether making evidence remains part of the work.
+- **Gates:** Record materials and hazards; set fabrication, handling, load, electrical, ventilation, cleaning, and conservation limits. Obtain the applicable practitioner, engineer, venue, or local-authority review; do not treat a design file as a safety approval.
+- **Handoff:** Material and hazard inventory, fabrication and handling limits, structural/electrical review where applicable, tactile-access decision, conservation and maintenance plan, installation instructions, and disposal or removal method.
+
+### Comics, sequential art, storyboards, and illustrated narrative
+
+- **Context:** Panels, pages, captions, speech, sound effects, gutters, scroll sequences, or interactive narrative; identify the canonical sequence.
+- **Key decisions:** Panel order, pacing, framing, lettering, localization, omission, alternate reading order, and what is lost when motion or interaction becomes static.
+- **Gates:** Test text extraction and meaningful sequence; provide a descriptive transcript or equivalent for information carried by layout, imagery, or sound. For web delivery, test keyboard, focus, reflow, and non-text alternatives against the applicable WCAG level ([WCAG 2.2](https://www.w3.org/TR/WCAG22/)).
+- **Handoff:** Source pages and text layers, canonical and alternate sequence, lettering and font licenses, localization constraints, transcript/description, interactive-to-static fallback, and approved exports.
+
+### Games and software-based artworks
+
+- **Context:** Installed game, executable artwork, interactive fiction, simulation, or software-dependent installation; define platform, runtime, network, data, and end-of-life conditions.
+- **Key decisions:** Input map, onboarding, game state, save behavior, pacing, failure, privacy, patching, accessibility, and what remains when dependencies disappear.
+- **Gates:** Test controller and input alternatives, onboarding and exit, save-state behavior, offline or degraded mode, privacy/data flows, content warnings, and a preservation build or bounded screen-recorded fallback. Treat software and video games as a distinct preservation concern ([Library of Congress Recommended Formats Statement](https://www.loc.gov/preservation/resources/rfs/)).
+- **Handoff:** Build and runtime versions, platform/dependency manifest, input and accessibility map, save data, network requirements, source or escrow decision, privacy notes, content warnings, preservation build, and fallback capture.
+
+### Cartographic and geospatial art
+
+- **Context:** Map, spatial data artwork, GIS-based installation, or location-aware experience; define geographic scale, source date, audience, and update owner.
+- **Key decisions:** Projection, datum, coordinate reference system, place names, spatial resolution, uncertainty, color, omission, and whether exact locations create risk.
+- **Gates:** Preserve source data and transformations; state uncertainty and update date; provide accessible text or tabular equivalents. Review location precision and privacy or safety risk before release, and test the receiving map or render environment ([Library of Congress Recommended Formats Statement](https://www.loc.gov/preservation/resources/rfs/)).
+- **Handoff:** Dataset and license, projection/datum/CRS, source date, transformations, spatial precision, uncertainty statement, place-name authority, accessible equivalent, render/export settings, and update or withdrawal owner.
+
+## Workflow overlay: generative and AI-assisted work
+
+Apply this overlay to any medium that uses generation, synthesis, digital replicas, or material manipulation. Record the tool or model and version, input references, prompts or procedures, exposed seeds and settings, human selections and edits, rejected or unsafe branches when retained, public disclosure language, and known reproduction limits. Use provenance mechanisms such as C2PA when the format and toolchain support them; record absence or stripping as a limitation ([NIST AI RMF: Generative AI Profile](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf), [C2PA specifications](https://spec.c2pa.org/specifications/)).
+
+## Cross-cutting release controls
+
+Apply these controls across the matrix and use the evidence/exception record in [`artistic-practice.md`](./artistic-practice.md).
+
+- **People and likeness:** Record participant or likeness permission scope for capture, edit, publication, training, derivatives, archival retention, and withdrawal. Name who can hold, correct, restrict, or request removal; high-risk cases require human review ([NIST AI RMF: Generative AI Profile](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf)).
+- **Community authority:** For community-held or restricted material, identify decision authority where appropriate, permitted and restricted uses, attribution, benefit, confidentiality, and withdrawal. Carry a community-approved description and restriction contact with the handoff; do not publish protected source details in a public manifest. Hold release when required authority or permission is absent ([UNESCO Ethical Principles for Safeguarding Intangible Cultural Heritage](https://ich.unesco.org/en/ethics-and-ich-00866), [UNDRIP, Article 31](https://www.un.org/development/desa/indigenouspeoples/wp-content/uploads/sites/19/2018/11/UNDRIP_E_web.pdf)).
+- **Accessibility evidence:** Identify the information or experience that must be preserved, choose equivalent modes for the audience, ship those assets with the work, and test them in the receiving player or venue. For non-web, live, physical, and immersive work, record the selected equivalent, delivery-condition result, and accepted limitation; do not claim WCAG conformance for a non-web work merely because an alternative exists ([WCAG 2.2](https://www.w3.org/TR/WCAG22/), [W3C media guidance](https://www.w3.org/WAI/media/av/)).
+- **Safety escalation:** Screen content, privacy, material, body, sound, venue, and participant risks before release. Record the trigger, named reviewer, mitigation, hold decision, incident contact, and correction or withdrawal path; apply local professional or venue review where the risk requires it.
+- **Package integrity and preservation:** Distinguish archival masters from delivery derivatives; include the manifest, source files, accessibility assets, dependencies/runtime notes, preservation intent, and a digest or equivalent fixity record. Re-verify after transfer and record any missing dependency or deviation in the receiving environment. A digest supports integrity checking, not authorship or ownership.
+
 ## Universal release gates
 
 Every representation MUST pass the following gates, with exceptions recorded by the accountable owner:
 
 1. Intent, audience, context, meaning, composition, ambiguity, and critique criteria are documented using [`artistic-practice.md`](./artistic-practice.md).
-2. Source assets, permissions, licenses, collaborators, cultural consultation, human authorship, tool use, and provenance are recorded; C2PA is used when supported.
+2. Source assets, permissions, licenses, collaborators, cultural consultation, human authorship, tool use, and provenance are recorded; generated or materially manipulated work includes the workflow record and audience-facing disclosure, and C2PA is used when supported.
 3. The work is reviewed at delivery scale, duration, distance, device, substrate, venue, or body location, including failure and degraded modes.
-4. Accessibility equivalents match the medium: text alternatives, accessible names, captions, transcripts, audio description, tactile/visual alternatives, keyboard/input paths, reduced motion, and non-color cues as applicable. WCAG 2.2 is a web/ICT conformance standard, not a complete art-quality rubric.
-5. Color, time, units, dimensions, frame rate, loudness, spatial coordinates, and export settings are explicit; the handoff opens and renders in the receiving environment.
-6. Legal, cultural, health, safety, privacy, and venue requirements are identified by jurisdiction. U.S. legal/safety references in this document do not establish compliance elsewhere and do not replace local professional review.
+4. Accessibility equivalents match the medium: text alternatives, accessible names, captions, transcripts, audio description, tactile/visual alternatives, keyboard/input paths, reduced motion, and non-color cues as applicable. Evidence includes a delivery-condition test for the player, device, venue, or physical work; WCAG 2.2 is a web/ICT conformance standard, not a complete art-quality rubric.
+5. Color, time, units, dimensions, frame rate, loudness, spatial coordinates, and export settings are explicit; the handoff opens and renders in the receiving environment, and package fixity is rechecked after transfer.
+6. Legal, cultural, health, safety, privacy, and venue requirements are identified by jurisdiction. High-risk cases have a named reviewer and escalation path; U.S. legal/safety references in this document do not establish compliance elsewhere and do not replace local professional review.
 7. A second reviewer records pass, hold, or accepted limitation, with owner, version, date, and rollback/withdrawal contact.
