@@ -54,5 +54,7 @@ references/**/*.xml
 **/*STIX*
 **/ATLAS-*.yaml
 
-# qmd local index (if ever stored in-repo; prefer user cache)
-.qmd/
+# qmd project-local index and config (track config, ignore local database)
+.qmd/*
+!.qmd/index.yml
+!.qmd/index.yaml
