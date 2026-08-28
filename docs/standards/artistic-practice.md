@@ -52,6 +52,11 @@ Critique: [reviewers, criteria, tests, hold conditions]
 Release: [target formats, environments, accessibility equivalents, owner, date]
 ```
 
+For generation, editing, or transformation, normalize this brief with the
+[artistic request contract](./artistic-request-contract.md) before execution.
+It preserves explicit constraints, records ambiguity and capability gaps, and
+provides a testable handoff without turning artistic judgment into a formula.
+
 ## Evidence and exception record
 
 Use one record for each released work or version. Link evidence rather than copying protected participant or community material into a public package.

@@ -189,6 +189,11 @@ These rows cover distinct production and preservation risks. Add them to the exi
 
 ## Workflow overlay: generative and AI-assisted work
 
+Normalize the brief and preserve explicit edit constraints with the
+[artistic request contract](./artistic-request-contract.md). Treat host or
+provider controls as capability declarations, not as evidence that a requested
+parameter was fulfilled.
+
 Apply this overlay to any medium that uses generation, synthesis, digital replicas, or material manipulation. Record the tool or model and version, input references, prompts or procedures, exposed seeds and settings, human selections and edits, rejected or unsafe branches when retained, public disclosure language, and known reproduction limits. Use provenance mechanisms such as C2PA when the format and toolchain support them; record absence or stripping as a limitation ([NIST AI RMF: Generative AI Profile](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf), [C2PA specifications](https://spec.c2pa.org/specifications/)).
 
 ## Cross-cutting release controls

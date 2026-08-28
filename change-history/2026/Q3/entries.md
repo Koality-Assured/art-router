@@ -9,6 +9,16 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-28 — Artistic request contract standard
+
+- **Requesting user:** Distasteful
+- **AI agent:** router
+- **User request:** Add a durable art request contract for constraint fidelity and host-neutral handoff.
+- **Summary:**
+  - Added normalized request, precedence, ambiguity, failure-mode, capability-adapter, and review controls.
+  - Linked the contract from artistic-practice and artistic-representations.
+
 ### 2026-08-27 — Add artistic standards review tooling
 
 - **Requesting user:** Distasteful
