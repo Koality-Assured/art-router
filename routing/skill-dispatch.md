@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: skill-dispatch
 topics: [routing, skills, agents]
-generated_at_utc: 2026-08-27T20:56:15Z
+generated_at_utc: 2026-08-28T14:59:13Z
 generator: scripts/routing/generate_routing_index.py
 ---
 
@@ -14,6 +14,7 @@ Generated from `ai-tooling/skills/**/SKILL.md` frontmatter. Do not hand-edit —
 | --- | --- | --- | --- | --- |
 | [`evidence-validation`](../ai-tooling/skills/artistic/evidence-validation/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Validate declared art-manifest evidence and package handoff integrity. Use when reviewing a generated, commissioned, or revised work before human release review. Do not use this skill as legal, safety, accessibility, or artistic approval. |
 | [`representation-routing`](../ai-tooling/skills/artistic/representation-routing/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Route an art work to its applicable representation row and cross-cutting controls. Use when a generated, commissioned, or revised work crosses media or needs a standards-backed review scope. Do not use it to duplicate standards or grant approval. |
+| [`request-contract`](../ai-tooling/skills/artistic/request-contract/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Normalize, execute, or review artistic requests with a provider-neutral contract, hard/soft constraint ledger, host capability negotiation, drift checks, and evidence-backed handoff. Use when handling AI-generated, edited, composited, animated, audio, interactive, or physical-art requests. Do not use it to grant artistic, legal, rights, safety, accessibility, cultural, or release approval. |
 | [`ast-grep`](../ai-tooling/skills/cost-layers/ast-grep/SKILL.md) | [`router-maintenance`](../ai-tooling/agents/router-maintenance/AGENT.md) | `critical` | `read-only` | Run ast-grep for precision retrieval and structured facts (Python outline, JSON pairs, YAML frontmatter). Use when the user mentions ast-grep, sg, outline, structural search, precision retrieval, or structured facts. Do not use for Markdown BM25 (qmd-usage), compressing dumps (headroom), or combined token reports (cost-layer-dry-run). |
 | [`cost-layer-dry-run`](../ai-tooling/skills/cost-layers/cost-layer-dry-run/SKILL.md) | [`router-maintenance`](../ai-tooling/agents/router-maintenance/AGENT.md) | `high` | `mutate` | Dry-run qmd retrieval, Headroom compression, and ast-grep structural-fact survival together (token savings plus gold-fact accuracy vs direct review). Use when measuring cost layers, repeating the combined validation, or checking whether search/compress dropped facts. Do not use for ordinary lookup (qmd-usage), Headroom install (headroom), or ast-grep everyday lookup (ast-grep). |
 | [`headroom`](../ai-tooling/skills/cost-layers/headroom/SKILL.md) | [`router-maintenance`](../ai-tooling/agents/router-maintenance/AGENT.md) | `critical` | `read-only` | Operate Headroom (local LLM context-compression proxy and MCP) for token cost savings. Use when installing or running headroom, wrapping Claude Code or Cursor, pointing OpenAI/Anthropic base URLs at localhost:8787, compressing bulky tool outputs, or workstation onboarding that includes Headroom. Do not use for qmd token reports (qmd-efficiency). |
@@ -55,6 +56,7 @@ Generated from `ai-tooling/skills/**/SKILL.md` frontmatter. Do not hand-edit —
 | --- | --- | --- | --- | --- | --- |
 | [`evidence-validation`](../ai-tooling/skills/artistic/evidence-validation/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `python`, `qmd` | `continue_with_partial` |
 | [`representation-routing`](../ai-tooling/skills/artistic/representation-routing/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `qmd` | `fallback_degrade` |
+| [`request-contract`](../ai-tooling/skills/artistic/request-contract/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `qmd`, `python` | `continue_with_partial` |
 | [`ast-grep`](../ai-tooling/skills/cost-layers/ast-grep/SKILL.md) | — | — | — | — | `abort_and_rollback` |
 | [`cost-layer-dry-run`](../ai-tooling/skills/cost-layers/cost-layer-dry-run/SKILL.md) | — | — | — | — | `abort_and_rollback` |
 | [`headroom`](../ai-tooling/skills/cost-layers/headroom/SKILL.md) | — | — | — | — | `abort_and_rollback` |

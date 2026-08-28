@@ -10,6 +10,17 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-28 — Expand art-router request coverage
+
+- **Requesting user:** Distasteful
+- **AI agent:** Codex
+- **User request:** Research and expand art-router coverage, constraint adherence, and cross-agent compatibility.
+- **Summary:**
+  - Added research-backed request taxonomy and host-compatibility guidance.
+  - Added provider-neutral request-contract skill and schema 1.1 validator with drift checks.
+  - Validated 130 tests, skill/agent catalogs, routing structure, qmd retrieval, and Markdown lint.
+
 ### 2026-08-28 — Artistic request contract standard
 
 - **Requesting user:** Distasteful
