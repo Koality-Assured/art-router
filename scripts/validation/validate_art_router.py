@@ -31,17 +31,49 @@ RESOLVED_STATES = {"resolved", "closed", "not_applicable"}
 
 MEDIUM_ALIASES = {
     "2d": "illustration",
+    "ar": "xr",
     "body_art": "tattoo",
     "cgi_3d": "cgi",
+    "cartography": "cartographic_art",
+    "data_viz": "data_visualization",
+    "dance": "performance",
+    "extended_reality": "xr",
     "favicon": "icon",
     "graphic_mark": "icon",
+    "graphic_novel": "comics",
+    "game": "games",
     "icons": "icon",
     "interactive_web": "web",
+    "information_visualization": "data_visualization",
+    "installation": "physical",
+    "lettering": "typography",
+    "live_performance": "performance",
+    "logo": "vector",
+    "map_art": "cartographic_art",
+    "mapping": "cartographic_art",
+    "material_fabrication": "physical",
+    "mixed_reality": "xr",
     "motion": "animation",
+    "music": "audio",
     "painting": "illustration",
+    "packaging": "print",
     "photo": "photography",
+    "poetry": "literary",
+    "print_design": "print",
+    "prose": "literary",
+    "publication": "print",
+    "sculpture": "physical",
+    "sequential_art": "comics",
+    "software_art": "games",
+    "sound": "audio",
+    "storyboard": "comics",
+    "text": "literary",
+    "theatre": "performance",
     "three_d": "cgi",
     "video": "animation",
+    "voice": "audio",
+    "vr": "xr",
+    "writing": "literary",
 }
 
 
@@ -196,6 +228,10 @@ def _check_allowed_text(
         _issue(issues, "criterion_failed", f"measurements.{field} must be one of {sorted(allowed)}")
 
 
+def _check_declared_text(measurements: dict[str, Any], field: str, issues: list[Issue]) -> None:
+    _text(measurements.get(field), f"measurements.{field}", issues)
+
+
 def _check_bool(measurements: dict[str, Any], field: str, issues: list[Issue]) -> None:
     _required_bool(measurements.get(field), f"measurements.{field}", issues)
 
@@ -210,6 +246,28 @@ def _check_frame_range(measurements: dict[str, Any], issues: list[Issue]) -> Non
     if isinstance(start, int) and not isinstance(start, bool) and isinstance(end, int) and not isinstance(end, bool):
         if end < start:
             _issue(issues, "criterion_failed", "measurements.frame_end must be at least frame_start")
+
+
+def _check_positive_integer(measurements: dict[str, Any], field: str, issues: list[Issue]) -> None:
+    value = measurements.get(field)
+    if isinstance(value, bool) or not isinstance(value, int):
+        _issue(issues, "invalid_type", f"measurements.{field} must be an integer")
+    elif value <= 0:
+        _issue(issues, "criterion_failed", f"measurements.{field} must be greater than 0")
+
+
+def _check_nonnegative_number(measurements: dict[str, Any], field: str, issues: list[Issue]) -> None:
+    value = _finite_number(measurements.get(field), f"measurements.{field}", issues)
+    if value is not None and value < 0:
+        _issue(issues, "criterion_failed", f"measurements.{field} must be non-negative")
+
+
+def _check_allowed_number(
+    measurements: dict[str, Any], field: str, allowed: set[float], issues: list[Issue]
+) -> None:
+    value = _finite_number(measurements.get(field), f"measurements.{field}", issues)
+    if value is not None and value not in allowed:
+        _issue(issues, "criterion_failed", f"measurements.{field} must be one of {sorted(allowed)}")
 
 
 CriterionCheck = Callable[[dict[str, Any], list[Issue]], None]
@@ -286,6 +344,140 @@ MEDIUM_CRITERIA: dict[str, tuple[str, CriterionCheck]] = {
             _check_bool(m, "lighting_defined", i),
             _check_bool(m, "units_defined", i),
             _check_bool(m, "render_settings_defined", i),
+        ),
+    ),
+    "vector": (
+        "non-empty vector-format, viewBox, stroke, font, and spot-color declarations",
+        lambda m, i: (
+            _check_declared_text(m, "vector_format", i),
+            _check_bool(m, "viewbox_defined", i),
+            _check_positive_number(m, "min_stroke_width_mm", i),
+            _check_bool(m, "fonts_recorded_or_outlined", i),
+            _check_bool(m, "spot_colors_declared", i),
+        ),
+    ),
+    "typography": (
+        "non-empty font-format, glyph coverage, licensing, readability, and text-layer declarations",
+        lambda m, i: (
+            _check_declared_text(m, "font_format", i),
+            _check_min_number(m, "glyph_coverage_percent", 95, i),
+            _check_bool(m, "font_license_recorded", i),
+            _check_bool(m, "readability_tested", i),
+            _check_text_min(m, "text_version_chars", 1, i),
+        ),
+    ),
+    "audio": (
+        "duration, sample rate, bit depth, channel count, and transcript-or-lyrics declarations",
+        lambda m, i: (
+            _check_positive_number(m, "duration_seconds", i),
+            _check_allowed_number(m, "sample_rate_hz", {44100, 48000, 96000}, i),
+            _check_positive_integer(m, "bit_depth_bits", i),
+            _check_positive_integer(m, "channels", i),
+            _check_bool(m, "transcript_or_lyrics", i),
+        ),
+    ),
+    "literary": (
+        "word count, non-empty language, reading-level, version, and alternate-format declarations",
+        lambda m, i: (
+            _check_positive_integer(m, "word_count", i),
+            _check_declared_text(m, "language", i),
+            _check_bool(m, "reading_level_measured", i),
+            _check_bool(m, "text_versioned", i),
+            _check_bool(m, "alternate_format_recorded", i),
+        ),
+    ),
+    "comics": (
+        "page and panel counts, reading order, extractable text, equivalent description, and color profile",
+        lambda m, i: (
+            _check_positive_integer(m, "page_count", i),
+            _check_positive_integer(m, "panel_count", i),
+            _check_bool(m, "reading_order_declared", i),
+            _check_bool(m, "text_layer_extractable", i),
+            _check_bool(m, "transcript_or_alt_text", i),
+            _check_declared_text(m, "color_profile", i),
+        ),
+    ),
+    "performance": (
+        "duration, cast count, cue sheet, access plan, and venue-or-capture declarations",
+        lambda m, i: (
+            _check_positive_number(m, "duration_seconds", i),
+            _check_positive_integer(m, "cast_count", i),
+            _check_bool(m, "cue_sheet_recorded", i),
+            _check_bool(m, "accessibility_plan_recorded", i),
+            _check_bool(m, "venue_or_capture_plan_recorded", i),
+            _check_bool(m, "consent_log_recorded", i),
+        ),
+    ),
+    "games": (
+        "build identity, non-empty platform, input, pause, save-state, and render-mode declarations",
+        lambda m, i: (
+            _check_text_min(m, "build_id_chars", 1, i),
+            _check_declared_text(m, "target_platform", i),
+            _check_bool(m, "input_path_tested", i),
+            _check_bool(m, "pause_behavior_tested", i),
+            _check_bool(m, "save_state_tested", i),
+            _check_declared_text(m, "render_mode", i),
+        ),
+    ),
+    "xr": (
+        "non-empty runtime and tracking declarations, frame rate, scale units, comfort review, and non-XR fallback",
+        lambda m, i: (
+            _check_declared_text(m, "runtime", i),
+            _check_declared_text(m, "tracking_mode", i),
+            _check_fps_number(m, i),
+            _check_bool(m, "scale_units_defined", i),
+            _check_bool(m, "comfort_review_recorded", i),
+            _check_bool(m, "non_xr_fallback", i),
+        ),
+    ),
+    "data_visualization": (
+        "data source, version, units, legend, non-color encoding, precision, and text alternative declarations",
+        lambda m, i: (
+            _check_bool(m, "data_source_cited", i),
+            _check_text_min(m, "data_version_chars", 1, i),
+            _check_bool(m, "units_defined", i),
+            _check_bool(m, "legend_or_key_present", i),
+            _check_bool(m, "non_color_meaning", i),
+            _check_bool(m, "numerical_precision_declared", i),
+            _check_text_min(m, "alt_text_chars", 40, i),
+        ),
+    ),
+    "cartographic_art": (
+        "non-empty projection, coordinate reference, scale, orientation, legend, and source-date declarations",
+        lambda m, i: (
+            _check_declared_text(m, "projection", i),
+            _check_text_min(m, "coordinate_reference_system_chars", 1, i),
+            _check_positive_number(m, "scale_denominator", i),
+            _check_bool(m, "scale_statement_recorded", i),
+            _check_bool(m, "orientation_declared", i),
+            _check_bool(m, "legend_present", i),
+            _check_bool(m, "source_date_recorded", i),
+        ),
+    ),
+    "physical": (
+        "material, dimensions, non-empty fabrication method, handling notes, and non-physical preview declarations",
+        lambda m, i: (
+            _check_text_min(m, "material_chars", 1, i),
+            _check_declared_text(m, "fabrication_method", i),
+            _check_positive_number(m, "height_cm", i),
+            _check_positive_number(m, "width_cm", i),
+            _check_positive_number(m, "depth_cm", i),
+            _check_bool(m, "fabrication_plan_recorded", i),
+            _check_bool(m, "material_disclosure", i),
+            _check_bool(m, "handling_notes_recorded", i),
+            _check_bool(m, "non_physical_preview", i),
+        ),
+    ),
+    "print": (
+        "page count, trim and bleed, non-empty color profile and PDF standard, font handling, and preflight declarations",
+        lambda m, i: (
+            _check_positive_integer(m, "page_count", i),
+            _check_bool(m, "trim_size_declared", i),
+            _check_nonnegative_number(m, "bleed_mm", i),
+            _check_declared_text(m, "color_profile", i),
+            _check_declared_text(m, "pdf_standard", i),
+            _check_bool(m, "fonts_embedded_or_outlined", i),
+            _check_bool(m, "preflight_run", i),
         ),
     ),
 }

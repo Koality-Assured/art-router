@@ -58,6 +58,150 @@
         "descriptors": {"requested": {"medium": "web", "fallback": "static"}, "delivered": {"medium": "web", "fallback": "static"}}
       },
       "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-web", "observations": "Interaction and fallback descriptors are preserved.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "vector-logo-contract",
+      "medium": "vector",
+      "asset": {"label": "vector logo", "type": "vector", "reference": "fixture/logo.svg"},
+      "intent": {"statement": "A scalable logo mark with a controlled stroke vocabulary.", "audience": "Brand and product users.", "context": "Screen and print identity delivery."},
+      "provenance": {"sources": [{"reference": "maker geometry", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Human geometry and review are recorded.", "tool_use": "Vector editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Digital delivery only."}, "accessibility": {"status": "pass", "notes": "Accessible name is supplied."}},
+      "delivery": {"formats": ["SVG", "PDF"], "targets": ["identity system"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Accessible name is supplied."}},
+      "measurements": {"vector_format": "SVG", "viewbox_defined": true, "min_stroke_width_mm": 0.4, "fonts_recorded_or_outlined": true, "spot_colors_declared": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "vector", "delivered": "vector"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "vector"}, "delivered": {"medium": "vector"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-vector", "observations": "Vector handoff declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "typography-contract",
+      "medium": "typography",
+      "asset": {"label": "display type specimen", "type": "font", "reference": "fixture/type.woff2"},
+      "intent": {"statement": "A display type treatment with documented glyph coverage.", "audience": "Readers of the specimen.", "context": "Web specimen and editorial headings."},
+      "provenance": {"sources": [{"reference": "maker type design", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Type design and review are recorded.", "tool_use": "Font editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Digital delivery only."}, "accessibility": {"status": "pass", "notes": "Readable text fallback is supplied."}},
+      "delivery": {"formats": ["WOFF2", "OTF"], "targets": ["web specimen"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "System fallback is declared."}},
+      "measurements": {"font_format": "WOFF2", "glyph_coverage_percent": 98, "font_license_recorded": true, "readability_tested": true, "text_version_chars": 20},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "typography", "delivered": "typography"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "typography"}, "delivered": {"medium": "typography"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-typography", "observations": "Font metadata declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "audio-music-voice-contract",
+      "medium": "audio",
+      "asset": {"label": "music and voice study", "type": "audio", "reference": "fixture/voice.wav"},
+      "intent": {"statement": "A short music bed with an intelligible spoken layer.", "audience": "Listeners with transcript access.", "context": "Web audio player delivery."},
+      "provenance": {"sources": [{"reference": "maker recording", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Recording and edit decisions are recorded.", "tool_use": "Audio editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Digital playback only."}, "accessibility": {"status": "pass", "notes": "Transcript is supplied."}},
+      "delivery": {"formats": ["WAV", "MP3"], "targets": ["web audio player"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Transcript is supplied."}},
+      "measurements": {"duration_seconds": 90, "sample_rate_hz": 48000, "bit_depth_bits": 24, "channels": 2, "transcript_or_lyrics": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "audio", "delivered": "audio"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "audio"}, "delivered": {"medium": "audio"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-audio", "observations": "Audio format and transcript declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "literary-text-contract",
+      "medium": "literary",
+      "asset": {"label": "short literary text", "type": "text", "reference": "fixture/story.txt"},
+      "intent": {"statement": "A short literary text with a versioned accessible handoff.", "audience": "General readers.", "context": "Digital publication with alternate-format delivery."},
+      "provenance": {"sources": [{"reference": "maker manuscript", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Writing and editorial review are recorded.", "tool_use": "Text editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Text delivery only."}, "accessibility": {"status": "pass", "notes": "Alternate format is supplied."}},
+      "delivery": {"formats": ["TXT", "EPUB"], "targets": ["digital publication"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Plain text is supplied."}},
+      "measurements": {"word_count": 800, "language": "en", "reading_level_measured": true, "text_versioned": true, "alternate_format_recorded": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "literary", "delivered": "literary"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "literary"}, "delivered": {"medium": "literary"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-literary", "observations": "Text version and alternate-format declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "comics-sequential-art-contract",
+      "medium": "comics",
+      "asset": {"label": "sequential art", "type": "raster", "reference": "fixture/comic.pdf"},
+      "intent": {"statement": "A sequential narrative with a declared reading order.", "audience": "Readers with text alternative access.", "context": "Digital comic delivery."},
+      "provenance": {"sources": [{"reference": "maker panels", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Panel composition and lettering are recorded.", "tool_use": "Panel editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Digital delivery only."}, "accessibility": {"status": "pass", "notes": "Transcript or alt text is supplied."}},
+      "delivery": {"formats": ["PDF", "CBZ"], "targets": ["digital comic reader"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Transcript is supplied."}},
+      "measurements": {"page_count": 12, "panel_count": 60, "reading_order_declared": true, "text_layer_extractable": true, "transcript_or_alt_text": true, "color_profile": "sRGB"},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "comics", "delivered": "comics"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "comics"}, "delivered": {"medium": "comics"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-comics", "observations": "Panel sequence and text declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "performance-theatre-dance-contract",
+      "medium": "performance",
+      "asset": {"label": "recorded dance performance", "type": "video", "reference": "fixture/performance.mp4"},
+      "intent": {"statement": "A recorded movement performance with a documented cue path.", "audience": "Viewers with access notes.", "context": "Festival archive and controlled video delivery."},
+      "provenance": {"sources": [{"reference": "maker performance", "rights": "commissioned usage"}], "rights_status": "licensed", "rights_basis": "Commission record grants archive usage.", "human_authorship": "Performers and director are identified.", "tool_use": "Camera and edit tools used."},
+      "checks": {"cultural": {"status": "pass", "notes": "Context and participant review are recorded."}, "safety": {"status": "pass", "notes": "This declaration does not establish venue or performer safety."}, "accessibility": {"status": "pass", "notes": "Access notes and captions are supplied."}},
+      "delivery": {"formats": ["MP4"], "targets": ["festival archive"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Access notes are supplied."}},
+      "measurements": {"duration_seconds": 45, "cast_count": 3, "cue_sheet_recorded": true, "accessibility_plan_recorded": true, "venue_or_capture_plan_recorded": true, "consent_log_recorded": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "performance", "delivered": "performance"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "performance"}, "delivered": {"medium": "performance"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-performance", "observations": "Performance handoff declarations are complete; no real-world safety claim is made.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "games-software-art-contract",
+      "medium": "games",
+      "asset": {"label": "small software artwork", "type": "software", "reference": "fixture/game-build/"},
+      "intent": {"statement": "A small interactive artwork with a reproducible browser build.", "audience": "Players using keyboard or pointer input.", "context": "Web distribution with pause and save behavior."},
+      "provenance": {"sources": [{"reference": "maker source repository", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Interaction and code decisions are recorded.", "tool_use": "Game engine used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Digital interaction only."}, "accessibility": {"status": "pass", "notes": "Input and pause checks are recorded."}},
+      "delivery": {"formats": ["HTML", "JavaScript"], "targets": ["web browser"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Static description is supplied."}},
+      "measurements": {"build_id_chars": 12, "target_platform": "web", "input_path_tested": true, "pause_behavior_tested": true, "save_state_tested": true, "render_mode": "2d"},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "games", "delivered": "games"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "games"}, "delivered": {"medium": "games"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-games", "observations": "Build identity and input declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "xr-ar-vr-contract",
+      "medium": "xr",
+      "asset": {"label": "extended reality scene", "type": "software", "reference": "fixture/xr/"},
+      "intent": {"statement": "An XR scene with declared tracking and a non-XR fallback.", "audience": "XR users and screen-only reviewers.", "context": "WebXR preview and fallback delivery."},
+      "provenance": {"sources": [{"reference": "maker scene", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Scene and interaction decisions are recorded.", "tool_use": "XR toolkit used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "This declaration does not establish physical comfort or safety."}, "accessibility": {"status": "pass", "notes": "Non-XR fallback is supplied."}},
+      "delivery": {"formats": ["WebXR", "HTML"], "targets": ["XR browser", "screen fallback"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Screen fallback is supplied."}},
+      "measurements": {"runtime": "WebXR", "tracking_mode": "6dof", "fps": 60, "scale_units_defined": true, "comfort_review_recorded": true, "non_xr_fallback": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "xr", "delivered": "xr"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "xr"}, "delivered": {"medium": "xr"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-xr", "observations": "Runtime and fallback declarations are complete; no real-world comfort claim is made.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "data-visualization-contract",
+      "medium": "data_visualization",
+      "asset": {"label": "data story graphic", "type": "web", "reference": "fixture/data-story/"},
+      "intent": {"statement": "A data story with explicit units, legend, and text alternative.", "audience": "Readers using color and non-color cues.", "context": "Responsive editorial web delivery."},
+      "provenance": {"sources": [{"reference": "fixture dataset", "rights": "licensed data"}], "rights_status": "licensed", "rights_basis": "Fixture license permits editorial use.", "human_authorship": "Encoding and editorial decisions are recorded.", "tool_use": "Visualization software used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Informational digital delivery."}, "accessibility": {"status": "pass", "notes": "Text alternative and non-color meaning are supplied."}},
+      "delivery": {"formats": ["HTML", "SVG"], "targets": ["editorial web"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Text alternative is supplied."}},
+      "measurements": {"data_source_cited": true, "data_version_chars": 8, "units_defined": true, "legend_or_key_present": true, "non_color_meaning": true, "numerical_precision_declared": true, "alt_text_chars": 80},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "data_visualization", "delivered": "data_visualization"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "data_visualization"}, "delivered": {"medium": "data_visualization"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-data", "observations": "Data provenance and encoding declarations are complete.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "cartographic-art-contract",
+      "medium": "cartographic_art",
+      "asset": {"label": "cartographic artwork", "type": "raster", "reference": "fixture/map.png"},
+      "intent": {"statement": "A cartographic artwork with explicit projection and scale statements.", "audience": "Map readers and art reviewers.", "context": "Print and screen map delivery."},
+      "provenance": {"sources": [{"reference": "fixture geographic data", "rights": "public domain source"}], "rights_status": "public_domain", "rights_basis": "Source is marked public domain for this fixture.", "human_authorship": "Projection and visual encoding decisions are recorded.", "tool_use": "Mapping software used."},
+      "checks": {"cultural": {"status": "pass", "notes": "Place-name and community context review are recorded."}, "safety": {"status": "pass", "notes": "This declaration does not establish navigational accuracy."}, "accessibility": {"status": "pass", "notes": "Legend and text description are supplied."}},
+      "delivery": {"formats": ["PNG", "PDF"], "targets": ["map print and web"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Text description is supplied."}},
+      "measurements": {"projection": "Mercator", "coordinate_reference_system_chars": 10, "scale_denominator": 100000, "scale_statement_recorded": true, "orientation_declared": true, "legend_present": true, "source_date_recorded": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "cartographic_art", "delivered": "cartographic_art"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "cartographic_art"}, "delivered": {"medium": "cartographic_art"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-cartographic", "observations": "Map metadata declarations are complete; no accuracy claim is made.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "physical-sculpture-contract",
+      "medium": "physical",
+      "asset": {"label": "assembled sculpture", "type": "physical", "reference": "fixture/sculpture/"},
+      "intent": {"statement": "A small assembled sculpture with material and handling documentation.", "audience": "Gallery reviewers and fabricators.", "context": "Physical exhibition with a non-physical preview."},
+      "provenance": {"sources": [{"reference": "maker fabrication plan", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Material and assembly decisions are recorded.", "tool_use": "Workshop tools used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Handling notes are declared; this does not establish real-world safety."}, "accessibility": {"status": "pass", "notes": "Non-physical preview is supplied."}},
+      "delivery": {"formats": ["OBJ", "PNG"], "targets": ["fabrication handoff", "preview"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Preview does not establish physical properties."}},
+      "measurements": {"material_chars": 14, "fabrication_method": "assembled", "height_cm": 40, "width_cm": 30, "depth_cm": 20, "fabrication_plan_recorded": true, "material_disclosure": true, "handling_notes_recorded": true, "non_physical_preview": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "physical", "delivered": "physical"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "physical"}, "delivered": {"medium": "physical"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-physical", "observations": "Material and fabrication declarations are complete; no real-world safety claim is made.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "print-packaging-contract",
+      "medium": "print",
+      "asset": {"label": "folded print package", "type": "print", "reference": "fixture/package.pdf"},
+      "intent": {"statement": "A print package with declared trim, bleed, and preflight metadata.", "audience": "Print production reviewers.", "context": "Short-run packaging delivery."},
+      "provenance": {"sources": [{"reference": "maker package design", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Layout and production decisions are recorded.", "tool_use": "Layout software used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "This declaration does not establish packaging regulatory compliance."}, "accessibility": {"status": "pass", "notes": "Text content is supplied in the handoff."}},
+      "delivery": {"formats": ["PDF/X-4", "PNG"], "targets": ["print package handoff"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Preflight declaration does not establish printer acceptance."}},
+      "measurements": {"page_count": 8, "trim_size_declared": true, "bleed_mm": 3, "color_profile": "CMYK", "pdf_standard": "PDF/X-4", "fonts_embedded_or_outlined": true, "preflight_run": true},
+      "contract": {"constraints": [{"id": "family", "hardness": "hard", "requested": "print", "delivered": "print"}], "ambiguities": [], "conflicts": [], "descriptors": {"requested": {"medium": "print"}, "delivered": {"medium": "print"}}},
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-print", "observations": "Print production declarations are complete; no real-world compliance claim is made.", "reviewed_at": "2026-08-28"}
     }
   ]
 }

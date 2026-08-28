@@ -20,6 +20,8 @@ _SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_SCRIPTS / "validation"))
 
 from validate_art_router import (  # noqa: E402
+    MEDIUM_ALIASES,
+    MEDIUM_CRITERIA,
     _text_report,
     main,
     validate_manifest,
@@ -53,15 +55,44 @@ class ValidateArtRouterTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "pass")
         self.assertEqual(report["schema_version"], "1.1")
-        self.assertEqual(report["case_count"], 3)
-        self.assertEqual(report["passed"], 3)
+        self.assertEqual(report["case_count"], 15)
+        self.assertEqual(report["passed"], 15)
         self.assertEqual(report["held"], 0)
-        self.assertEqual(report["contract_summary"]["constraints"], {"preserved": 5, "unmet": 1, "unknown": 0})
+        self.assertEqual(report["contract_summary"]["constraints"], {"preserved": 17, "unmet": 1, "unknown": 0})
         self.assertEqual(report["contract_summary"]["capabilities"], {"required": 6, "satisfied": 6, "unmet": 0})
         self.assertEqual(report["contract_summary"]["descriptor_drift"], 1)
         self.assertEqual(report["contract_summary"]["descriptor_regressions"], 1)
+        self.assertEqual(
+            {case["canonical_medium"] for case in report["cases"]},
+            {
+                "illustration", "animation", "web", "vector", "typography", "audio",
+                "literary", "comics", "performance", "games", "xr", "data_visualization",
+                "cartographic_art", "physical", "print",
+            },
+        )
+        self.assertTrue(all(case["criteria_basis"] for case in report["cases"]))
         self.assertIn("soft_constraint_unmet", {warning["code"] for warning in report["cases"][0]["warnings"]})
         self.assertEqual(report["cases"][0]["contract"]["capabilities"]["adapters"][1]["status"], "adapted")
+
+    def test_new_medium_aliases_resolve_to_registered_families(self) -> None:
+        aliases = {
+            "logo": "vector",
+            "lettering": "typography",
+            "music": "audio",
+            "voice": "audio",
+            "text": "literary",
+            "sequential_art": "comics",
+            "dance": "performance",
+            "software_art": "games",
+            "ar": "xr",
+            "data_viz": "data_visualization",
+            "cartography": "cartographic_art",
+            "sculpture": "physical",
+            "packaging": "print",
+        }
+
+        self.assertEqual({alias: MEDIUM_ALIASES[alias] for alias in aliases}, aliases)
+        self.assertTrue(all(canonical in MEDIUM_CRITERIA for canonical in aliases.values()))
 
     def test_hard_and_soft_unmet_are_distinguished(self) -> None:
         manifest = self.load_contract_fixture()

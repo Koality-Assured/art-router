@@ -130,6 +130,15 @@ class HybridDispatchResult:
 # ----------------------------------------------------------------------
 
 FAST_PATH_RULES: list[dict[str, Any]] = [
+    # Artistic request contracts: require both an art operation and an art/media term.
+    # Keep this before generic create/edit rules so artistic requests get the contract gate.
+    {
+        "skill": "request-contract",
+        "owner_agent": "artistic-standards-reviewer",
+        "patterns": [
+            r"^(?=.*\b(?:create|generate|make|draw|drawing|paint|painting|illustrate|illustrating|design|designing|compose|composing|render|rendering|edit|editing|edited|modify|modifying|transform|transforming|retouch|retouching|animate|animating|caption|captions|captioned|captioning|storyboard|storyboarding|sculpt|sculpture|sculpting|model|modeling|record|recording|perform|performance|performing|map|mapping|visualize|visualizing|package|packaging|print|printing|preserve|preserving|preservation|restore)\b)(?=.*\b(?:art|artwork|image|illustration|drawing|painting|photo|photograph|logo|vector|font|typography|animation|video|audio|music|voice|poem|poetry|story|novel|prose|comic|manga|theatre|theater|dance|performance|game|games|software\s+art|xr|ar|vr|visualization|map|cartographic|sculpture|installation|physical|print|packaging)\b).*$",
+        ],
+    },
     # Git operations
     {
         "skill": "git-basics",
