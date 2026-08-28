@@ -1,7 +1,7 @@
 """Focused tests for the portable art-router manifest validator.
 
 tags: [tests, validation, art-router]
-routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review]
+routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review, request-contract]
 
 Run: python -m unittest scripts.tests.test_validate_art_router -v
 """
@@ -108,6 +108,18 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertEqual(result["contract"]["capabilities"]["unmet"], ["browser_preview", "reduced_motion"])
         self.assertIn("capability_unmet", codes)
         self.assertEqual(result["contract"]["capabilities"]["adapters"][1]["status"], "unreported")
+
+    def test_invalid_capability_adapter_status_is_reported(self) -> None:
+        manifest = self.load_contract_fixture()
+        manifest["cases"][0]["contract"]["capabilities"]["adapters"]["image_generation"] = {"status": "native"}
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("invalid_value", codes)
+        self.assertIn("capability_unmet", codes)
+        self.assertEqual(result["contract"]["capabilities"]["adapters"][0]["status"], "native")
 
     def test_descriptor_drift_and_baseline_regression_hold(self) -> None:
         manifest = self.load_contract_fixture()

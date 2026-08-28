@@ -1,7 +1,7 @@
 """Validate art-router next-steps case manifests without external services.
 
 tags: [validation, art-router, scripts]
-    routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review, request-contract]
+routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review, request-contract]
 
 The validator checks declared controls and supplied measurements. It deliberately
 does not open asset paths, make network calls, or claim that metadata proves
@@ -26,6 +26,7 @@ MAX_DESCRIPTOR_KEYS = 100
 
 CONTRACT_HARDNESS = {"hard", "soft"}
 CONTRACT_COMPARISONS = {"exact", "contains", "at_least", "at_most"}
+CAPABILITY_STATUSES = {"available", "adapted", "unavailable", "unknown", "unreported"}
 RESOLVED_STATES = {"resolved", "closed", "not_applicable"}
 
 MEDIUM_ALIASES = {
@@ -493,7 +494,10 @@ def _validate_capabilities(
                 issues,
                 required=False,
             )
-            adapter_records[token] = {"status": _normalize_token(status) if status else "unknown", "adapter": adapter}
+            normalized_status = _normalize_token(status) if status else "unknown"
+            if normalized_status not in CAPABILITY_STATUSES:
+                _issue(issues, "invalid_value", f"capability adapter status {status!r} is not recognized")
+            adapter_records[token] = {"status": normalized_status, "adapter": adapter}
     else:
         for index, raw_item in enumerate(adapters[:MAX_CONTRACT_ITEMS]):
             item_map = _mapping(raw_item, f"contract.capabilities.adapters[{index}]", issues)
@@ -511,7 +515,10 @@ def _validate_capabilities(
                 token = _normalize_token(name)
                 if token in adapter_records:
                     _issue(issues, "duplicate_id", f"duplicate capability adapter {name!r}")
-                adapter_records[token] = {"status": _normalize_token(status) if status else "unknown", "adapter": adapter}
+                normalized_status = _normalize_token(status) if status else "unknown"
+                if normalized_status not in CAPABILITY_STATUSES:
+                    _issue(issues, "invalid_value", f"capability adapter status {status!r} is not recognized")
+                adapter_records[token] = {"status": normalized_status, "adapter": adapter}
 
     for capability in required_tokens:
         record = adapter_records.get(capability, {"status": "unreported", "adapter": None})
