@@ -1,7 +1,7 @@
 """Validate art-router next-steps case manifests without external services.
 
 tags: [validation, art-router, scripts]
-routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review]
+    routing_hints: [manifest, fixtures, provenance, accessibility, delivery, review, request-contract]
 
 The validator checks declared controls and supplied measurements. It deliberately
 does not open asset paths, make network calls, or claim that metadata proves
@@ -21,6 +21,12 @@ from typing import Any, Callable
 MAX_MANIFEST_BYTES = 4 * 1024 * 1024
 MAX_CASES = 1000
 MAX_TEXT_LENGTH = 10_000
+MAX_CONTRACT_ITEMS = 100
+MAX_DESCRIPTOR_KEYS = 100
+
+CONTRACT_HARDNESS = {"hard", "soft"}
+CONTRACT_COMPARISONS = {"exact", "contains", "at_least", "at_most"}
+RESOLVED_STATES = {"resolved", "closed", "not_applicable"}
 
 MEDIUM_ALIASES = {
     "2d": "illustration",
@@ -55,8 +61,17 @@ def _issue(issues: list[Issue], code: str, message: str) -> None:
     issues.append(Issue(code, message))
 
 
+def _warning(warnings: list[Issue], code: str, message: str) -> None:
+    warnings.append(Issue(code, message))
+
+
 def _is_mapping(value: Any) -> bool:
     return isinstance(value, dict)
+
+
+def _normalize_token(value: str) -> str:
+    """Normalize provider-specific identifier spelling for contract comparisons."""
+    return value.strip().lower().replace("-", "_").replace(" ", "_")
 
 
 def _text(
@@ -287,6 +302,382 @@ def _check_flash_rate(measurements: dict[str, Any], issues: list[Issue]) -> None
         _issue(issues, "criterion_failed", "measurements.flash_rate_hz must be between 0 and 3")
 
 
+def _empty_contract_report(*, present: bool = False) -> dict[str, Any]:
+    return {
+        "present": present,
+        "constraints": [],
+        "preserved": 0,
+        "unmet": 0,
+        "unknown": 0,
+        "ambiguities": [],
+        "conflicts": [],
+        "capabilities": {
+            "required": [],
+            "adapters": [],
+            "satisfied": [],
+            "unmet": [],
+        },
+        "descriptors": {
+            "requested": {},
+            "delivered": {},
+            "drift": [],
+            "regressions": [],
+            "added": [],
+        },
+    }
+
+
+def _canonical_descriptor_map(
+    value: Any, field: str, issues: list[Issue]
+) -> dict[str, Any] | None:
+    parsed = _mapping(value, field, issues)
+    if parsed is None:
+        return None
+    if len(parsed) > MAX_DESCRIPTOR_KEYS:
+        _issue(issues, "too_many_items", f"{field} must contain at most {MAX_DESCRIPTOR_KEYS} keys")
+    result: dict[str, Any] = {}
+    for raw_key, item in parsed.items():
+        if not isinstance(raw_key, str) or not raw_key.strip():
+            _issue(issues, "invalid_value", f"{field} keys must be non-empty strings")
+            continue
+        key = _normalize_token(raw_key)
+        if key in result:
+            _issue(issues, "invalid_value", f"{field} contains duplicate normalized key {key!r}")
+            continue
+        result[key] = item
+    return result
+
+
+def _canonical_key_list(value: Any, field: str, issues: list[Issue]) -> set[str]:
+    values = _list(value, field, issues)
+    if values is None:
+        return set()
+    if len(values) > MAX_DESCRIPTOR_KEYS:
+        _issue(issues, "too_many_items", f"{field} must contain at most {MAX_DESCRIPTOR_KEYS} items")
+    result: set[str] = set()
+    for index, item in enumerate(values):
+        parsed = _text(item, f"{field}[{index}]", issues)
+        if parsed is not None:
+            result.add(_normalize_token(parsed))
+    return result
+
+
+def _compare_contract_values(requested: Any, delivered: Any, comparison: str) -> bool | None:
+    if comparison == "exact":
+        return requested == delivered
+    if comparison == "contains":
+        if isinstance(requested, str) and isinstance(delivered, str):
+            return requested in delivered
+        if isinstance(requested, list) and isinstance(delivered, list):
+            return all(item in delivered for item in requested)
+        if isinstance(requested, dict) and isinstance(delivered, dict):
+            return all(key in delivered and delivered[key] == item for key, item in requested.items())
+        return None
+    if comparison in {"at_least", "at_most"}:
+        if (
+            isinstance(requested, bool)
+            or isinstance(delivered, bool)
+            or not isinstance(requested, (int, float))
+            or not isinstance(delivered, (int, float))
+            or not math.isfinite(float(requested))
+            or not math.isfinite(float(delivered))
+        ):
+            return None
+        return delivered >= requested if comparison == "at_least" else delivered <= requested
+    return None
+
+
+def _validate_status_items(
+    contract: dict[str, Any],
+    field: str,
+    issues: list[Issue],
+    report_items: list[dict[str, Any]],
+) -> None:
+    values = contract.get(field, [])
+    parsed_values = _list(values, f"contract.{field}", issues)
+    if parsed_values is None:
+        return
+    if len(parsed_values) > MAX_CONTRACT_ITEMS:
+        _issue(issues, "too_many_items", f"contract.{field} must contain at most {MAX_CONTRACT_ITEMS} items")
+    seen: set[str] = set()
+    hold_code = {"ambiguities": "ambiguity_hold", "conflicts": "conflict_hold"}[field]
+    for index, item in enumerate(parsed_values[:MAX_CONTRACT_ITEMS]):
+        item_map = _mapping(item, f"contract.{field}[{index}]", issues)
+        if item_map is None:
+            continue
+        item_id = _text(item_map.get("id"), f"contract.{field}[{index}].id", issues)
+        description = _text(
+            item_map.get("description"), f"contract.{field}[{index}].description", issues
+        )
+        status = _text(item_map.get("status"), f"contract.{field}[{index}].status", issues)
+        normalized_status = _normalize_token(status) if status else None
+        if item_id is not None:
+            normalized_id = _normalize_token(item_id)
+            if normalized_id in seen:
+                _issue(issues, "duplicate_id", f"duplicate contract.{field} id {item_id!r}")
+            seen.add(normalized_id)
+        if normalized_status is not None and normalized_status not in {
+            "open",
+            "unresolved",
+            "resolved",
+            "closed",
+            "not_applicable",
+        }:
+            _issue(issues, "invalid_value", f"contract.{field}[{index}].status is not recognized")
+        if normalized_status not in RESOLVED_STATES:
+            _issue(issues, hold_code, f"contract.{field}[{index}] is not resolved")
+        report_items.append(
+            {
+                "id": item_id,
+                "description": description,
+                "status": normalized_status,
+                "resolution": _text(
+                    item_map.get("resolution"),
+                    f"contract.{field}[{index}].resolution",
+                    issues,
+                    required=False,
+                ),
+            }
+        )
+
+
+def _validate_capabilities(
+    contract: dict[str, Any], issues: list[Issue], report: dict[str, Any]
+) -> None:
+    capabilities = contract.get("capabilities")
+    if capabilities is None:
+        return
+    capability_map = _mapping(capabilities, "contract.capabilities", issues)
+    if capability_map is None:
+        return
+    required = _list(capability_map.get("required"), "contract.capabilities.required", issues)
+    if required is None:
+        return
+    if len(required) > MAX_CONTRACT_ITEMS:
+        _issue(issues, "too_many_items", f"contract.capabilities.required must contain at most {MAX_CONTRACT_ITEMS} items")
+    required_tokens: list[str] = []
+    seen: set[str] = set()
+    for index, item in enumerate(required[:MAX_CONTRACT_ITEMS]):
+        parsed = _text(item, f"contract.capabilities.required[{index}]", issues)
+        if parsed is None:
+            continue
+        token = _normalize_token(parsed)
+        if token in seen:
+            _issue(issues, "duplicate_id", f"duplicate required capability {parsed!r}")
+        else:
+            seen.add(token)
+            required_tokens.append(token)
+
+    adapters = capability_map.get("adapters", {})
+    if not isinstance(adapters, (dict, list)):
+        _issue(issues, "invalid_type", "contract.capabilities.adapters must be an object or array")
+        adapters = {}
+    adapter_records: dict[str, dict[str, Any]] = {}
+    if isinstance(adapters, dict):
+        adapter_items = sorted(adapters.items(), key=lambda item: str(item[0]))
+        for raw_name, raw_status in adapter_items:
+            if not isinstance(raw_name, str) or not raw_name.strip():
+                _issue(issues, "invalid_value", "contract.capabilities.adapters keys must be non-empty strings")
+                continue
+            token = _normalize_token(raw_name)
+            if isinstance(raw_status, dict):
+                status_value = raw_status.get("status")
+                adapter_name = raw_status.get("adapter", raw_status.get("name"))
+            else:
+                status_value = raw_status
+                adapter_name = None
+            status = _text(status_value, f"contract.capabilities.adapters.{raw_name}.status", issues)
+            adapter = _text(
+                adapter_name,
+                f"contract.capabilities.adapters.{raw_name}.adapter",
+                issues,
+                required=False,
+            )
+            adapter_records[token] = {"status": _normalize_token(status) if status else "unknown", "adapter": adapter}
+    else:
+        for index, raw_item in enumerate(adapters[:MAX_CONTRACT_ITEMS]):
+            item_map = _mapping(raw_item, f"contract.capabilities.adapters[{index}]", issues)
+            if item_map is None:
+                continue
+            name = _text(item_map.get("capability"), f"contract.capabilities.adapters[{index}].capability", issues)
+            status = _text(item_map.get("status"), f"contract.capabilities.adapters[{index}].status", issues)
+            adapter = _text(
+                item_map.get("adapter", item_map.get("name")),
+                f"contract.capabilities.adapters[{index}].adapter",
+                issues,
+                required=False,
+            )
+            if name is not None:
+                token = _normalize_token(name)
+                if token in adapter_records:
+                    _issue(issues, "duplicate_id", f"duplicate capability adapter {name!r}")
+                adapter_records[token] = {"status": _normalize_token(status) if status else "unknown", "adapter": adapter}
+
+    for capability in required_tokens:
+        record = adapter_records.get(capability, {"status": "unreported", "adapter": None})
+        status = record["status"]
+        report["adapters"].append(
+            {"capability": capability, "status": status, "adapter": record["adapter"]}
+        )
+        if status in {"available", "adapted"}:
+            report["satisfied"].append(capability)
+        else:
+            report["unmet"].append(capability)
+            _issue(issues, "capability_unmet", f"required capability {capability!r} is {status}")
+    report["required"] = required_tokens
+
+
+def _validate_descriptors(
+    contract: dict[str, Any], issues: list[Issue], warnings: list[Issue], report: dict[str, Any]
+) -> None:
+    descriptor_data = contract.get("descriptors")
+    if descriptor_data is None:
+        return
+    descriptor_map = _mapping(descriptor_data, "contract.descriptors", issues)
+    if descriptor_map is None:
+        return
+    requested = _canonical_descriptor_map(
+        descriptor_map.get("requested", {}), "contract.descriptors.requested", issues
+    )
+    delivered = _canonical_descriptor_map(
+        descriptor_map.get("delivered", {}), "contract.descriptors.delivered", issues
+    )
+    if requested is None or delivered is None:
+        return
+    hard_keys = _canonical_key_list(descriptor_map.get("hard_keys", []), "contract.descriptors.hard_keys", issues)
+    soft_keys = _canonical_key_list(descriptor_map.get("soft_keys", []), "contract.descriptors.soft_keys", issues)
+    if hard_keys & soft_keys:
+        _issue(issues, "invalid_value", "contract.descriptors.hard_keys and soft_keys must not overlap")
+    unknown_classifications = (hard_keys | soft_keys) - set(requested)
+    if unknown_classifications:
+        _issue(issues, "invalid_value", f"descriptor classification has unknown keys: {sorted(unknown_classifications)}")
+
+    report["requested"] = {key: requested[key] for key in sorted(requested)}
+    report["delivered"] = {key: delivered[key] for key in sorted(delivered)}
+    for key in sorted(requested):
+        hardness = "soft" if key in soft_keys else "hard"
+        preserved = key in delivered and delivered[key] == requested[key]
+        entry = {
+            "key": key,
+            "hardness": hardness,
+            "status": "preserved" if preserved else "unmet",
+            "requested": requested[key],
+            "delivered": delivered.get(key),
+        }
+        if preserved:
+            continue
+        report["drift"].append(entry)
+        if hardness == "hard":
+            _issue(issues, "descriptor_drift", f"hard descriptor {key!r} was not preserved")
+        else:
+            _warning(warnings, "descriptor_drift", f"soft descriptor {key!r} was not preserved")
+    report["added"] = sorted(set(delivered) - set(requested))
+
+    baseline = descriptor_map.get("baseline")
+    if baseline is not None:
+        baseline_map = _canonical_descriptor_map(
+            baseline, "contract.descriptors.baseline", issues
+        )
+        if baseline_map is not None:
+            for key in sorted(set(requested) & set(baseline_map)):
+                if requested[key] == baseline_map[key] and delivered.get(key) != baseline_map[key]:
+                    hardness = "soft" if key in soft_keys else "hard"
+                    entry = {
+                        "key": key,
+                        "hardness": hardness,
+                        "baseline": baseline_map[key],
+                        "delivered": delivered.get(key),
+                    }
+                    report["regressions"].append(entry)
+                    if hardness == "hard":
+                        _issue(issues, "descriptor_regression", f"descriptor {key!r} regressed from the approved baseline")
+                    else:
+                        _warning(warnings, "descriptor_regression", f"soft descriptor {key!r} regressed from the approved baseline")
+
+
+def _validate_contract(
+    case: dict[str, Any], issues: list[Issue], warnings: list[Issue], *, required: bool
+) -> dict[str, Any]:
+    contract_value = case.get("contract")
+    if contract_value is None:
+        if required:
+            _issue(issues, "missing_value", "contract must be provided for schema 1.1 cases")
+        return _empty_contract_report()
+    contract = _mapping(contract_value, "contract", issues)
+    if contract is None:
+        return _empty_contract_report(present=True)
+    report = _empty_contract_report(present=True)
+    constraints = _list(contract.get("constraints", []), "contract.constraints", issues)
+    if constraints is not None:
+        if len(constraints) > MAX_CONTRACT_ITEMS:
+            _issue(issues, "too_many_items", f"contract.constraints must contain at most {MAX_CONTRACT_ITEMS} items")
+        seen_ids: set[str] = set()
+        for index, item in enumerate(constraints[:MAX_CONTRACT_ITEMS]):
+            item_map = _mapping(item, f"contract.constraints[{index}]", issues)
+            if item_map is None:
+                continue
+            item_id = _text(item_map.get("id"), f"contract.constraints[{index}].id", issues)
+            hardness = _text(item_map.get("hardness"), f"contract.constraints[{index}].hardness", issues)
+            comparison = _text(
+                item_map.get("comparison", "exact"),
+                f"contract.constraints[{index}].comparison",
+                issues,
+            )
+            normalized_hardness = _normalize_token(hardness) if hardness else None
+            normalized_comparison = _normalize_token(comparison) if comparison else None
+            if normalized_hardness not in CONTRACT_HARDNESS:
+                _issue(issues, "invalid_value", f"contract.constraints[{index}].hardness must be hard or soft")
+            if normalized_comparison not in CONTRACT_COMPARISONS:
+                _issue(issues, "invalid_value", f"contract.constraints[{index}].comparison is not recognized")
+            if item_id is not None:
+                normalized_id = _normalize_token(item_id)
+                if normalized_id in seen_ids:
+                    _issue(issues, "duplicate_id", f"duplicate contract constraint id {item_id!r}")
+                seen_ids.add(normalized_id)
+            requested_present = "requested" in item_map
+            delivered_present = "delivered" in item_map
+            outcome = "unknown"
+            if not requested_present:
+                _issue(issues, "missing_value", f"contract.constraints[{index}].requested must be provided")
+            elif normalized_comparison in CONTRACT_COMPARISONS and delivered_present:
+                comparison_result = _compare_contract_values(
+                    item_map["requested"], item_map["delivered"], normalized_comparison
+                )
+                if comparison_result is None:
+                    _issue(issues, "invalid_value", f"contract.constraints[{index}] has incompatible comparison values")
+                else:
+                    outcome = "preserved" if comparison_result else "unmet"
+            elif requested_present:
+                outcome = "unmet"
+            if outcome == "preserved":
+                report["preserved"] += 1
+            elif outcome == "unmet":
+                report["unmet"] += 1
+                if normalized_hardness == "hard":
+                    _issue(issues, "hard_constraint_unmet", f"hard constraint {item_id!r} was not preserved")
+                elif normalized_hardness == "soft":
+                    _warning(warnings, "soft_constraint_unmet", f"soft constraint {item_id!r} was not preserved")
+            else:
+                report["unknown"] += 1
+            entry = {
+                "id": item_id,
+                "hardness": normalized_hardness,
+                "comparison": normalized_comparison,
+                "status": outcome,
+            }
+            if requested_present:
+                entry["requested"] = item_map["requested"]
+            if delivered_present:
+                entry["delivered"] = item_map["delivered"]
+            report["constraints"].append(entry)
+
+    _validate_status_items(contract, "ambiguities", issues, report["ambiguities"])
+    _validate_status_items(contract, "conflicts", issues, report["conflicts"])
+    _validate_capabilities(contract, issues, report["capabilities"])
+    _validate_descriptors(contract, issues, warnings, report["descriptors"])
+    return report
+
+
 def _validate_controls(case: dict[str, Any], issues: list[Issue]) -> None:
     intent = _mapping(case.get("intent"), "intent", issues)
     if intent is not None:
@@ -369,9 +760,12 @@ def _validate_case(case: Any, index: int) -> dict[str, Any]:
             "medium": None,
             "status": "hold",
             "reasons": [issue.as_dict() for issue in issues],
+            "warnings": [],
+            "contract": _empty_contract_report(),
             "criteria_basis": None,
         }
 
+    warnings: list[Issue] = []
     case_id = _text(case.get("id"), f"case[{index}].id", issues) or f"case[{index}]"
     medium_input = _text(case.get("medium"), f"case[{index}].medium", issues)
     canonical_medium = MEDIUM_ALIASES.get(medium_input.lower(), medium_input.lower()) if medium_input else None
@@ -392,6 +786,7 @@ def _validate_case(case: Any, index: int) -> dict[str, Any]:
             _text(asset_map.get("reference"), f"case[{index}].asset.reference", issues)
 
     _validate_controls(case, issues)
+    contract_report = _validate_contract(case, issues, warnings, required=False)
 
     criteria_basis: str | None = None
     measurements = case.get("measurements")
@@ -409,6 +804,8 @@ def _validate_case(case: Any, index: int) -> dict[str, Any]:
         "canonical_medium": canonical_medium,
         "status": "pass" if not issues else "hold",
         "reasons": [issue.as_dict() for issue in issues],
+        "warnings": [warning.as_dict() for warning in warnings],
+        "contract": contract_report,
         "criteria_basis": criteria_basis,
     }
 
@@ -418,11 +815,19 @@ def validate_manifest(data: Any) -> dict[str, Any]:
     report: dict[str, Any] = {
         "status": "hold",
         "manifest_id": None,
+        "schema_version": None,
         "case_count": 0,
         "passed": 0,
         "held": 0,
         "reasons": [],
         "cases": [],
+        "contract_summary": {
+            "cases_with_contract": 0,
+            "constraints": {"preserved": 0, "unmet": 0, "unknown": 0},
+            "capabilities": {"required": 0, "satisfied": 0, "unmet": 0},
+            "descriptor_drift": 0,
+            "descriptor_regressions": 0,
+        },
         "scope_note": (
             "Validates declared controls and supplied measurements only; it does not "
             "prove artistic quality, rights, safety, accessibility, or asset existence."
@@ -437,8 +842,9 @@ def validate_manifest(data: Any) -> dict[str, Any]:
     manifest_id = _text(data.get("manifest_id"), "manifest_id", manifest_issues)
     report["manifest_id"] = manifest_id
     schema_version = _text(data.get("schema_version"), "schema_version", manifest_issues)
-    if schema_version != "1.0":
-        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0'")
+    report["schema_version"] = schema_version
+    if schema_version not in {"1.0", "1.1"}:
+        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0' or '1.1'")
 
     cases = _list(data.get("cases"), "cases", manifest_issues)
     if cases is not None:
@@ -449,11 +855,28 @@ def validate_manifest(data: Any) -> dict[str, Any]:
         seen_ids: set[str] = set()
         for index, case in enumerate(cases[:MAX_CASES]):
             result = _validate_case(case, index)
+            if schema_version == "1.1" and isinstance(case, dict):
+                if "contract" not in case or case.get("contract") is None:
+                    result["reasons"].append(
+                        {"code": "missing_value", "message": "contract must be provided for schema 1.1 cases"}
+                    )
+                    result["status"] = "hold"
             if result["id"] in seen_ids:
                 result["reasons"].append({"code": "duplicate_id", "message": f"duplicate case id {result['id']!r}"})
                 result["status"] = "hold"
             seen_ids.add(result["id"])
             report["cases"].append(result)
+
+            contract = result["contract"]
+            if contract["present"]:
+                report["contract_summary"]["cases_with_contract"] += 1
+            for count_name in ("preserved", "unmet", "unknown"):
+                report["contract_summary"]["constraints"][count_name] += contract[count_name]
+            report["contract_summary"]["capabilities"]["required"] += len(contract["capabilities"]["required"])
+            report["contract_summary"]["capabilities"]["satisfied"] += len(contract["capabilities"]["satisfied"])
+            report["contract_summary"]["capabilities"]["unmet"] += len(contract["capabilities"]["unmet"])
+            report["contract_summary"]["descriptor_drift"] += len(contract["descriptors"]["drift"])
+            report["contract_summary"]["descriptor_regressions"] += len(contract["descriptors"]["regressions"])
 
     report["case_count"] = len(report["cases"])
     report["passed"] = sum(result["status"] == "pass" for result in report["cases"])
@@ -495,6 +918,16 @@ def _text_report(report: dict[str, Any]) -> str:
         )
         for reason in case["reasons"]:
             lines.append(f"  - [{reason['code']}] {reason['message']}")
+        for warning in case.get("warnings", []):
+            lines.append(f"  - warning [{warning['code']}] {warning['message']}")
+        contract = case.get("contract", {})
+        if contract.get("present"):
+            lines.append(
+                "  - contract: "
+                f"preserved={contract.get('preserved', 0)}, "
+                f"unmet={contract.get('unmet', 0)}, "
+                f"unknown={contract.get('unknown', 0)}"
+            )
     lines.append(f"scope: {report['scope_note']}")
     return "\n".join(lines)
 

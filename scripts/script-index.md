@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: script-index
 topics: [scripts, routing]
-generated_at_utc: 2026-08-27T19:33:52Z
+generated_at_utc: 2026-08-28T14:55:55Z
 generator: scripts/routing/generate_script_index.py
 ---
 
@@ -27,7 +27,7 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 | [`github/resolve_github_path.py`](./github/resolve_github_path.py) | `github` | blob, main, path, url | Resolve local repo paths to GitHub https blob/tree URLs on main. |
 | [`qmd/qmd_preflight.py`](./qmd/qmd_preflight.py) | `qmd` | preflight, index, onboarding, safety | Inspect reusable qmd state without creating or refreshing an index. |
 | [`qmd/refresh_qmd_index.py`](./qmd/refresh_qmd_index.py) | `qmd` | index, embed, session-end, completion-gate | Refresh an existing local qmd index after explicit user approval. |
-| [`qmd/setup_qmd_collections.py`](./qmd/setup_qmd_collections.py) | `qmd` | index, collections, embed | Set up missing qmd collections only after an explicit, inspected approval. |
+| [`qmd/setup_qmd_collections.py`](./qmd/setup_qmd_collections.py) | `qmd` | index, collections, embed, modular, areas | Set up missing qmd collections only after an explicit, inspected approval. |
 | [`qmd/validate_qmd_retrieval.py`](./qmd/validate_qmd_retrieval.py) | `qmd` | validation, dry-run, tokens | Dry-run qmd retrieval: health, relevance, and token-cost comparison. |
 | [`repos/scaffold_public_repos.py`](./repos/scaffold_public_repos.py) | `repos`, `scaffold`, `github` | scaffold, public-repos, agent-skills, agent-standards, ai-research, wiki-template | Automated scaffolding CLI to initialize the 3 public Koality-Assured ecosystem repositories. |
 | [`routing/generate_routing_index.py`](./routing/generate_routing_index.py) | `routing` | area-map, skill-dispatch, areas.yaml, index | Generate routing/area-map.md and routing/skill-dispatch.md. |
@@ -48,7 +48,7 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 | [`tests/test_validate_router_structure.py`](./tests/test_validate_router_structure.py) | `tests`, `docs`, `validation`, `results` | tests, validate_router_structure, results-layout | Unit tests for router structure validator results-layout check. |
 | [`tests/test_validate_skill.py`](./tests/test_validate_skill.py) | `tests`, `ai-tooling`, `skills`, `schema-v2` | tests, validate-skill, skills | Unit tests for Schema V2 skill validation. |
 | [`tests/test_validate_structure_fast.py`](./tests/test_validate_structure_fast.py) | `tests`, `docs`, `validation` | tests, validate_structure_fast, markdown | Unit tests for fast structural validator. |
-| [`validation/validate_art_router.py`](./validation/validate_art_router.py) | `validation`, `art-router`, `scripts` | manifest, fixtures, provenance, accessibility, delivery, review | Validate art-router next-steps case manifests without external services. |
+| [`validation/validate_art_router.py`](./validation/validate_art_router.py) | `validation`, `art-router`, `scripts` | manifest, fixtures, provenance, accessibility, delivery, review, request-contract | Validate art-router next-steps case manifests without external services. |
 
 ## By tag
 

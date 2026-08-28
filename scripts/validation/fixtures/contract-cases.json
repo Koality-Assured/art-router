@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.1",
+  "manifest_id": "art-router-contract-fixture",
+  "cases": [
+    {
+      "id": "editorial-illustration-contract",
+      "medium": "illustration",
+      "asset": {"label": "editorial illustration", "type": "raster", "reference": "fixture/editorial.png"},
+      "intent": {"statement": "A calm editorial landscape with a clear focal path.", "audience": "General readers.", "context": "Responsive editorial web delivery."},
+      "provenance": {"sources": [{"reference": "maker sketch", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Human composition and final selection are recorded.", "tool_use": "Raster editing tools used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Screen-only delivery."}, "accessibility": {"status": "pass", "notes": "Equivalent description is supplied."}},
+      "delivery": {"formats": ["PNG", "WebP"], "targets": ["responsive web image"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Text description is supplied."}},
+      "measurements": {"width_px": 1600, "height_px": 1200, "alt_text_chars": 64, "color_profile": "sRGB"},
+      "contract": {
+        "constraints": [
+          {"id": "orientation", "hardness": "hard", "requested": "portrait", "delivered": "portrait"},
+          {"id": "palette", "hardness": "soft", "requested": "muted", "delivered": "vivid"}
+        ],
+        "ambiguities": [],
+        "conflicts": [],
+        "capabilities": {"required": ["image-generation", "transparent_background"], "adapters": {"image_generation": {"status": "available"}, "transparent-background": {"status": "adapted", "adapter": "alpha-mask-postprocess"}}},
+        "descriptors": {"requested": {"medium": "illustration", "orientation": "portrait", "palette": "muted"}, "delivered": {"medium": "illustration", "orientation": "portrait", "palette": "vivid"}, "baseline": {"medium": "illustration", "orientation": "portrait", "palette": "muted"}, "soft_keys": ["palette"]}
+      },
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-illustration", "observations": "Hard constraints are preserved; palette is a soft preference.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "loop-animation-contract",
+      "medium": "animation",
+      "asset": {"label": "loop animation", "type": "video", "reference": "fixture/loop.mp4"},
+      "intent": {"statement": "A short looping motion study with a calm tempo.", "audience": "Screen viewers with transcript access.", "context": "Controlled web player delivery."},
+      "provenance": {"sources": [{"reference": "maker motion study", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Human timing and edit decisions are recorded.", "tool_use": "Timeline editor used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "Flashing is measured."}, "accessibility": {"status": "pass", "notes": "Transcript and pause control are supplied."}},
+      "delivery": {"formats": ["MP4", "WebM"], "targets": ["web player"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Transcript is supplied."}},
+      "measurements": {"duration_seconds": 8, "fps": 24, "captions_or_transcript": true, "pause_control": true, "flash_rate_hz": 0, "delivery_colorimetry": "BT.709"},
+      "contract": {
+        "constraints": [{"id": "frame-rate", "hardness": "hard", "requested": 24, "delivered": 24, "comparison": "at_least"}, {"id": "tempo", "hardness": "soft", "requested": "calm", "delivered": "calm"}],
+        "ambiguities": [],
+        "conflicts": [],
+        "capabilities": {"required": ["motion_edit", "captions"], "adapters": [{"capability": "motion-edit", "status": "adapted", "adapter": "timeline-export"}, {"capability": "captions", "status": "available"}]},
+        "descriptors": {"requested": {"medium": "animation", "loop": true}, "delivered": {"medium": "animation", "loop": true}}
+      },
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-animation", "observations": "Timing and accessibility descriptors are preserved.", "reviewed_at": "2026-08-28"}
+    },
+    {
+      "id": "interactive-web-contract",
+      "medium": "web",
+      "asset": {"label": "interactive artwork", "type": "web", "reference": "fixture/interactive/"},
+      "intent": {"statement": "An interactive artwork that reveals a relationship through motion.", "audience": "Keyboard, pointer, and reduced-motion users.", "context": "Responsive browser delivery."},
+      "provenance": {"sources": [{"reference": "fixture source", "rights": "original maker source"}], "rights_status": "original", "rights_basis": "Created for this fixture.", "human_authorship": "Human interaction design is recorded.", "tool_use": "Browser APIs used."},
+      "checks": {"cultural": {"status": "not_applicable", "notes": "No community-owned material is used."}, "safety": {"status": "pass", "notes": "No hazardous physical interaction is specified."}, "accessibility": {"status": "pass", "notes": "Keyboard and fallback checks are recorded."}},
+      "delivery": {"formats": ["HTML", "CSS", "JavaScript"], "targets": ["responsive browser delivery"], "metadata_complete": true, "metadata": {"owner": "fixture team", "version": "1.0", "fallback_or_limitation": "Static fallback is supplied."}},
+      "measurements": {"keyboard_accessible": true, "visible_focus": true, "reduced_motion": true, "contrast_ratio": 4.5, "non_color_meaning": true, "fallback_behavior": true},
+      "contract": {
+        "constraints": [{"id": "reduced-motion", "hardness": "hard", "requested": true, "delivered": true}, {"id": "interaction-mode", "hardness": "soft", "requested": ["keyboard", "pointer"], "delivered": ["keyboard", "pointer", "touch"], "comparison": "contains"}],
+        "ambiguities": [],
+        "conflicts": [],
+        "capabilities": {"required": ["browser_preview", "reduced-motion"], "adapters": {"browser_preview": "available", "reduced_motion": {"status": "adapted", "name": "static-fallback"}}},
+        "descriptors": {"requested": {"medium": "web", "fallback": "static"}, "delivered": {"medium": "web", "fallback": "static"}}
+      },
+      "reviewer": {"decision": "approve", "reviewer_id": "contract-reviewer-web", "observations": "Interaction and fallback descriptors are preserved.", "reviewed_at": "2026-08-28"}
+    }
+  ]
+}
