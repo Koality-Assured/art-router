@@ -11,6 +11,17 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-28 — Expand executable artistic media routing
+
+- **Requesting user:** Distasteful
+- **AI agent:** Codex
+- **User request:** Expand the art router beyond guidance with broader media validation and direct artistic request dispatch.
+- **Summary:**
+  - Added 12 canonical artistic families and aliases with family-specific deterministic criteria.
+  - Expanded the fixture to 15 valid artistic cases and added coverage assertions.
+  - Added Tier-1 request-contract routing for art operations while preserving generic routing safeguards.
+
 ### 2026-08-28 — Expand art-router request coverage
 
 - **Requesting user:** Distasteful
