@@ -21,6 +21,14 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 - **Summary:**
   - Added cited Google primary-source research note under research/ covering model routing, prompting, limitations, safety, provenance, and evaluation.
 
+### 2026-08-31 — Reinforce post-merge worktree cleanup
+
+- **Requesting user:** Distasteful
+- **AI agent:** ai-tooling-ops
+- **User request:** Reinforce that merged worktrees are cleaned only after verification
+- **Summary:**
+  - Added clean-worktree, main-representation, cherry-pick-equivalence, and post-removal verification gates to isolation guidance.
+
 ### 2026-08-28 — Expand executable artistic media routing
 
 - **Requesting user:** Distasteful
