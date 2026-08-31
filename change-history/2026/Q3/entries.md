@@ -12,6 +12,15 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-08-31 — Nano Banana prompting research
+
+- **Requesting user:** Distasteful
+- **AI agent:** detailed-activity
+- **User request:** Research current Nano Banana / Gemini image-generation prompting and generation best practices
+- **Summary:**
+  - Added cited Google primary-source research note under research/ covering model routing, prompting, limitations, safety, provenance, and evaluation.
+
 ### 2026-08-28 — Expand executable artistic media routing
 
 - **Requesting user:** Distasteful
