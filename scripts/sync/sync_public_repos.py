@@ -31,13 +31,14 @@ except ImportError:
     def resolve_repo_root(override: str | Path | None = None) -> Path:
         return Path(override).resolve() if override else DEFAULT_ROOT
 
-from _wiki_template import (  # noqa: E402
+from _harness_template import (  # noqa: E402
+    HARNESS_TEMPLATE_MODE,
     WIKI_TEMPLATE_ALLOWED_DOT_DIRS,
-    WIKI_TEMPLATE_MODE,
-    is_wiki_template_rel_kept,
-    wiki_template_dir_may_contain_kept,
-    wiki_template_post_copy_files,
-    wiki_template_prune_dest_leftovers,
+    harness_template_dir_may_contain_kept,
+    harness_template_post_copy_files,
+    harness_template_prune_dest_leftovers,
+    harness_template_sanitize_file_content,
+    is_harness_template_rel_kept,
 )
 
 
@@ -63,6 +64,22 @@ DEFAULT_REPO_MAPPINGS: dict[str, dict[str, str]] = {
         "description": "Industry standard references and machine-readable catalogs export",
     },
     "ai-research-and-benchmarks": {
+        "subpaths": [
+            {
+                "source_subpath": "research",
+                "dest_subpath": "research",
+            },
+            {
+                "source_subpath": "supporting/benchmarks",
+                "dest_subpath": "benchmarks/supporting",
+                "optional": True,
+            },
+            {
+                "source_subpath": "scripts/benchmarks",
+                "dest_subpath": "harnesses/benchmarks",
+                "optional": True,
+            },
+        ],
         "source_subpath": "research",
         "dest_subpath": "research",
         "description": "AI research and benchmarks export",
@@ -70,8 +87,8 @@ DEFAULT_REPO_MAPPINGS: dict[str, dict[str, str]] = {
     "ai-harness-core": {
         "source_subpath": ".",
         "dest_subpath": ".",
-        "description": "Generic wiki harness template export",
-        "mode": WIKI_TEMPLATE_MODE,
+        "description": "Generic harness template export",
+        "mode": HARNESS_TEMPLATE_MODE,
     },
 }
 
@@ -449,14 +466,16 @@ class SyncEngine:
 
             pruned: list[str] = []
             for d in dirs:
-                if d in EXCLUDED_NAMES:
-                    continue
-                if d.startswith("."):
-                    if not (mode == WIKI_TEMPLATE_MODE and d in WIKI_TEMPLATE_ALLOWED_DOT_DIRS):
+                if mode == HARNESS_TEMPLATE_MODE and d in WIKI_TEMPLATE_ALLOWED_DOT_DIRS:
+                    pass
+                else:
+                    if d in EXCLUDED_NAMES:
                         continue
-                if mode == WIKI_TEMPLATE_MODE:
+                    if d.startswith("."):
+                        continue
+                if mode == HARNESS_TEMPLATE_MODE:
                     child_rel = f"{rel_root}/{d}" if rel_root else d
-                    if not wiki_template_dir_may_contain_kept(child_rel):
+                    if not harness_template_dir_may_contain_kept(child_rel):
                         continue
                 pruned.append(d)
             dirs[:] = pruned
@@ -465,9 +484,9 @@ class SyncEngine:
                 if f in EXCLUDED_NAMES or any(f.endswith(ext) for ext in EXCLUDED_EXTENSIONS):
                     continue
                 src_file = root_path / f
-                if mode == WIKI_TEMPLATE_MODE:
+                if mode == HARNESS_TEMPLATE_MODE:
                     rel = src_file.relative_to(src_dir).as_posix()
-                    if not is_wiki_template_rel_kept(rel):
+                    if not is_harness_template_rel_kept(rel):
                         continue
                 collected.append(src_file)
         return collected
@@ -509,6 +528,7 @@ class SyncEngine:
         src_file: Path,
         dest_file: Path,
         result: RepoSyncResult,
+        mode: str | None = None,
     ) -> None:
         result.files_scanned += 1
         is_binary = False
@@ -534,6 +554,8 @@ class SyncEngine:
             return
 
         display_rel = src_file.relative_to(self.source_root).as_posix()
+        if mode == HARNESS_TEMPLATE_MODE:
+            raw_text = harness_template_sanitize_file_content(display_rel, raw_text)
         self._sync_text_payload(dest_file, raw_text, display_rel, result)
 
     def sync_repo(self, repo_name: str) -> RepoSyncResult:
@@ -548,33 +570,48 @@ class SyncEngine:
             )
 
         mapping = self.mappings[repo_name]
-        src_dir = self.source_root / mapping["source_subpath"]
-        dst_dir = self._resolve_dest_path(repo_name, mapping["dest_subpath"])
+        subpaths = mapping.get("subpaths")
+        if not subpaths:
+            subpaths = [{
+                "source_subpath": mapping.get("source_subpath", ""),
+                "dest_subpath": mapping.get("dest_subpath", ""),
+            }]
+
+        primary_src = self.source_root / subpaths[0]["source_subpath"]
+        primary_dst = self._resolve_dest_path(repo_name, subpaths[0]["dest_subpath"])
 
         result = RepoSyncResult(
             repo_name=repo_name,
             status="success",
-            source_dir=str(src_dir),
-            dest_dir=str(dst_dir),
+            source_dir=str(primary_src),
+            dest_dir=str(primary_dst),
         )
 
-        if not src_dir.exists():
-            result.status = "failed"
-            result.errors.append(f"Source directory does not exist: {src_dir}")
-            return result
+        mode = mapping.get("mode")
+        for sub in subpaths:
+            src_sub = sub["source_subpath"]
+            dst_sub = sub["dest_subpath"]
+            src_dir = self.source_root / src_sub
+            dst_dir = self._resolve_dest_path(repo_name, dst_sub)
 
-        for src_file in sorted(self._walk_source_files(src_dir, mapping)):
-            rel_to_src = src_file.relative_to(src_dir)
-            dest_file = dst_dir / rel_to_src
-            self._sync_one_file(src_file, dest_file, result)
+            if not src_dir.exists():
+                if not sub.get("optional"):
+                    result.status = "failed"
+                    result.errors.append(f"Source directory does not exist: {src_dir}")
+                continue
 
-        if mapping.get("mode") == WIKI_TEMPLATE_MODE:
-            for rel, content in wiki_template_post_copy_files(dst_dir).items():
-                dest_file = dst_dir / rel
+            for src_file in sorted(self._walk_source_files(src_dir, mapping)):
+                rel_to_src = src_file.relative_to(src_dir)
+                dest_file = dst_dir / rel_to_src
+                self._sync_one_file(src_file, dest_file, result, mode=mode)
+
+        if mapping.get("mode") == HARNESS_TEMPLATE_MODE:
+            if not self.dry_run:
+                harness_template_prune_dest_leftovers(primary_dst)
+            for rel, content in harness_template_post_copy_files(primary_dst, source_root=primary_src).items():
+                dest_file = primary_dst / rel
                 result.files_scanned += 1
                 self._sync_text_payload(dest_file, content, rel, result)
-            if not self.dry_run:
-                wiki_template_prune_dest_leftovers(dst_dir)
 
         return result
 
@@ -632,21 +669,133 @@ class SyncEngine:
                 violations.append(f"Unknown repository: '{repo}'")
                 continue
             mapping = self.mappings[repo]
-            src_dir = self.source_root / mapping["source_subpath"]
-            if not src_dir.exists():
-                violations.append(f"Source directory missing for {repo}: {src_dir}")
-                continue
+            subpaths = mapping.get("subpaths")
+            if not subpaths:
+                subpaths = [{"source_subpath": mapping["source_subpath"], "dest_subpath": mapping["dest_subpath"]}]
 
-            for p in self._walk_source_files(src_dir, mapping):
-                try:
-                    text = p.read_text(encoding="utf-8")
-                except UnicodeDecodeError:
+            for sub in subpaths:
+                src_dir = self.source_root / sub["source_subpath"]
+                if not src_dir.exists():
+                    if not sub.get("optional"):
+                        violations.append(f"Source directory missing for {repo}: {src_dir}")
                     continue
-                rel = p.relative_to(self.source_root).as_posix()
-                file_violations = self.redactor.find_violations(text, rel)
-                violations.extend(file_violations)
+
+                for p in self._walk_source_files(src_dir, mapping):
+                    try:
+                        text = p.read_text(encoding="utf-8")
+                    except UnicodeDecodeError:
+                        continue
+                    rel = p.relative_to(self.source_root).as_posix()
+                    file_violations = self.redactor.find_violations(text, rel)
+                    violations.extend(file_violations)
 
         return len(violations) == 0, violations
+
+
+INTERNAL_ONLY_DOMAINS: set[str] = {
+    "change-history",
+    "scratch",
+    "results",
+    "projects",
+    "actionable",
+    "scripts/sync",
+    "scripts/change-history",
+    "scripts/projects",
+    "scripts/repos",
+    "scripts/cost-layers",
+    "scripts/docs",
+    "scripts/github",
+    "scripts/google",
+    "scripts/llm",
+    "scripts/cloud",
+    "scripts/confluence",
+    "scripts/slack",
+    "scripts/qmd",
+    "scripts/references",
+    "scripts/research",
+    "scripts/results",
+    "scripts/routing",
+    "scripts/ai-tooling",
+    "scripts/tests",
+    "scripts/windows-security",
+    "scripts/_lib",
+    "ai-tooling/memory",
+    "ai-tooling/agents",
+    "ai-tooling/a2a",
+    "supporting/powershell",
+    "supporting/github",
+    "supporting/tabler",
+    "supporting/foundation",
+    "supporting/cloudflare",
+    "supporting/noir",
+    "supporting/mermaid",
+    "supporting/slack",
+    "supporting/google",
+    "supporting/confluence",
+    "supporting/qmd",
+    "supporting/headroom",
+    "supporting/ast-grep",
+    "supporting/terraform",
+    "supporting/aws",
+    "supporting/discovery",
+}
+
+
+def check_downstream_source_coverage(
+    source_root: Path,
+    mappings: dict[str, Any] | None = None,
+) -> tuple[bool, list[str], list[str]]:
+    """Audit source directories in ai-router to ensure every domain directory is mapped or declared internal."""
+    if mappings is None:
+        mappings = DEFAULT_REPO_MAPPINGS
+
+    mapped_sources: set[str] = set()
+    for mapping in mappings.values():
+        if mapping.get("mode") == HARNESS_TEMPLATE_MODE:
+            continue
+        subpaths = mapping.get("subpaths")
+        if subpaths:
+            for sub in subpaths:
+                mapped_sources.add(sub["source_subpath"].replace("\\", "/").rstrip("/"))
+        elif "source_subpath" in mapping:
+            mapped_sources.add(mapping["source_subpath"].replace("\\", "/").rstrip("/"))
+
+    covered: list[str] = []
+    unmapped: list[str] = []
+
+    audit_roots = [
+        ("ai-tooling/skills", source_root / "ai-tooling" / "skills"),
+        ("docs/standards", source_root / "docs" / "standards"),
+        ("references", source_root / "references"),
+        ("research", source_root / "research"),
+        ("supporting", source_root / "supporting"),
+        ("scripts", source_root / "scripts"),
+    ]
+
+    for prefix, root_dir in audit_roots:
+        if not root_dir.exists():
+            continue
+        if prefix in mapped_sources:
+            covered.append(prefix)
+            continue
+
+        for child in sorted(root_dir.iterdir()):
+            if not child.is_dir() or child.name.startswith(".") or child.name == "__pycache__":
+                continue
+            rel_path = child.relative_to(source_root).as_posix()
+            if rel_path in INTERNAL_ONLY_DOMAINS or any(rel_path.startswith(d + "/") for d in INTERNAL_ONLY_DOMAINS):
+                continue
+            if (
+                rel_path in mapped_sources
+                or any(rel_path.startswith(m + "/") for m in mapped_sources)
+                or any(m.startswith(rel_path) for m in mapped_sources)
+                or prefix in mapped_sources
+            ):
+                covered.append(rel_path)
+            else:
+                unmapped.append(rel_path)
+
+    return len(unmapped) == 0, covered, unmapped
 
 
 def format_text_report(report: SyncReport) -> str:
@@ -754,6 +903,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Source-cleanliness linter: scan source for secrets and proprietary leaks. Export leak control is --dry-run (redaction on copy).",
     )
     parser.add_argument(
+        "--check-coverage",
+        action="store_true",
+        help="Audit source domains to ensure all areas are mapped to downstream repos or declared internal-only.",
+    )
+    parser.add_argument(
         "--report-file",
         type=Path,
         default=None,
@@ -769,6 +923,27 @@ def main(argv: list[str] | None = None) -> int:
 
     source_root = resolve_repo_root(args.source)
     dest_root = args.dest.resolve() if args.dest else (source_root / "scratch" / "exports")
+
+    if args.check_coverage:
+        is_ok, covered, unmapped = check_downstream_source_coverage(source_root)
+        if args.json:
+            out = {
+                "check_coverage": True,
+                "ok": is_ok,
+                "covered_count": len(covered),
+                "unmapped_count": len(unmapped),
+                "covered": covered,
+                "unmapped": unmapped,
+            }
+            print(json.dumps(out, indent=2))
+        else:
+            if is_ok:
+                print(f"OK: All {len(covered)} source domains are mapped downstream or declared internal.")
+            else:
+                print(f"COVERAGE FAILED: Found {len(unmapped)} unmapped source domain(s):")
+                for u in unmapped:
+                    print(f"  ! Unmapped: {u}")
+        return 0 if is_ok else 1
 
     redactor = RedactionEngine()
     engine = SyncEngine(

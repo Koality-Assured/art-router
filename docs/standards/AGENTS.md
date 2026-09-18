@@ -1,13 +1,6 @@
-# Artistic standards
+# Generic harness template
 
-This area owns the normative, domain-specific standards that guide artistic
-intent, interpretation, representation, production, accessibility, safety,
-cultural responsibility, provenance, and release. Keep universal practice
-rules in `artistic-practice.md` and medium-specific controls in
-`artistic-representations.md` or a clearly scoped annex.
+This area is a placeholder in the generic (non-domain-fed) harness clone.
 
-Research notes and source inventories belong in `research/` or `references/`;
-repeatable tool procedures belong in `ai-tooling/skills/` or `supporting/`.
-Do not present a medium heuristic, legal note, or cultural recommendation as a
-universal law of art. Label jurisdictional requirements and require local
-professional or community review where applicable.
+Feed your own domain content here later. Do not ship this instance's security
+corpus, cloud-provider skills, or project/research dumps in the template.

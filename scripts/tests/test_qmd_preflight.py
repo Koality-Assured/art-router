@@ -24,7 +24,7 @@ class QmdPreflightTests(unittest.TestCase):
     def test_candidate_paths_honor_cache_override_without_duplicates(self) -> None:
         paths = qmd_preflight.candidate_index_paths(
             environ={"QMD_CACHE_DIR": "C:/cache/qmd", "XDG_CACHE_HOME": "C:/cache"},
-            home=Path("C:/Users/example"),
+            home=Path("C:/home/developer"),
             repo_root=Path("C:/repo"),
         )
         self.assertEqual(paths[0], Path("C:/repo/.qmd/index.sqlite"))
@@ -34,7 +34,7 @@ class QmdPreflightTests(unittest.TestCase):
     def test_config_candidates_prioritizes_repo_local(self) -> None:
         paths = qmd_preflight.config_candidates(
             environ={"XDG_CONFIG_HOME": "C:/config"},
-            home=Path("C:/Users/example"),
+            home=Path("C:/home/developer"),
             repo_root=Path("C:/repo"),
         )
         self.assertEqual(paths[0], Path("C:/repo/.qmd/index.yml"))

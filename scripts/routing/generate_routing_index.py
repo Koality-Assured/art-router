@@ -152,45 +152,50 @@ def write_skill_dispatch(*, now: str, rows: list[dict[str, Any]] | None = None) 
         )
 
     # Composite skill prerequisites and failure policies section
-    lines.extend(
-        [
-            "",
-            "## Composite skill prerequisites and failure policies",
-            "",
-            "| Skill | Required skills | Delegated skills | In-session skills | Binary prerequisites | Failure policy |",
-            "| --- | --- | --- | --- | --- | --- |",
-        ]
-    )
+    composite_rows = []
     for row in rows:
-        link_target = skill_link_map.get(row["name"], f"../ai-tooling/skills/{row['name']}/SKILL.md")
-        skill_link = f"[`{row['name']}`]({link_target})"
         deps = row.get("dependencies", {})
         req_list = deps.get("required_skills", [])
         del_list = deps.get("delegated_skills", [])
         ins_list = deps.get("in_session_skills", [])
         prereqs_list = row.get("prerequisites", [])
+        fail_policy = row.get("on_failure")
+        if req_list or del_list or ins_list or prereqs_list or (fail_policy and fail_policy != "abort_and_rollback"):
+            composite_rows.append((row, req_list, del_list, ins_list, prereqs_list, fail_policy or "abort_and_rollback"))
 
-        req_str = (
-            ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in req_list)
-            if req_list
-            else "—"
+    if composite_rows:
+        lines.extend(
+            [
+                "",
+                "## Composite skill prerequisites and failure policies",
+                "",
+                "| Skill | Required skills | Delegated skills | In-session skills | Binary prerequisites | Failure policy |",
+                "| --- | --- | --- | --- | --- | --- |",
+            ]
         )
-        del_str = (
-            ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in del_list)
-            if del_list
-            else "—"
-        )
-        ins_str = (
-            ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in ins_list)
-            if ins_list
-            else "—"
-        )
-        prereqs_str = ", ".join(f"`{p}`" for p in prereqs_list) if prereqs_list else "—"
-        fail_str = f"`{row.get('on_failure', 'abort_and_rollback')}`"
+        for row, req_list, del_list, ins_list, prereqs_list, fail_str in composite_rows:
+            link_target = skill_link_map.get(row["name"], f"../ai-tooling/skills/{row['name']}/SKILL.md")
+            skill_link = f"[`{row['name']}`]({link_target})"
+            req_str = (
+                ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in req_list)
+                if req_list
+                else "—"
+            )
+            del_str = (
+                ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in del_list)
+                if del_list
+                else "—"
+            )
+            ins_str = (
+                ", ".join(f"[`{s}`]({skill_link_map.get(s, f'../ai-tooling/skills/{s}/SKILL.md')})" for s in ins_list)
+                if ins_list
+                else "—"
+            )
+            prereqs_str = ", ".join(f"`{p}`" for p in prereqs_list) if prereqs_list else "—"
 
-        lines.append(
-            f"| {skill_link} | {req_str} | {del_str} | {ins_str} | {prereqs_str} | {fail_str} |"
-        )
+            lines.append(
+                f"| {skill_link} | {req_str} | {del_str} | {ins_str} | {prereqs_str} | `{fail_str}` |"
+            )
 
     lines.append("")
     SKILL_DISPATCH.write_text("\n".join(lines), encoding="utf-8")
@@ -205,13 +210,11 @@ def collect_agent_rows() -> list[dict[str, Any]]:
     return rows
 
 
-def render_agent_dispatch(
-    repo_root: Path, *, now: str, rows: list[dict[str, Any]] | None = None
-) -> str:
-    """Render agent-dispatch Markdown from an explicit checkout."""
+def render_agent_dispatch(repo_root: Path, *, now: str, rows: list[dict[str, Any]] | None = None) -> str:
+    """Return agent-dispatch.md generated from ``repo_root/ai-tooling/agents/*/AGENT.md``."""
     if rows is None:
-        rows = [load_agent_record(path) for path in agent_paths(repo_root)]
-    rows.sort(key=lambda row: str(row.get("agent_id", "")))
+        rows = [load_agent_record(p) for p in agent_paths(repo_root)]
+    rows.sort(key=lambda r: str(r.get("agent_id", "")))
     lines = [
         "---",
         "doc_kind: routing_map",
@@ -268,10 +271,10 @@ def render_agent_dispatch(
 
 
 def write_agent_dispatch(*, now: str, rows: list[dict[str, Any]] | None = None) -> int:
-    """Write the generated agent catalogue and return its row count."""
+    rows = collect_agent_rows() if rows is None else rows
     content = render_agent_dispatch(ROOT, now=now, rows=rows)
     AGENT_DISPATCH.write_text(content, encoding="utf-8")
-    return len(rows) if rows is not None else len(collect_agent_rows())
+    return len(rows)
 
 
 def main() -> int:

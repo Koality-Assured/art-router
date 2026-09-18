@@ -1,0 +1,52 @@
+# Cursor AGENT access ignore (Read, Write, Tab, @-mention).
+# Official: https://cursor.com/docs/reference/ignore-file
+#
+# Do NOT list scratch/worktrees here. isolate-work places mutating specialists
+# in those git checkouts; .cursorignore blocks Agent file tools entirely.
+# Keep scratch out of embeddings with .gitignore and .cursorindexingignore.
+# Override gitignore for isolate-work checkouts (Cursor may treat gitignore as
+# Agent deny). Negations only work for nested paths if the parent dir is not
+# excluded in THIS file via scratch/**.
+!scratch/worktrees/
+!scratch/worktrees/**
+!scratch/AGENTS.md
+!scratch/README.md
+scratch/scaffolded-repos/**
+.*oauth_token*.json
+
+# Tooling and build caches
+.cache/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+__pycache__/
+*.pyc
+
+# Local environments and secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Large binaries and reports in results
+results/**/*.pptx
+results/**/*.docx
+results/**/*.xlsx
+results/**/*.pdf
+results/**/*.zip
+
+# Large reference raw dumps
+references/**/*.pdf
+references/**/*.zip
+references/**/*.xlsx
+references/**/*.xml
+**/enterprise-attack*.json
+!**/catalogs/*.json
+**/*STIX*
+**/ATLAS-*.yaml
+
+# Local qmd databases (keep index.yml)
+.qmd/*.sqlite
+.qmd/*.db

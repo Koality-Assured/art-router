@@ -73,3 +73,32 @@ When invoking CLI tools or Python scripts with arguments that may contain whites
 ```powershell
 python scripts/cost-layers/extract_ast_facts.py --target "supporting/powershell"
 ```
+
+### Pattern F: Workspace vs Artifact tool boundaries (`write_to_file`)
+
+Antigravity's `write_to_file` tool strictly differentiates brain artifacts from workspace files:
+- When writing workspace code, tests, or documentation under `[REPO_ROOT]/`, **omit `ArtifactMetadata` entirely**.
+- Supplying `ArtifactMetadata` to a workspace path triggers an `invalid_args: not a valid artifact path` error because `ArtifactMetadata` is reserved exclusively for the host brain artifact directory (`<appDataDir>\brain\<conversation-id>`).
+
+### Pattern G: CLI subcommand flags & area registration
+
+1. **Explicit flags over positional arguments**: Scripts such as `spawn_worktree.py remove` require `--slug <slug>` (e.g. `python scripts/routing/spawn_worktree.py remove --slug my-task`). Passing positional arguments causes argparse validation failures.
+2. **Area registration gating**: `spawn_worktree.py check` and `add` validate area names strictly against `routing/areas.yaml`. Passing unregistered top-level folders (e.g. `config/`) will fail validation; only use registered area identifiers (`ai-tooling`, `scripts`, `docs`, `results`, etc.).
+
+### Pattern H: Mutation gates and preflight inspection
+
+Mutation scripts that rebuild or touch shared indexes (such as `python scripts/qmd/refresh_qmd_index.py`) enforce safety gates:
+- Run the inspection preflight first (`python scripts/qmd/qmd_preflight.py`).
+- If refresh is genuinely required, pass `--approved-by-user` explicitly.
+
+### Pattern I: Script execution policy and npm global shims (`qmd.ps1` vs `qmd.cmd`)
+
+When running npm global CLI tools like `qmd` directly inside Windows PowerShell:
+- PowerShell resolves `.ps1` before `.cmd` in `PATH`. On default Windows configurations where `ExecutionPolicy` is undefined / `Restricted`, invoking `qmd` triggers `PSSecurityException: File C:\...\qmd.ps1 cannot be loaded because running scripts is disabled on this system`.
+- **One-time user fix (no elevation required)**:
+  ```powershell
+  Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+  ```
+- **CLI / script fallback**: Call `qmd.cmd` explicitly (e.g. `qmd.cmd search "<query>"`), invoke via `node.exe`, or use repo Python tools which implement `resolve_qmd()` to prefer `qmd.cmd` / `node.exe`.
+
+

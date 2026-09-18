@@ -72,23 +72,6 @@ class TestTier1FastPath(unittest.TestCase):
             self.assertEqual(res.confidence, 1.0)
             self.assertEqual(res.tier, 1)
 
-    def test_artistic_requests_route_to_request_contract_at_tier_one(self) -> None:
-        test_cases = [
-            "Edit and preserve the original image composition",
-            "Create a captioned animation with transcript access",
-        ]
-        for query in test_cases:
-            res = self.tier1.evaluate(query)
-            self.assertTrue(res.matched, f"Query '{query}' should match Tier 1")
-            self.assertEqual(res.skill, "request-contract")
-            self.assertEqual(res.owner_agent, "artistic-standards-reviewer")
-            self.assertEqual(res.reason, "unambiguous_match")
-
-    def test_artistic_fast_path_requires_operation_and_media_term(self) -> None:
-        for query in ("An image for the dashboard", "Create a report", "Edit the document"):
-            res = self.tier1.evaluate(query)
-            self.assertFalse(res.matched, f"Ordinary query '{query}' must not hit request-contract")
-
     def test_no_match_returns_cleanly(self) -> None:
         res = self.tier1.evaluate("What is the capital of France and how is the weather?")
         self.assertFalse(res.matched)
@@ -229,18 +212,6 @@ class TestHybridDispatcher(unittest.TestCase):
         self.assertEqual(res.owner_agent, "git-fast-operator")
         self.assertEqual(res.status, "dispatched")
         self.assertEqual(res.confidence, 1.0)
-
-    def test_dispatch_artistic_requests_not_ambiguity(self) -> None:
-        for query in (
-            "Edit and preserve the original image composition",
-            "Create a captioned animation with transcript access",
-        ):
-            res = self.dispatcher.dispatch(query, tier="all")
-            self.assertEqual(res.selected_tier, 1)
-            self.assertEqual(res.final_target, "request-contract")
-            self.assertEqual(res.owner_agent, "artistic-standards-reviewer")
-            self.assertEqual(res.status, "dispatched")
-            self.assertIsNone(res.tier3)
 
     def test_dispatch_tier2_bm25(self) -> None:
         # Tier 2 specific invocation

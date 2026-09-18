@@ -55,11 +55,33 @@ class PacingUnitTests(unittest.TestCase):
         self.assertIsNone(parse_reset_duration("Generic 500 internal server error"))
         self.assertIsNone(parse_reset_duration(""))
 
-    def test_resolve_quota_profile_uses_caller_host_policy(self) -> None:
-        policy = {"local": "unmetered", "shared": "metered_secondary"}
-        self.assertEqual(resolve_quota_profile(host="local", host_profiles=policy), "unmetered")
-        self.assertEqual(resolve_quota_profile(host="shared", host_profiles=policy), "metered_secondary")
-        self.assertEqual(resolve_quota_profile(host="unknown", host_profiles=policy), "standard")
+    def test_resolve_quota_profile_enterprise_cursor(self) -> None:
+        self.assertEqual(resolve_quota_profile(host="cursor"), "unmetered")
+        self.assertEqual(resolve_quota_profile(host="enterprise"), "unmetered")
+
+    def test_resolve_quota_profile_secondary_antigravity(self) -> None:
+        self.assertEqual(
+            resolve_quota_profile(host="antigravity", model_name="Claude Opus 4.6 (Thinking)"),
+            "metered_secondary",
+        )
+        self.assertEqual(
+            resolve_quota_profile(host="antigravity", model_name="claude-sonnet-4.6"),
+            "metered_secondary",
+        )
+        self.assertEqual(
+            resolve_quota_profile(host="antigravity", model_name="gpt-4o"),
+            "metered_secondary",
+        )
+
+    def test_resolve_quota_profile_native_antigravity(self) -> None:
+        self.assertEqual(
+            resolve_quota_profile(host="antigravity", model_name="Gemini 3.7 Flash"),
+            "standard",
+        )
+        self.assertEqual(
+            resolve_quota_profile(host="antigravity", model_name=None),
+            "standard",
+        )
 
     def test_resolve_quota_profile_env_override(self) -> None:
         self.assertEqual(
@@ -83,8 +105,9 @@ class PacingUnitTests(unittest.TestCase):
 
     def test_format_schedule_wakeup(self) -> None:
         payload = format_schedule_wakeup(17820, "Resume batch 2")
-        self.assertEqual(payload["delay_seconds"], 17820)
-        self.assertEqual(payload["action"], "Resume batch 2")
+        self.assertEqual(payload["DurationSeconds"], 17820)
+        self.assertEqual(payload["Prompt"], "Resume batch 2")
+        self.assertEqual(payload["TimerCondition"], "never")
 
     def test_load_quota_profiles(self) -> None:
         profiles = load_quota_profiles()

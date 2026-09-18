@@ -26,10 +26,14 @@ from sync_public_repos import (  # noqa: E402
     RedactionEngine,
     SyncEngine,
     build_default_rules,
+    check_downstream_source_coverage,
 )
 
 DOWNSTREAM_REPOS = list(DEFAULT_REPO_MAPPINGS.keys())
-SKILL_FAMILIES = {"admin", "aws", "azure", "community", "cost-layers", "gcp", "git", "google", "memory", "meta", "reporting"}
+from _harness_template import (  # noqa: E402
+    HARNESS_TEMPLATE_SKILL_FAMILIES,
+    INSTANCE_SKILL_FAMILIES,
+)
 
 
 @dataclasses.dataclass
@@ -58,14 +62,18 @@ class DownstreamPublishResult:
         }
 
 
-def prune_legacy_skill_dirs(skills_dir: Path) -> list[str]:
-    """Remove obsolete flat skill directories from downstream skills folder."""
+def prune_legacy_skill_dirs(
+    skills_dir: Path,
+    families: frozenset[str] | None = None,
+) -> list[str]:
+    """Remove obsolete flat skill directories from a downstream skills folder."""
+    allowed = families if families is not None else INSTANCE_SKILL_FAMILIES
     pruned: list[str] = []
     if not skills_dir.exists():
         return pruned
 
     for child in list(skills_dir.iterdir()):
-        if child.is_dir() and child.name not in SKILL_FAMILIES and not child.name.startswith("."):
+        if child.is_dir() and child.name not in allowed and not child.name.startswith("."):
             pruned.append(child.name)
             shutil.rmtree(child)
     return pruned
@@ -135,9 +143,14 @@ def sync_and_push_downstreams(
             )
             continue
 
-        # Prune legacy skills in agent-skills-and-tools
+        # Prune legacy skills in agent-skills-and-tools and ai-harness-core
         if repo_name == "agent-skills-and-tools":
-            prune_legacy_skill_dirs(repo_dir / "skills")
+            prune_legacy_skill_dirs(repo_dir / "skills", INSTANCE_SKILL_FAMILIES)
+        elif repo_name == "ai-harness-core":
+            prune_legacy_skill_dirs(
+                repo_dir / "ai-tooling" / "skills",
+                HARNESS_TEMPLATE_SKILL_FAMILIES,
+            )
 
         # Check git status
         code, stdout, stderr = run_git_cmd(["git", "status", "-s"], repo_dir)
@@ -284,12 +297,31 @@ def main() -> int:
         help="Simulate synchronization without modifying downstream checkouts or git state",
     )
     parser.add_argument(
+        "--check-coverage",
+        action="store_true",
+        help="Audit source domains in ai-router to ensure they are mapped downstream or declared internal-only",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Output structured JSON results",
     )
 
     args = parser.parse_args()
+
+    if args.check_coverage:
+        is_ok, covered, unmapped = check_downstream_source_coverage(args.source.resolve())
+        if args.json:
+            print(json.dumps({"ok": is_ok, "covered": covered, "unmapped": unmapped}, indent=2))
+        else:
+            if is_ok:
+                print(f"OK: All {len(covered)} source domains are mapped downstream or declared internal.")
+            else:
+                print(f"COVERAGE FAILED: Found {len(unmapped)} unmapped source domain(s):")
+                for u in unmapped:
+                    print(f"  ! Unmapped: {u}")
+        return 0 if is_ok else 1
+
     results = sync_and_push_downstreams(
         source_root=args.source.resolve(),
         dest_root=args.dest.resolve(),

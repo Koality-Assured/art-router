@@ -4,10 +4,10 @@ name: sync-downstream-repos
 description: >-
   Synchronize sanitized downstream repositories and export directories with
   automatic credential redaction and audit logging. Use when exporting skills,
-  standards, research, or the generic wiki/harness template (ai-harness-core)
+  standards, research, or the generic harness template (ai-harness-core)
   to public downstream repos or validating export safety.
   Do not use for internal branch merges.
-owner_agent: repo-sync-ops
+owner_agent: harness-operator
 rank: high
 isolation: mutate
 dependencies:
@@ -41,7 +41,7 @@ High: Public repositories must never receive private credentials, internal file 
 
 - [`scripts/sync/sync_public_repos.py`](../../../../scripts/sync/sync_public_repos.py)
 - [`docs/agent-session-security.md`](../../../../docs/agent-session-security.md)
-- [`ai-tooling/skills/skill-conventions.md`](..\..\skill-conventions.md)
+- [`ai-tooling/skills/skill-conventions.md`](../../skill-conventions.md)
 - [`ai-tooling/skills/isolate-work/SKILL.md`](../isolate-work/SKILL.md)
 
 ## Isolation

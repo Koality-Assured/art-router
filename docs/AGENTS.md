@@ -40,10 +40,9 @@ When authoring or maintaining area `AGENTS.md` files, define:
 
 | Path | Contents |
 | --- | --- |
-| `standards/` | Generalized reusable standards, including the artistic practice contract and medium annexes |
+| `standards/` | Generalized reusable standards |
 | `guidance/` | Repeatable operational playbooks and how-to guides |
-| `standards/artistic-practice.md` | Universal intent, meaning, cultural, provenance, critique, and release contract |
-| `standards/artistic-representations.md` | Medium-specific decision, accessibility, safety, and handoff matrix |
+| `standards/harness-template.md` | Generic template vs this fed instance (`ai-harness-core`) |
 | `agent-session-security.md` | Critical session security MUST |
 | `anti-slop.md` | Deliverable prose/UI quality (anti-slop + humanizer) |
 | `README.md` | Human folder index only |

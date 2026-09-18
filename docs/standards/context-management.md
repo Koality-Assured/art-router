@@ -165,14 +165,44 @@ The following anti-patterns cause prefix divergence, cache eviction, or security
 
 ---
 
+## Cross-Host Subagent Context Isolation Standards
+
+Subagents must operate with strictly bounded, isolated context to prevent context bloat, prompt drift, token waste, and instruction bleeding.
+
+### 1. The Clean-Slate Subagent Principle
+
+When an orchestrating agent spawns a specialist subagent, the subagent MUST be initialized with a **clean slate**:
+- **Initial Knowledge**: The subagent knows *only* what the parent explicitly provides in its task prompt (the goal, specific parameters, designated `AGENT.md` / `SKILL.md` path, and target worktree path) plus its static base instructions (Tier 1/2).
+- **Autonomous Discovery**: The subagent acquires all other necessary codebase context *autonomously and Just-In-Time (JIT)* by querying the repository using structured tools (`qmd search` / `qmd get`, `ast-grep outline`, and line-bounded file reads).
+- **No Parent Transcript Inheritance**: Orchestrators MUST NOT copy, forward, or serialize historical multi-turn chat transcripts, assistant thoughts, or unrelated conversation logs into child prompts.
+
+### 2. Multi-Host Configuration and Enforcement Matrix
+
+| Host Platform | Project Configuration File(s) | Context Isolation Mechanism | Enforcement Method |
+| :--- | :--- | :--- | :--- |
+| **Claude (Claude Code / Anthropic)** | `CLAUDE.md`, `.claude/settings.json`, `.claude/agents/*.md` | Subagents run in isolated context windows ("amnesiac" to parent transcript); tool whitelisting in agent configs. | Coordinator passes explicit prompt via Agent tool; `.claude/settings.json` enforces `isolated_context: true`. |
+| **GPT / OpenAI (Agents SDK / Copilot / Codex)** | `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, `.codex/agents/*.toml` | Clean session instantiation (`Session`); input filtering on handoffs (`input_filter`); path-scoped `applyTo` globs. | Repo-level instructions enforce clean state; handoff filters prune conversation history before subagent invocation. |
+| **Cursor (Cursor IDE / Composer / Subagents)** | `.cursorignore`, `.cursorindexingignore`, `.cursor/rules/context-boundaries.mdc`, `.cursor/agents/*.md` | Clean-slate spawn via `.mdc` (`alwaysApply: true`). **Split ignores:** `.cursorignore` blocks Agent Read/Write/Tab/@; `.cursorindexingignore` and `.gitignore` prune embeddings only. | Never put `scratch/worktrees/` in `.cursorignore` (isolate-work checkouts). Index those trees via `.cursorindexingignore`. Official: [Ignore file](https://cursor.com/docs/reference/ignore-file). |
+| **Google Antigravity (AGY / Gemini)** | `GEMINI.md`, `config/harness.config.json`, `AGENTS.md` | Dedicated `invoke_subagent` tool with explicit parameters (`TypeName`, `Role`, `Prompt`, `Model`, `Workspace`); progressive disclosure. | Harness schema validation enforces `require_clean_state: true`, `prohibit_transcript_forwarding: true`, and JIT skill loading. |
+
+### 3. Anti-Patterns in Subagent Context Delegation
+
+1. **Transcript Dumping**: Pasting the full multi-turn coordinator chat history into the child's `Prompt` parameter. This pollutes the subagent's attention window and breaks prompt caching.
+2. **Whole-Repository Preloading**: Instructing a subagent to dump or read the entire repository tree ahead of time. Subagents must use JIT search (`qmd`) and symbol outlines (`ast-grep`).
+3. **Padded Definitions of Done**: Expanding subagent task prompts with unrequested coordinator chores rather than passing the concise, bounded task contract.
+4. **Agent-access ignore on worktrees**: Listing `scratch/` or `scratch/worktrees/` in `.cursorignore` (or a host tool denylist) so specialists cannot Read/Write their isolated checkout. Use `.gitignore` / `.cursorindexingignore` for indexing only.
+
+---
+
 ## Verification and Enforcement
 
 1. **Automated Cache Validation**: Agent harnesses SHOULD verify cache hit rates using `python scripts/cost-layers/validate_cost_layers.py`.
-2. **Provider Telemetry Monitoring**: Monitor API response headers:
+2. **Subagent Context Configuration Validation**: Run `python -m unittest scripts/tests/test_subagent_context_config.py` to verify multi-host configuration files, rules, and schema compliance.
+3. **Provider Telemetry Monitoring**: Monitor API response headers:
    - Anthropic: `cache_creation_input_tokens` vs. `cache_read_input_tokens`.
    - OpenAI: `usage.prompt_tokens_details.cached_tokens`.
    - Gemini: `cached_content_token_count`.
-3. **AST Linting**: `ast-grep` rules enforce deterministic JSON serialization and ban Base64 execution patterns across all harness scripts.
+4. **AST Linting**: `ast-grep` rules enforce deterministic JSON serialization and ban Base64 execution patterns across all harness scripts.
 
 ---
 
@@ -180,6 +210,8 @@ The following anti-patterns cause prefix divergence, cache eviction, or security
 
 - AI Development Security: [`ai-development-security.md`](./ai-development-security.md)
 - Agent Session Security: [`../agent-session-security.md`](../agent-session-security.md)
+- Agent-to-Agent Protocol: [`../../ai-tooling/a2a/interaction-protocol.md`](../../ai-tooling/a2a/interaction-protocol.md)
 - Data Protection: [`data-protection.md`](./data-protection.md)
 - Context & Caching Research: [`../../research/agent-harnesses/context-and-prompt-caching.md`](../../research/agent-harnesses/context-and-prompt-caching.md)
 - Cost Layers Infrastructure: [`../../supporting/headroom/`](../../supporting/headroom/), [`../../supporting/ast-grep/`](../../supporting/ast-grep/), [`../../supporting/qmd/`](../../supporting/qmd/)
+

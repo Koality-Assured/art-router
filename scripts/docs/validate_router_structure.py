@@ -214,23 +214,26 @@ def check_memory(errors: list[str]) -> None:
     mem = ROOT / "ai-tooling" / "memory"
     user = mem / "user"
     agent = mem / "agent"
+    model = mem / "model"
     if not user.is_dir():
         err(errors, "missing ai-tooling/memory/user/")
     if not agent.is_dir():
         err(errors, "missing ai-tooling/memory/agent/")
+    if not model.is_dir():
+        err(errors, "missing ai-tooling/memory/model/")
     for flat in sorted(mem.glob("*.md")):
         if flat.name in {"README.md", "AGENTS.md"}:
             continue
         err(
             errors,
             f"{flat.relative_to(ROOT).as_posix()}: thread files must live under "
-            "memory/user/<git-identity>/ or memory/agent/<owner_agent_id>/",
+            "memory/user/<git-identity>/, memory/agent/<owner_agent_id>/, or memory/model/<model-family>/",
         )
     for path in sorted(mem.rglob("*.md")):
         if path.name in {"README.md", "AGENTS.md"}:
             continue
         rel = path.relative_to(mem).as_posix()
-        if not (rel.startswith("user/") or rel.startswith("agent/")):
+        if not (rel.startswith("user/") or rel.startswith("agent/") or rel.startswith("model/")):
             continue
         text = path.read_text(encoding="utf-8")
         if "**Status:**" not in text:
@@ -241,7 +244,7 @@ def check_memory(errors: list[str]) -> None:
 
 ALLOWED_RESULTS_FILES = frozenset({"AGENTS.md", "README.md", "results-conventions.md"})
 ALLOWED_RESULTS_FAMILIES = frozenset(
-    {"reports", "research", "diagrams", "threat-model", "as-code", "cost-layers"}
+    {"reports", "research", "diagrams", "threat-model", "as-code", "cost-layers", "benchmarks"}
 )
 RETIRED_REVIEWS_DIR = "reviews"
 GITKEEP_NAME = ".gitkeep"
@@ -307,6 +310,16 @@ def _check_retired_reviews(errors: list[str], reviews: Path) -> None:
         )
 
 
+def check_context_budget_limits(errors: list[str]) -> None:
+    try:
+        from validate_context_budget import check_context_budgets
+        ok, _, budget_errors = check_context_budgets(ROOT)
+        if not ok:
+            errors.extend(budget_errors)
+    except Exception as exc:
+        err(errors, f"context budget validation failed: {exc}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
@@ -323,6 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     check_dispatch(errors)
     check_memory(errors)
     check_results_layout(errors)
+    check_context_budget_limits(errors)
     payload = {"ok": not errors, "errors": errors, "warnings": warnings}
     if args.json:
         print(json.dumps(payload, indent=2))

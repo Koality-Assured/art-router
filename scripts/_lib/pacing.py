@@ -1,7 +1,8 @@
 """Quota management, subagent down-tiering, and pacing helpers. Not indexed (_lib).
 
 Provides profile resolution, 429 reset duration parsing, and batch chunking
-for multi-agent workflows with different quota classes.
+for multi-agent workflows running on metered secondary models, platform-native
+models, or enterprise unmetered clusters.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ DEFAULT_QUOTA_PROFILES: dict[str, dict[str, Any]] = {
         "max_concurrent_subagents": 8,
         "research_subagent_tier": "inherit",
         "pacing_delay_sec": 0,
-        "auto_schedule_on_429": False,
+        "auto_schedule_on_429": false if "false" == "true" else False,
         "description": "Enterprise provisioned throughput or uncapped subscriptions.",
     },
     "standard": {
@@ -91,21 +92,18 @@ def parse_reset_duration(error_text: str) -> int | None:
 
 
 def resolve_quota_profile(
-    host: str = "default",
+    host: str = "antigravity",
     model_name: str | None = None,
     env_override: str | None = None,
     profiles: dict[str, dict[str, Any]] | None = None,
-    host_profiles: dict[str, str] | None = None,
 ) -> str:
-    """Resolve a profile without baking in a vendor or host policy.
+    """Resolve active quota profile based on environment, host, and model.
 
     Precedence:
       1. Explicit env_override / ROUTER_QUOTA_PROFILE env var
-      2. Caller-supplied host_profiles mapping
-      3. Default to 'standard'
-
-    ``model_name`` remains accepted for API compatibility, but callers must
-    supply any model policy explicitly rather than relying on vendor names.
+      2. Host check (Cursor / Enterprise -> 'unmetered')
+      3. Secondary model check on Antigravity (Claude / GPT -> 'metered_secondary')
+      4. Default platform-native -> 'standard'
     """
     known_profiles = profiles or load_quota_profiles()
 
@@ -115,9 +113,16 @@ def resolve_quota_profile(
         return env_val
 
     host_norm = (host or "").strip().lower()
-    mapped = (host_profiles or {}).get(host_norm)
-    if mapped in known_profiles:
-        return mapped
+
+    # 2. Host check
+    if host_norm in ("cursor", "enterprise", "unmetered"):
+        return "unmetered"
+
+    # 3. Model check on Antigravity
+    if model_name:
+        model_lower = model_name.strip().lower()
+        if any(sec in model_lower for sec in ("claude", "opus", "sonnet", "haiku", "gpt", "openai", "o1", "o3")):
+            return "metered_secondary"
 
     return "standard"
 
@@ -130,8 +135,9 @@ def chunk_tasks(tasks: list[Any], max_concurrency: int) -> list[list[Any]]:
 
 
 def format_schedule_wakeup(reset_seconds: int, prompt_action: str) -> dict[str, Any]:
-    """Format a scheduler-neutral delayed-work payload."""
+    """Format payload for Antigravity schedule tool call."""
     return {
-        "delay_seconds": max(reset_seconds, 10),
-        "action": prompt_action,
+        "DurationSeconds": max(reset_seconds, 10),
+        "Prompt": prompt_action,
+        "TimerCondition": "never",
     }

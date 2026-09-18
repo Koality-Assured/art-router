@@ -7,7 +7,7 @@ description: >-
   OWASP, or similar catalogs, enriching stubs, or fixing stale captures. Do not
   use for inventing control IDs in reports (use qmd on existing topic files) or
   for docs/ standards (doc-builder).
-owner_agent: reference-ops
+owner_agent: document-operator
 rank: high
 isolation: mutate
 contracts:
@@ -53,7 +53,7 @@ High: captures must be versioned, dated (`captured_at_utc`), paraphrased, and ad
 5. Update the family table in `references/AGENTS.md` (keep family README human-thin) and register new sources in `scripts/references/sources.json`.
 6. Run `python scripts/references/validate_references.py` to enforce frontmatter, catalog size, and registry consistency.
 7. Compress bulky upstream text with Headroom/summarize before re-feeding.
-8. For human-readable narrative paraphrases (not raw JSON catalogs), apply [`anti-slop`](..\..\reporting\anti-slop\SKILL.md) then [`humanizer`](..\..\reporting\humanizer\SKILL.md) in this session — do not re-spawn artifact-agent for a quality pass on your own draft. Skip machine indexes and verbatim ID lists.
+8. For human-readable narrative paraphrases (not raw JSON catalogs), apply [`anti-slop`](../../reporting/anti-slop/SKILL.md) then [`humanizer`](../../reporting/humanizer/SKILL.md) in this session — do not re-spawn artifact-agent for a quality pass on your own draft. Skip machine indexes and verbatim ID lists.
 
 ## Dry run
 
