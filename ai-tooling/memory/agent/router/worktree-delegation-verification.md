@@ -1,8 +1,9 @@
 # Worktree delegation verification
 
-Status: Active  
-Last updated: 2026-08-31  
-Scope: art-router delegated mutating work
+- **Owner agent:** `router`
+- **Status:** Active
+- **Last updated:** 2026-08-31
+- **Scope:** art-router delegated mutating work
 
 ## Environment quirk
 

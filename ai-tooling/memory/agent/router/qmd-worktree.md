@@ -4,10 +4,11 @@ Last updated: 2026-08-27
 Scope: art-router qmd indexing
 ---
 
-## Common Failure Modes & Pitfalls
+# QMD Worktree Indexing
 
-**Status:** Active  
-**Last updated:** 2026-08-27
+- **Owner agent:** `router`
+- **Status:** Active
+- **Last updated:** 2026-08-27
 
 - Running `scripts/qmd/refresh_qmd_index.py` from the art-router worktree used the existing qmd collection roots under `C:\Code\ai-router`, so the new worktree Markdown was not indexed there.
 
