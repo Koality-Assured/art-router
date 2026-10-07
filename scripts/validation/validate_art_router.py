@@ -13,9 +13,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
+from datetime import date
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import SplitResult, urlsplit
 
 
 MAX_MANIFEST_BYTES = 4 * 1024 * 1024
@@ -23,11 +26,28 @@ MAX_CASES = 1000
 MAX_TEXT_LENGTH = 10_000
 MAX_CONTRACT_ITEMS = 100
 MAX_DESCRIPTOR_KEYS = 100
+MAX_EXTERNAL_MEDIA_ITEMS = 100
 
 CONTRACT_HARDNESS = {"hard", "soft"}
 CONTRACT_COMPARISONS = {"exact", "contains", "at_least", "at_most"}
 CAPABILITY_STATUSES = {"available", "adapted", "unavailable", "unknown", "unreported"}
 RESOLVED_STATES = {"resolved", "closed", "not_applicable"}
+EXTERNAL_SOURCE_KINDS = {"organization_mark", "publisher_cinematic"}
+EXTERNAL_USAGE_STATUSES = {"unknown", "permission_evidenced", "restricted"}
+EXTERNAL_USAGE_SCOPES = {
+    "organization_mark": "organization_identification_only",
+    "publisher_cinematic": "embed_only",
+}
+EMBEDDING_STATUSES = {"confirmed", "denied", "unknown"}
+YOUTUBE_EMBED_ORIGIN = "https://www.youtube-nocookie.com"
+YOUTUBE_CANONICAL_ORIGIN = "https://www.youtube.com"
+YOUTUBE_TERMS_REFERENCES = {
+    "https://developers.google.com/youtube/terms/required-minimum-functionality",
+    "https://support.google.com/youtube/answer/171780?hl=en",
+}
+YOUTUBE_SANDBOX_PROFILE = "youtube-player-restricted-v1"
+YOUTUBE_PERMISSIONS_PROFILE = "youtube-playback-no-autoplay-v1"
+YOUTUBE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 MEDIUM_ALIASES = {
     "2d": "illustration",
@@ -950,7 +970,293 @@ def _validate_controls(case: dict[str, Any], issues: list[Issue]) -> None:
         _text(reviewer.get("reviewed_at"), "reviewer.reviewed_at", issues)
 
 
-def _validate_case(case: Any, index: int) -> dict[str, Any]:
+def _check_record_keys(
+    record: dict[str, Any],
+    allowed: set[str],
+    field: str,
+    issues: list[Issue],
+) -> None:
+    if any(not isinstance(key, str) or key not in allowed for key in record):
+        _issue(issues, "unsupported_field", f"{field} contains an unsupported field")
+
+
+def _https_url(value: Any, field: str, issues: list[Issue]) -> tuple[str, SplitResult | None]:
+    text = _text(value, field, issues)
+    if text is None:
+        return "", None
+    try:
+        parsed = urlsplit(text)
+        hostname = parsed.hostname
+    except ValueError:
+        _issue(issues, "invalid_url", f"{field} must be a valid HTTPS URL")
+        return text, None
+    if parsed.scheme.lower() != "https" or not hostname or parsed.username or parsed.password:
+        _issue(issues, "invalid_url", f"{field} must be a valid HTTPS URL without credentials")
+        return text, None
+    return text, parsed
+
+
+def _iso_date(value: Any, field: str, issues: list[Issue]) -> date | None:
+    text = _text(value, field, issues)
+    if text is None:
+        return None
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", text, flags=re.ASCII):
+        _issue(issues, "invalid_date", f"{field} must use YYYY-MM-DD")
+        return None
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        _issue(issues, "invalid_date", f"{field} must be a valid calendar date")
+        return None
+
+
+def _required_false_bool(value: Any, field: str, issues: list[Issue]) -> None:
+    if not isinstance(value, bool):
+        _issue(issues, "invalid_type", f"{field} must be boolean")
+    elif value:
+        _issue(issues, "policy_violation", f"{field} must be false")
+
+
+def _required_true_bool(value: Any, field: str, issues: list[Issue]) -> None:
+    if not isinstance(value, bool):
+        _issue(issues, "invalid_type", f"{field} must be boolean")
+    elif not value:
+        _issue(issues, "click_to_load_required", f"{field} must be true")
+
+
+def _validate_external_source(
+    source: Any,
+    index: int,
+    issues: list[Issue],
+) -> tuple[str | None, str | None, str | None]:
+    field = f"external_media.sources[{index}]"
+    source_map = _mapping(source, field, issues)
+    if source_map is None:
+        return None, None, None
+
+    _check_record_keys(
+        source_map,
+        {
+            "id", "kind", "official_reference", "owner", "retrieved_on",
+            "intended_usage_scope", "usage_status", "usage_basis", "evidence_reference",
+            "transformation", "reviewer_role", "reviewed_on",
+        },
+        field,
+        issues,
+    )
+
+    source_id = _text(source_map.get("id"), f"{field}.id", issues)
+    if source_id is not None and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", source_id, flags=re.ASCII):
+        _issue(issues, "invalid_value", f"{field}.id must be a short stable identifier")
+        source_id = None
+
+    kind = _text(source_map.get("kind"), f"{field}.kind", issues)
+    normalized_kind = kind.lower() if kind is not None else None
+    if normalized_kind is not None and normalized_kind not in EXTERNAL_SOURCE_KINDS:
+        _issue(issues, "invalid_value", f"{field}.kind is not a supported external source kind")
+
+    _https_url(source_map.get("official_reference"), f"{field}.official_reference", issues)
+    _text(source_map.get("owner"), f"{field}.owner", issues)
+    retrieved_on = _iso_date(source_map.get("retrieved_on"), f"{field}.retrieved_on", issues)
+    intended_usage_scope = _text(
+        source_map.get("intended_usage_scope"), f"{field}.intended_usage_scope", issues
+    )
+    if (
+        normalized_kind in EXTERNAL_USAGE_SCOPES
+        and intended_usage_scope is not None
+        and intended_usage_scope != EXTERNAL_USAGE_SCOPES[normalized_kind]
+    ):
+        _issue(
+            issues,
+            "invalid_usage_scope",
+            f"{field}.intended_usage_scope does not match the declared source kind",
+        )
+
+    usage_status = _text(source_map.get("usage_status"), f"{field}.usage_status", issues)
+    normalized_status = usage_status.lower() if usage_status is not None else None
+    if normalized_status is not None and normalized_status not in EXTERNAL_USAGE_STATUSES:
+        _issue(issues, "invalid_value", f"{field}.usage_status is not a recognized status")
+    elif normalized_status in {"unknown", "restricted"}:
+        _issue(issues, "external_source_hold", f"{field}.usage_status does not permit portfolio delivery")
+
+    _text(source_map.get("usage_basis"), f"{field}.usage_basis", issues)
+    _text(source_map.get("evidence_reference"), f"{field}.evidence_reference", issues)
+    _text(source_map.get("transformation"), f"{field}.transformation", issues)
+    _text(source_map.get("reviewer_role"), f"{field}.reviewer_role", issues)
+    reviewed_on = _iso_date(source_map.get("reviewed_on"), f"{field}.reviewed_on", issues)
+    if retrieved_on is not None and reviewed_on is not None and reviewed_on < retrieved_on:
+        _issue(issues, "invalid_date_order", f"{field}.reviewed_on must not precede retrieved_on")
+
+    return source_id, normalized_kind, normalized_status
+
+
+def _validate_publisher_embed(
+    embed: Any,
+    index: int,
+    sources: dict[str, tuple[str | None, str | None]],
+    issues: list[Issue],
+) -> None:
+    field = f"external_media.publisher_embeds[{index}]"
+    embed_map = _mapping(embed, field, issues)
+    if embed_map is None:
+        return
+
+    _check_record_keys(
+        embed_map,
+        {
+            "source_id", "provider", "origin", "media_id", "canonical_url",
+            "embedding_status", "terms_reference", "terms_checked_on", "downloaded",
+            "rehosted", "autoplay", "click_to_load", "iframe_title",
+            "captions_reference", "transcript_reference", "visual_description_reference",
+            "fallback_url", "csp_origins", "sandbox_profile", "permissions_profile",
+            "referrer_policy",
+        },
+        field,
+        issues,
+    )
+
+    source_id = _text(embed_map.get("source_id"), f"{field}.source_id", issues)
+    if source_id is not None:
+        source = sources.get(source_id)
+        if source is None:
+            _issue(issues, "unknown_source", f"{field}.source_id must reference a declared publisher_cinematic source")
+        elif source[0] != "publisher_cinematic":
+            _issue(issues, "source_kind_mismatch", f"{field}.source_id must reference a publisher_cinematic source")
+        elif source[1] != "permission_evidenced":
+            _issue(issues, "external_source_hold", f"{field}.source_id references a source without evidenced usage status")
+
+    provider = _text(embed_map.get("provider"), f"{field}.provider", issues)
+    if provider is not None and provider.lower() != "youtube":
+        _issue(issues, "unapproved_provider", f"{field}.provider is not approved by this schema profile")
+
+    origin, _origin_parts = _https_url(embed_map.get("origin"), f"{field}.origin", issues)
+    if origin and origin != YOUTUBE_EMBED_ORIGIN:
+        _issue(issues, "unapproved_origin", f"{field}.origin is not an approved HTTPS video origin")
+
+    media_id = _text(embed_map.get("media_id"), f"{field}.media_id", issues)
+    if media_id is not None and not re.fullmatch(r"[A-Za-z0-9_-]{11}", media_id, flags=re.ASCII):
+        _issue(issues, "invalid_value", f"{field}.media_id must be an 11-character YouTube video identifier")
+
+    canonical_url, canonical_parts = _https_url(embed_map.get("canonical_url"), f"{field}.canonical_url", issues)
+    if media_id is not None and canonical_parts is not None:
+        if (
+            canonical_parts.scheme.lower() != "https"
+            or canonical_parts.netloc.lower() != "www.youtube.com"
+            or canonical_parts.path != "/watch"
+            or canonical_parts.query != f"v={media_id}"
+            or canonical_parts.fragment
+        ):
+            _issue(issues, "invalid_url", f"{field}.canonical_url must be the canonical HTTPS YouTube watch URL for media_id")
+
+    embedding_status = _text(embed_map.get("embedding_status"), f"{field}.embedding_status", issues)
+    normalized_embedding_status = embedding_status.lower() if embedding_status is not None else None
+    if normalized_embedding_status is not None and normalized_embedding_status not in EMBEDDING_STATUSES:
+        _issue(issues, "invalid_value", f"{field}.embedding_status is not a recognized status")
+    elif normalized_embedding_status in {"unknown", "denied"}:
+        _issue(issues, "embed_hold", f"{field}.embedding_status does not permit embedding")
+
+    terms_reference, terms_parts = _https_url(embed_map.get("terms_reference"), f"{field}.terms_reference", issues)
+    if terms_parts is not None and terms_reference not in YOUTUBE_TERMS_REFERENCES:
+        _issue(issues, "unapproved_terms_reference", f"{field}.terms_reference must use a configured official YouTube reference")
+    _iso_date(embed_map.get("terms_checked_on"), f"{field}.terms_checked_on", issues)
+
+    for flag in ("downloaded", "rehosted", "autoplay"):
+        if flag not in embed_map:
+            _issue(issues, "missing_value", f"{field}.{flag} must be provided")
+        else:
+            _required_false_bool(embed_map.get(flag), f"{field}.{flag}", issues)
+    if "click_to_load" not in embed_map:
+        _issue(issues, "missing_value", f"{field}.click_to_load must be provided")
+    else:
+        _required_true_bool(embed_map.get("click_to_load"), f"{field}.click_to_load", issues)
+
+    for name in (
+        "iframe_title", "captions_reference", "transcript_reference",
+        "visual_description_reference",
+    ):
+        _text(embed_map.get(name), f"{field}.{name}", issues)
+
+    fallback_url, fallback_parts = _https_url(embed_map.get("fallback_url"), f"{field}.fallback_url", issues)
+    if fallback_parts is not None and fallback_url != canonical_url:
+        _issue(issues, "invalid_fallback", f"{field}.fallback_url must equal canonical_url")
+
+    if "csp_origins" not in embed_map:
+        _issue(issues, "missing_value", f"{field}.csp_origins must be provided")
+    else:
+        csp_origins = _list(embed_map.get("csp_origins"), f"{field}.csp_origins", issues)
+        if csp_origins is not None:
+            if not csp_origins:
+                _issue(issues, "missing_value", f"{field}.csp_origins must not be empty")
+            if len(csp_origins) > MAX_EXTERNAL_MEDIA_ITEMS:
+                _issue(issues, "too_many_items", f"{field}.csp_origins must contain at most {MAX_EXTERNAL_MEDIA_ITEMS} origins")
+            parsed_origins: list[str] = []
+            for origin_index, csp_origin_value in enumerate(csp_origins[:MAX_EXTERNAL_MEDIA_ITEMS]):
+                csp_origin, csp_parts = _https_url(csp_origin_value, f"{field}.csp_origins[{origin_index}]", issues)
+                if csp_parts is not None:
+                    if csp_parts.path not in {"", "/"} or csp_parts.query or csp_parts.fragment:
+                        _issue(issues, "invalid_origin", f"{field}.csp_origins[{origin_index}] must be an origin without a path")
+                    if csp_origin != YOUTUBE_EMBED_ORIGIN:
+                        _issue(issues, "unapproved_origin", f"{field}.csp_origins[{origin_index}] is not an approved HTTPS video origin")
+                    parsed_origins.append(csp_origin)
+            if len(set(parsed_origins)) != len(parsed_origins):
+                _issue(issues, "duplicate_origin", f"{field}.csp_origins must not contain duplicates")
+            if parsed_origins != [YOUTUBE_EMBED_ORIGIN]:
+                _issue(issues, "csp_origin_mismatch", f"{field}.csp_origins must contain only the approved player origin")
+
+    sandbox_profile = _text(embed_map.get("sandbox_profile"), f"{field}.sandbox_profile", issues)
+    if sandbox_profile is not None and sandbox_profile != YOUTUBE_SANDBOX_PROFILE:
+        _issue(issues, "unapproved_profile", f"{field}.sandbox_profile is not an approved player profile")
+    permissions_profile = _text(embed_map.get("permissions_profile"), f"{field}.permissions_profile", issues)
+    if permissions_profile is not None and permissions_profile != YOUTUBE_PERMISSIONS_PROFILE:
+        _issue(issues, "unapproved_profile", f"{field}.permissions_profile is not an approved player profile")
+    referrer_policy = _text(embed_map.get("referrer_policy"), f"{field}.referrer_policy", issues)
+    if referrer_policy is not None and referrer_policy != YOUTUBE_REFERRER_POLICY:
+        _issue(issues, "invalid_referrer_policy", f"{field}.referrer_policy must preserve the origin using the approved policy")
+
+
+def _validate_external_media(value: Any, issues: list[Issue]) -> None:
+    field = "external_media"
+    if value is None:
+        _issue(issues, "missing_value", f"{field} must be provided for schema 1.2")
+        return
+    media = _mapping(value, field, issues)
+    if media is None:
+        return
+    _check_record_keys(media, {"sources", "publisher_embeds"}, field, issues)
+
+    source_records: list[Any] | None = None
+    if "sources" not in media:
+        _issue(issues, "missing_value", f"{field}.sources must be provided")
+    else:
+        source_records = _list(media.get("sources"), f"{field}.sources", issues)
+
+    embeds: list[Any] | None = None
+    if "publisher_embeds" not in media:
+        _issue(issues, "missing_value", f"{field}.publisher_embeds must be provided")
+    else:
+        embeds = _list(media.get("publisher_embeds"), f"{field}.publisher_embeds", issues)
+
+    if source_records is not None and len(source_records) > MAX_EXTERNAL_MEDIA_ITEMS:
+        _issue(issues, "too_many_items", f"{field}.sources must contain at most {MAX_EXTERNAL_MEDIA_ITEMS} records")
+    if embeds is not None and len(embeds) > MAX_EXTERNAL_MEDIA_ITEMS:
+        _issue(issues, "too_many_items", f"{field}.publisher_embeds must contain at most {MAX_EXTERNAL_MEDIA_ITEMS} records")
+
+    sources: dict[str, tuple[str | None, str | None]] = {}
+    if source_records is not None:
+        for index, source in enumerate(source_records[:MAX_EXTERNAL_MEDIA_ITEMS]):
+            source_id, kind, status = _validate_external_source(source, index, issues)
+            if source_id is not None:
+                if source_id in sources:
+                    _issue(issues, "duplicate_source_id", f"{field}.sources contains a duplicate id")
+                else:
+                    sources[source_id] = (kind, status)
+
+    if embeds is not None:
+        for index, embed in enumerate(embeds[:MAX_EXTERNAL_MEDIA_ITEMS]):
+            _validate_publisher_embed(embed, index, sources, issues)
+
+
+def _validate_case(case: Any, index: int, *, schema_version: str | None = None) -> dict[str, Any]:
     issues: list[Issue] = []
     if not _is_mapping(case):
         _issue(issues, "invalid_type", f"case[{index}] must be an object")
@@ -986,6 +1292,8 @@ def _validate_case(case: Any, index: int) -> dict[str, Any]:
 
     _validate_controls(case, issues)
     contract_report = _validate_contract(case, issues, warnings, required=False)
+    if schema_version == "1.2":
+        _validate_external_media(case.get("external_media"), issues)
 
     criteria_basis: str | None = None
     measurements = case.get("measurements")
@@ -1029,7 +1337,8 @@ def validate_manifest(data: Any) -> dict[str, Any]:
         },
         "scope_note": (
             "Validates declared controls and supplied measurements only; it does not "
-            "prove artistic quality, rights, safety, accessibility, or asset existence."
+            "fetch or resolve assets or URLs, or prove artistic quality, rights, safety, "
+            "accessibility, or asset existence."
         ),
     }
     manifest_issues: list[Issue] = []
@@ -1042,8 +1351,8 @@ def validate_manifest(data: Any) -> dict[str, Any]:
     report["manifest_id"] = manifest_id
     schema_version = _text(data.get("schema_version"), "schema_version", manifest_issues)
     report["schema_version"] = schema_version
-    if schema_version not in {"1.0", "1.1"}:
-        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0' or '1.1'")
+    if schema_version not in {"1.0", "1.1", "1.2"}:
+        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0', '1.1', or '1.2'")
 
     cases = _list(data.get("cases"), "cases", manifest_issues)
     if cases is not None:
@@ -1053,8 +1362,8 @@ def validate_manifest(data: Any) -> dict[str, Any]:
             _issue(manifest_issues, "too_many_cases", f"cases must contain at most {MAX_CASES} cases")
         seen_ids: set[str] = set()
         for index, case in enumerate(cases[:MAX_CASES]):
-            result = _validate_case(case, index)
-            if schema_version == "1.1" and isinstance(case, dict):
+            result = _validate_case(case, index, schema_version=schema_version)
+            if schema_version in {"1.1", "1.2"} and isinstance(case, dict):
                 if "contract" not in case or case.get("contract") is None:
                     result["reasons"].append(
                         {"code": "missing_value", "message": "contract must be provided for schema 1.1 cases"}

@@ -30,6 +30,7 @@ from validate_art_router import (  # noqa: E402
 
 FIXTURE = _SCRIPTS / "validation" / "fixtures" / "next-steps.json"
 CONTRACT_FIXTURE = _SCRIPTS / "validation" / "fixtures" / "contract-cases.json"
+MEDIA_FIXTURE = _SCRIPTS / "validation" / "fixtures" / "portfolio-brand-media.json"
 
 
 class ValidateArtRouterTests(unittest.TestCase):
@@ -38,6 +39,9 @@ class ValidateArtRouterTests(unittest.TestCase):
 
     def load_contract_fixture(self) -> dict:
         return json.loads(CONTRACT_FIXTURE.read_text(encoding="utf-8"))
+
+    def load_media_fixture(self) -> dict:
+        return json.loads(MEDIA_FIXTURE.read_text(encoding="utf-8"))
 
     def test_fixture_covers_next_steps_cases(self) -> None:
         report = validate_manifest(self.load_fixture())
@@ -175,6 +179,143 @@ class ValidateArtRouterTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "hold")
         self.assertTrue(all("missing_value" in {reason["code"] for reason in case["reasons"]} for case in report["cases"]))
+
+    def test_schema_12_portfolio_media_fixture_passes_declared_checks(self) -> None:
+        report = validate_manifest(self.load_media_fixture())
+
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["schema_version"], "1.2")
+        self.assertEqual(report["case_count"], 1)
+        self.assertEqual(report["passed"], 1)
+        self.assertEqual(report["cases"][0]["canonical_medium"], "web")
+        self.assertIn("fetch or resolve assets or URLs", report["scope_note"])
+
+    def test_schema_12_requires_contract_and_external_media_declaration(self) -> None:
+        manifest = self.load_fixture()
+        manifest["schema_version"] = "1.2"
+
+        report = validate_manifest(manifest)
+
+        self.assertEqual(report["status"], "hold")
+        for case in report["cases"]:
+            self.assertIn(
+                "missing_value",
+                {reason["code"] for reason in case["reasons"]},
+            )
+
+    def test_external_source_requires_evidence_and_non_restricted_usage(self) -> None:
+        for status in ("unknown", "restricted"):
+            manifest = self.load_media_fixture()
+            source = manifest["cases"][0]["external_media"]["sources"][0]
+            source["usage_status"] = status
+            source.pop("evidence_reference")
+
+            result = validate_manifest(manifest)["cases"][0]
+            codes = {reason["code"] for reason in result["reasons"]}
+
+            self.assertEqual(result["status"], "hold")
+            self.assertIn("external_source_hold", codes)
+            self.assertIn("missing_value", codes)
+
+    def test_external_source_scope_is_kind_specific_and_usage_basis_is_required(self) -> None:
+        manifest = self.load_media_fixture()
+        sources = manifest["cases"][0]["external_media"]["sources"]
+        sources[0]["intended_usage_scope"] = "embed_only"
+        sources[1].pop("usage_basis")
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("invalid_usage_scope", codes)
+        self.assertIn("missing_value", codes)
+
+    def test_publisher_embed_requires_a_matching_evidenced_source(self) -> None:
+        manifest = self.load_media_fixture()
+        embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+        embed["source_id"] = "example-employer-mark"
+
+        result = validate_manifest(manifest)["cases"][0]
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("source_kind_mismatch", {reason["code"] for reason in result["reasons"]})
+
+    def test_publisher_embed_rejects_unknown_status_and_unapproved_origins(self) -> None:
+        manifest = self.load_media_fixture()
+        embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+        embed["embedding_status"] = "unknown"
+        embed["provider"] = "vimeo"
+        embed["origin"] = "http://www.youtube-nocookie.com"
+        embed["csp_origins"] = ["https://unapproved.example.invalid"]
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("embed_hold", codes)
+        self.assertIn("unapproved_provider", codes)
+        self.assertIn("invalid_url", codes)
+        self.assertIn("unapproved_origin", codes)
+
+    def test_publisher_embed_denied_status_and_unapproved_profiles_hold(self) -> None:
+        manifest = self.load_media_fixture()
+        embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+        embed["embedding_status"] = "denied"
+        embed["sandbox_profile"] = "unreviewed-sandbox"
+        embed["permissions_profile"] = "autoplay-enabled"
+        embed["referrer_policy"] = "no-referrer"
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("embed_hold", codes)
+        self.assertIn("unapproved_profile", codes)
+        self.assertIn("invalid_referrer_policy", codes)
+
+    def test_publisher_embedding_status_has_distinct_vocabulary(self) -> None:
+        for status in ("permission_evidenced", "restricted"):
+            manifest = self.load_media_fixture()
+            embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+            embed["embedding_status"] = status
+
+            result = validate_manifest(manifest)["cases"][0]
+            codes = {reason["code"] for reason in result["reasons"]}
+
+            self.assertEqual(result["status"], "hold")
+            self.assertIn("invalid_value", codes)
+            self.assertNotIn("embed_hold", codes)
+
+    def test_publisher_embed_rejects_autoplay_rehosting_download_and_inline_html(self) -> None:
+        manifest = self.load_media_fixture()
+        embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+        embed["autoplay"] = True
+        embed["downloaded"] = True
+        embed["rehosted"] = True
+        embed["click_to_load"] = False
+        embed["iframe_html"] = '<iframe src="https://www.youtube.com/embed/A1B2C3D4E5F"></iframe>'
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("policy_violation", codes)
+        self.assertIn("click_to_load_required", codes)
+        self.assertIn("unsupported_field", codes)
+
+    def test_publisher_embed_requires_alternatives_terms_and_canonical_fallback(self) -> None:
+        manifest = self.load_media_fixture()
+        embed = manifest["cases"][0]["external_media"]["publisher_embeds"][0]
+        embed.pop("transcript_reference")
+        embed.pop("terms_checked_on")
+        embed["fallback_url"] = "https://www.youtube.com/watch?v=OtherVideo01"
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("missing_value", codes)
+        self.assertIn("invalid_fallback", codes)
 
     def test_contract_reports_are_deterministic_and_text_is_safe(self) -> None:
         manifest = self.load_contract_fixture()

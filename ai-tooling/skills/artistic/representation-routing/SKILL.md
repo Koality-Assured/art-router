@@ -72,6 +72,7 @@ High: selecting the wrong row can hide delivery or human-review risk. When a wor
    | Music, sound art, voice, vibration, multisensory cue | `Audio and haptic work` |
    | Site-specific work, public art, built sign, installation | `Installation, public art, and signage` |
    | Chart, map-like explanation, exploratory or evidentiary visual | `Data visualization` |
+   | Portfolio with an employer mark and publisher-hosted cinematic | Primary: `Websites and creative UI`; adjacent: `Logos, icons, and favicons` for the mark and `Animation, video, and projection` for the cinematic |
    | Contributors, subjects, co-authors, or voluntary audience | `Participatory and social work` |
    | Headset, mobile AR, room-scale, passthrough, spatial web | `XR, AR, and VR` |
    | Poetry, prose, script, artist book, text installation | `Literary, textual, and poetic work` |

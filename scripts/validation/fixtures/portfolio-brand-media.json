@@ -1,0 +1,184 @@
+{
+  "manifest_id": "portfolio-brand-media-example",
+  "schema_version": "1.2",
+  "cases": [
+    {
+      "id": "portfolio-brand-media",
+      "medium": "web",
+      "asset": {
+        "label": "interactive artwork",
+        "type": "web",
+        "reference": "fixture/interactive/"
+      },
+      "intent": {
+        "statement": "Personal portfolio case study with an employer mark and a publisher-hosted cinematic.",
+        "audience": "Keyboard, pointer, and reduced-motion users.",
+        "context": "Responsive browser delivery."
+      },
+      "provenance": {
+        "sources": [
+          {
+            "reference": "fixture source",
+            "rights": "original maker source"
+          }
+        ],
+        "rights_status": "original",
+        "rights_basis": "Created for this fixture.",
+        "human_authorship": "Human interaction design is recorded.",
+        "tool_use": "Browser APIs used."
+      },
+      "checks": {
+        "cultural": {
+          "status": "not_applicable",
+          "notes": "No community-owned material is used."
+        },
+        "safety": {
+          "status": "pass",
+          "notes": "No hazardous physical interaction is specified."
+        },
+        "accessibility": {
+          "status": "pass",
+          "notes": "Keyboard and fallback checks are recorded."
+        }
+      },
+      "delivery": {
+        "formats": [
+          "HTML",
+          "CSS",
+          "JavaScript"
+        ],
+        "targets": [
+          "responsive browser delivery"
+        ],
+        "metadata_complete": true,
+        "metadata": {
+          "owner": "fixture team",
+          "version": "1.0",
+          "fallback_or_limitation": "Static fallback is supplied."
+        }
+      },
+      "measurements": {
+        "keyboard_accessible": true,
+        "visible_focus": true,
+        "reduced_motion": true,
+        "contrast_ratio": 4.5,
+        "non_color_meaning": true,
+        "fallback_behavior": true
+      },
+      "contract": {
+        "constraints": [
+          {
+            "id": "reduced-motion",
+            "hardness": "hard",
+            "requested": true,
+            "delivered": true
+          },
+          {
+            "id": "interaction-mode",
+            "hardness": "soft",
+            "requested": [
+              "keyboard",
+              "pointer"
+            ],
+            "delivered": [
+              "keyboard",
+              "pointer",
+              "touch"
+            ],
+            "comparison": "contains"
+          }
+        ],
+        "ambiguities": [],
+        "conflicts": [],
+        "capabilities": {
+          "required": [
+            "browser_preview",
+            "reduced-motion"
+          ],
+          "adapters": {
+            "browser_preview": "available",
+            "reduced_motion": {
+              "status": "adapted",
+              "name": "static-fallback"
+            }
+          }
+        },
+        "descriptors": {
+          "requested": {
+            "medium": "web",
+            "fallback": "static"
+          },
+          "delivered": {
+            "medium": "web",
+            "fallback": "static"
+          }
+        }
+      },
+      "reviewer": {
+        "decision": "approve",
+        "reviewer_id": "contract-reviewer-web",
+        "observations": "Interaction and fallback descriptors are preserved.",
+        "reviewed_at": "2026-08-28"
+      },
+      "external_media": {
+        "sources": [
+          {
+            "id": "example-employer-mark",
+            "kind": "organization_mark",
+            "official_reference": "https://studio.example.invalid/brand-assets",
+            "owner": "Example Studio",
+            "retrieved_on": "2026-01-15",
+            "intended_usage_scope": "organization_identification_only",
+            "usage_status": "permission_evidenced",
+            "usage_basis": "Fixture declaration: written approval for portfolio identification use.",
+            "evidence_reference": "fixture:evidence/example-mark-note",
+            "transformation": "none",
+            "reviewer_role": "portfolio-owner",
+            "reviewed_on": "2026-01-15"
+          },
+          {
+            "id": "example-publisher-cinematic",
+            "kind": "publisher_cinematic",
+            "official_reference": "https://publisher.example.invalid/videos/cinematic",
+            "owner": "Example Publisher",
+            "retrieved_on": "2026-01-15",
+            "intended_usage_scope": "embed_only",
+            "usage_status": "permission_evidenced",
+            "usage_basis": "Fixture declaration: publisher terms reviewed for embedding only.",
+            "evidence_reference": "fixture:evidence/example-publisher-embed-note",
+            "transformation": "none; player remains hosted by the publisher platform",
+            "reviewer_role": "portfolio-owner",
+            "reviewed_on": "2026-01-15"
+          }
+        ],
+        "publisher_embeds": [
+          {
+            "source_id": "example-publisher-cinematic",
+            "provider": "youtube",
+            "origin": "https://www.youtube-nocookie.com",
+            "media_id": "A1B2C3D4E5F",
+            "canonical_url": "https://www.youtube.com/watch?v=A1B2C3D4E5F",
+            "embedding_status": "confirmed",
+            "terms_reference": "https://developers.google.com/youtube/terms/required-minimum-functionality",
+            "terms_checked_on": "2026-01-15",
+            "downloaded": false,
+            "rehosted": false,
+            "autoplay": false,
+            "click_to_load": true,
+            "iframe_title": "Example Publisher cinematic for the case study",
+            "captions_reference": "fixture:alternatives/example-cinematic.vtt",
+            "transcript_reference": "fixture:alternatives/example-cinematic-transcript.txt",
+            "visual_description_reference": "fixture:alternatives/example-cinematic-description.txt",
+            "fallback_url": "https://www.youtube.com/watch?v=A1B2C3D4E5F",
+            "csp_origins": [
+              "https://www.youtube-nocookie.com"
+            ],
+            "sandbox_profile": "youtube-player-restricted-v1",
+            "permissions_profile": "youtube-playback-no-autoplay-v1",
+            "referrer_policy": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    }
+  ]
+}
