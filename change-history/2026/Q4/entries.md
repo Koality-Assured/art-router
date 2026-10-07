@@ -4,6 +4,15 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 ## Entries
 
+
+### 2026-10-07 — Allow factual employer-mark identification
+
+- **Requesting user:** portfolio owner
+- **AI agent:** Cursor agent
+- **User request:** Represent résumé-style employer marks as factual identifiers without asserting a separate per-logo written license.
+- **Summary:**
+  - Added a factual-identification source status for organization marks with identification-only scope. Kept publisher cinematics gated on permission evidence and clarified that source context is not a license or legal opinion.
+
 ### 2026-10-07 — Third-party mark and publisher embed contract
 
 - **Requesting user:** Portfolio owner

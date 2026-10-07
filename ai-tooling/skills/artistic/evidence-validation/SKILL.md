@@ -63,12 +63,15 @@ High: a clean machine result is useful evidence, but a non-clean result must rem
    Schema `1.2` requires explicit `external_media.sources` and
    `external_media.publisher_embeds` arrays for every case. It enforces the
    source-kind scope values, separate `usage_basis` and `evidence_reference`,
-   and distinct usage and embedding status vocabularies. Missing evidence,
-   `unknown` or `restricted` source use, `denied` or `unknown` embedding,
-   unapproved origins, inline iframe markup, autoplay, downloading, and
-   rehosting hold. Schemas `1.0` and `1.1` retain their existing field
-   requirements. These checks validate declared data only; they do not fetch
-   or resolve assets, terms, or URLs and do not verify rights or accessibility.
+   and distinct usage and embedding status vocabularies. It accepts
+   `factual_identification` only for an organization mark with
+   `organization_identification_only` scope; publisher cinematic sources still
+   require `permission_evidenced` when embedded. Missing evidence, `unknown` or
+   `restricted` source use, `denied` or `unknown` embedding, unapproved origins,
+   inline iframe markup, autoplay, downloading, and rehosting hold. Schemas
+   `1.0` and `1.1` retain their existing field requirements. These checks
+   validate declared data only; they do not fetch or resolve assets, terms, or
+   URLs and do not verify rights or accessibility.
 
    Use `--fail-on-hold` only as a separate release gate after recording the report; its non-zero result is evidence of a hold, not a tool failure.
 

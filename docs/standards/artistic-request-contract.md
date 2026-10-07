@@ -62,18 +62,25 @@ or `publisher_cinematic` for `kind`; the corresponding
 `embed_only`. Every embed MUST reference a declared `publisher_cinematic`
 source.
 
-`usage_status` uses `unknown`, `permission_evidenced`, or `restricted`.
+`usage_status` uses `unknown`, `permission_evidenced`, `factual_identification`,
+or `restricted`.
 `embedding_status` uses the distinct values `confirmed`, `denied`, or
 `unknown`. Missing `usage_basis` or `evidence_reference`, source status
 `unknown`/`restricted`, or embed status `denied`/`unknown` MUST hold the case.
-`usage_basis` describes the declared policy, agreement, or permission basis;
-`evidence_reference` identifies the supporting record. `permission_evidenced`
-means documentation was recorded for the stated use, not a legal finding,
-rights clearance, trademark determination, or permission to imply endorsement.
+`usage_basis` describes the declared use basis; `evidence_reference` identifies
+the supporting source or record. `factual_identification` is valid only for an
+`organization_mark` with `organization_identification_only` scope. It records
+the owner's résumé-style factual identification context. These fields record
+that context and its source; they do not require or assert a separate per-logo
+written license, determine whether the use is lawful, or express a legal
+opinion. `permission_evidenced` remains available when documentation for a
+specific use exists; it is not a legal finding, rights clearance, trademark
+determination, or permission to imply endorsement. Publisher cinematic sources
+referenced by an embed must still use `permission_evidenced`.
 `confirmed` is a reviewer-supplied declaration that embedding was checked for
-the stated source; the validator does not verify it. Neither status proves
-rights or release approval. Record the intended scope and any transformation
-for each source.
+the stated source; the validator does not verify it. None of these status
+declarations proves rights or release approval. Record the intended scope and
+any transformation for each source.
 
 The schema `1.2` publisher embed profile currently allows YouTube Privacy
 Enhanced Mode only: `provider` is `youtube`, `origin` is
