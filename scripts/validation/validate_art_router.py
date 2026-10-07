@@ -33,7 +33,12 @@ CONTRACT_COMPARISONS = {"exact", "contains", "at_least", "at_most"}
 CAPABILITY_STATUSES = {"available", "adapted", "unavailable", "unknown", "unreported"}
 RESOLVED_STATES = {"resolved", "closed", "not_applicable"}
 EXTERNAL_SOURCE_KINDS = {"organization_mark", "publisher_cinematic"}
-EXTERNAL_USAGE_STATUSES = {"unknown", "permission_evidenced", "restricted"}
+EXTERNAL_USAGE_STATUSES = {
+    "unknown",
+    "permission_evidenced",
+    "factual_identification",
+    "restricted",
+}
 EXTERNAL_USAGE_SCOPES = {
     "organization_mark": "organization_identification_only",
     "publisher_cinematic": "embed_only",
@@ -1078,6 +1083,15 @@ def _validate_external_source(
         _issue(issues, "invalid_value", f"{field}.usage_status is not a recognized status")
     elif normalized_status in {"unknown", "restricted"}:
         _issue(issues, "external_source_hold", f"{field}.usage_status does not permit portfolio delivery")
+    elif normalized_status == "factual_identification" and (
+        normalized_kind != "organization_mark"
+        or intended_usage_scope != "organization_identification_only"
+    ):
+        _issue(
+            issues,
+            "inapplicable_usage_status",
+            f"{field}.usage_status factual_identification requires an organization_mark with organization_identification_only scope",
+        )
 
     _text(source_map.get("usage_basis"), f"{field}.usage_basis", issues)
     _text(source_map.get("evidence_reference"), f"{field}.evidence_reference", issues)

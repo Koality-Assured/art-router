@@ -190,6 +190,17 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertEqual(report["cases"][0]["canonical_medium"], "web")
         self.assertIn("fetch or resolve assets or URLs", report["scope_note"])
 
+    def test_factual_identification_status_passes_for_employer_mark(self) -> None:
+        manifest = self.load_media_fixture()
+        source = manifest["cases"][0]["external_media"]["sources"][0]
+
+        self.assertEqual(source["kind"], "organization_mark")
+        self.assertEqual(source["intended_usage_scope"], "organization_identification_only")
+        self.assertEqual(source["usage_status"], "factual_identification")
+        self.assertIn("Factual identification", source["usage_basis"])
+        self.assertIn("identity-context", source["evidence_reference"])
+        self.assertEqual(validate_manifest(manifest)["status"], "pass")
+
     def test_schema_12_requires_contract_and_external_media_declaration(self) -> None:
         manifest = self.load_fixture()
         manifest["schema_version"] = "1.2"
@@ -229,6 +240,36 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertEqual(result["status"], "hold")
         self.assertIn("invalid_usage_scope", codes)
         self.assertIn("missing_value", codes)
+
+    def test_factual_identification_status_is_restricted_to_mark_scope(self) -> None:
+        mutations = (
+            ("publisher_cinematic", "embed_only"),
+            ("organization_mark", "embed_only"),
+        )
+        for kind, scope in mutations:
+            manifest = self.load_media_fixture()
+            source = manifest["cases"][0]["external_media"]["sources"][0]
+            source["kind"] = kind
+            source["intended_usage_scope"] = scope
+            source["usage_status"] = "factual_identification"
+
+            result = validate_manifest(manifest)["cases"][0]
+            codes = {reason["code"] for reason in result["reasons"]}
+
+            self.assertEqual(result["status"], "hold")
+            self.assertIn("inapplicable_usage_status", codes)
+
+    def test_publisher_cinematic_still_requires_permission_evidenced_status(self) -> None:
+        manifest = self.load_media_fixture()
+        publisher = manifest["cases"][0]["external_media"]["sources"][1]
+        publisher["usage_status"] = "factual_identification"
+
+        result = validate_manifest(manifest)["cases"][0]
+        codes = {reason["code"] for reason in result["reasons"]}
+
+        self.assertEqual(result["status"], "hold")
+        self.assertIn("inapplicable_usage_status", codes)
+        self.assertIn("external_source_hold", codes)
 
     def test_publisher_embed_requires_a_matching_evidenced_source(self) -> None:
         manifest = self.load_media_fixture()

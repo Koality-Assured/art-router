@@ -129,9 +129,9 @@
             "owner": "Example Studio",
             "retrieved_on": "2026-01-15",
             "intended_usage_scope": "organization_identification_only",
-            "usage_status": "permission_evidenced",
-            "usage_basis": "Fixture declaration: written approval for portfolio identification use.",
-            "evidence_reference": "fixture:evidence/example-mark-note",
+            "usage_status": "factual_identification",
+            "usage_basis": "Factual identification of Example Studio as the employer in a personal portfolio; no endorsement claim.",
+            "evidence_reference": "fixture:evidence/example-mark-identity-context",
             "transformation": "none",
             "reviewer_role": "portfolio-owner",
             "reviewed_on": "2026-01-15"
