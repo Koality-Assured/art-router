@@ -93,6 +93,7 @@ Use the narrowest row in `artistic-representations.md`, then add adjacent rows f
 | Audio, voice, music, or haptic | speaker/performer authority, transcript/lyrics, channels, loudness, alternatives |
 | 3D, CGI, game asset, XR, or spatial work | units, scale, anchors, frame rate, inputs, comfort and bystander safety |
 | Web, UI, canvas, or interactive art | target browsers/devices, keyboard/input path, accessible names, fallback |
+| Portfolio using an organization mark or publisher cinematic | kind-specific scope and usage basis/evidence, distinct source and embed statuses, current embed terms, click-to-load, approved HTTPS origin, iframe title, captions/transcript, visual description, canonical fallback |
 | Print, package, physical, installation, or body art | substrate/body/venue, dimensions, materials, fabrication and safety review |
 | Data visualization, map, comics, text, or performance | canonical data/text/sequence, uncertainty, reading/access equivalents |
 

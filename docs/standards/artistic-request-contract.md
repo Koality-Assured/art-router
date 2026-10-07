@@ -48,6 +48,69 @@ Each item in `Explicit constraints` MUST carry a source (`user`, `reference`,
 dimensions, exclusions, and consent limits. The normalized form is a traceable
 translation, not permission to rewrite the request.
 
+## External marks and publisher-hosted media
+
+Schema `1.2` cases MUST include `external_media.sources` and
+`external_media.publisher_embeds`; use empty arrays when the case declares no
+external marks or publisher video. Add one source record for each employer or
+other organization mark and each publisher cinematic. Source records carry a
+stable `id`, `kind`, `official_reference`, `owner`, `retrieved_on`,
+`intended_usage_scope`, `usage_status`, `usage_basis`, `evidence_reference`,
+`transformation`, `reviewer_role`, and `reviewed_on`. Use `organization_mark`
+or `publisher_cinematic` for `kind`; the corresponding
+`intended_usage_scope` MUST be `organization_identification_only` or
+`embed_only`. Every embed MUST reference a declared `publisher_cinematic`
+source.
+
+`usage_status` uses `unknown`, `permission_evidenced`, or `restricted`.
+`embedding_status` uses the distinct values `confirmed`, `denied`, or
+`unknown`. Missing `usage_basis` or `evidence_reference`, source status
+`unknown`/`restricted`, or embed status `denied`/`unknown` MUST hold the case.
+`usage_basis` describes the declared policy, agreement, or permission basis;
+`evidence_reference` identifies the supporting record. `permission_evidenced`
+means documentation was recorded for the stated use, not a legal finding,
+rights clearance, trademark determination, or permission to imply endorsement.
+`confirmed` is a reviewer-supplied declaration that embedding was checked for
+the stated source; the validator does not verify it. Neither status proves
+rights or release approval. Record the intended scope and any transformation
+for each source.
+
+The schema `1.2` publisher embed profile currently allows YouTube Privacy
+Enhanced Mode only: `provider` is `youtube`, `origin` is
+`https://www.youtube-nocookie.com`, and `media_id` and canonical HTTPS watch URL
+identify the same video. Record `embedding_status` as `confirmed` only when the
+reviewer has checked the applicable terms and source; record the official terms reference and check date,
+fallback URL, `frame-src` origins, the fixed sandbox and permissions profile,
+and `strict-origin-when-cross-origin` referrer policy. Do not store arbitrary
+iframe HTML, `srcdoc`, or an arbitrary iframe `src`; the rendering integration
+derives the player URL from the approved profile and media ID. Load the player
+only after a user activates it, require `autoplay`, `downloaded`, and `rehosted`
+to be false, and include references for captions, transcript, and a visual
+description or equivalent. These references document declared alternatives;
+they do not prove accessibility conformance.
+
+The profile identifiers have fixed meanings: `youtube-player-restricted-v1`
+maps to `sandbox="allow-scripts allow-same-origin"`, and
+`youtube-playback-no-autoplay-v1` maps to `allow="encrypted-media; fullscreen"`.
+The renderer must apply those mappings and escape generated attribute values;
+the manifest validator checks the identifiers but does not inspect rendered
+HTML.
+
+The HTML Standard defines the iframe `sandbox`, `allow`, `title`, and
+`referrerpolicy` attributes; CSP `frame-src` restricts URLs loaded into child
+navigables ([HTML iframe element](https://html.spec.whatwg.org/multipage/iframe-embed-object.html),
+[CSP `frame-src`](https://www.w3.org/TR/CSP/#directive-frame-src)). YouTube
+documents its privacy-enhanced embed domain and requires an identifying
+`HTTP Referer`, recommending `strict-origin-when-cross-origin`
+([YouTube embed help](https://support.google.com/youtube/answer/171780?hl=en),
+[YouTube required minimum functionality](https://developers.google.com/youtube/terms/required-minimum-functionality)).
+Time-based media alternatives and iframe titles have separate purposes under
+W3C guidance ([WCAG time-based media](https://www.w3.org/WAI/WCAG22/Understanding/time-based-media.html),
+[WAI iframe title technique](https://www.w3.org/WAI/WCAG21/Techniques/html/H64.html)).
+The manifest validator checks supplied declarations and the configured profile
+without fetching or resolving assets or URLs. A pass does not verify the
+evidence, ownership, rights, terms, accessibility, or release readiness.
+
 ## Precedence and preservation of constraints
 
 Apply constraints in this order:

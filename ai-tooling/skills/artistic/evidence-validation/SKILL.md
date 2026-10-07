@@ -60,6 +60,16 @@ High: a clean machine result is useful evidence, but a non-clean result must rem
    python scripts/validation/validate_art_router.py --manifest <repo-relative-manifest.json> --json
    ```
 
+   Schema `1.2` requires explicit `external_media.sources` and
+   `external_media.publisher_embeds` arrays for every case. It enforces the
+   source-kind scope values, separate `usage_basis` and `evidence_reference`,
+   and distinct usage and embedding status vocabularies. Missing evidence,
+   `unknown` or `restricted` source use, `denied` or `unknown` embedding,
+   unapproved origins, inline iframe markup, autoplay, downloading, and
+   rehosting hold. Schemas `1.0` and `1.1` retain their existing field
+   requirements. These checks validate declared data only; they do not fetch
+   or resolve assets, terms, or URLs and do not verify rights or accessibility.
+
    Use `--fail-on-hold` only as a separate release gate after recording the report; its non-zero result is evidence of a hold, not a tool failure.
 
 4. Verify the manifest’s `package` metadata independently of the validator. Require non-empty relative `root`, `handoff`, `fixity`, `validation_report`, and `fixity_scope` fields. Resolve each path beneath `package.root`; reject a missing package, escapes, absolute paths, duplicate declarations, and missing files.
@@ -83,6 +93,7 @@ Use the checked-in fixture as a read-only exercise and expect a non-zero finding
 ```text
 python scripts/ai-tooling/validate_skill.py --skill evidence-validation --dry-run
 python scripts/validation/validate_art_router.py --manifest results/research/art-router/2026-08-27/manifest.json --json
+python scripts/validation/validate_art_router.py --manifest scripts/validation/fixtures/portfolio-brand-media.json --json
 ```
 
 Then inspect the declared package metadata and recompute its fixity in memory with Python `json`, `pathlib`, and `hashlib`; do not write the report or checksum file. The fixture’s intentional validator holds and any fixity mismatch must remain visible.
