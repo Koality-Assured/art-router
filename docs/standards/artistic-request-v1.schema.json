@@ -73,12 +73,19 @@
     "representation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "role", "medium", "asset_type", "delivery"],
+      "required": ["id", "route", "asset", "role", "delivery"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
-        "role": {"enum": ["primary", "adjacent"]},
-        "medium": {"type": "string", "minLength": 1},
-        "asset_type": {"type": "string", "minLength": 1},
+        "route": {"type": "string", "minLength": 1},
+        "asset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {"type": "string", "minLength": 1}
+          }
+        },
+        "role": {"enum": ["primary", "supporting"]},
         "delivery": {
           "type": "object",
           "required": ["intended_use", "format"],

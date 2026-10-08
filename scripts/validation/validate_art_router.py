@@ -1470,7 +1470,7 @@ def _validate_artistic_request(value: Any, issues: list[Issue]) -> dict[str, dic
                 continue
             _check_record_keys(
                 representation,
-                {"id", "role", "medium", "asset_type", "delivery"},
+                {"id", "role", "route", "asset", "delivery"},
                 field,
                 issues,
             )
@@ -1478,30 +1478,23 @@ def _validate_artistic_request(value: Any, issues: list[Issue]) -> dict[str, dic
             role = _text(representation.get("role"), f"{field}.role", issues)
             if role == "primary":
                 primary_count += 1
-            elif role is not None and role != "adjacent":
-                _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'adjacent'")
-            medium = _text(representation.get("medium"), f"{field}.medium", issues)
-            route_id = _resolve_medium(medium) if medium is not None else None
+            elif role is not None and role != "supporting":
+                _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'supporting'")
+            route_name = _text(representation.get("route"), f"{field}.route", issues)
+            route_id = _resolve_medium(route_name) if route_name is not None else None
             route = REPRESENTATIONS_BY_ID.get(route_id) if route_id else None
             if route is None:
-                _issue(issues, "unsupported_medium", f"{field}.medium is not in the representation registry")
-            asset_type = _text(representation.get("asset_type"), f"{field}.asset_type", issues)
+                _issue(issues, "unsupported_route", f"{field}.route is not in the representation registry")
+            asset = _mapping(representation.get("asset"), f"{field}.asset", issues)
+            asset_type: str | None = None
             canonical_asset_type: str | None = None
-            profiles: list[str] = []
+            if asset is not None:
+                _check_record_keys(asset, {"type"}, f"{field}.asset", issues)
+                asset_type = _text(asset.get("type"), f"{field}.asset.type", issues)
             if route is not None and asset_type is not None:
-                profiles = _profiles_for_asset_type(route, asset_type)
-                if not profiles:
-                    _issue(issues, "asset_type_mismatch", f"{field}.asset_type is not registered for medium {route_id!r}")
-                else:
-                    canonical_asset_type = next(
-                        declared_type["id"]
-                        for declared_type in route["asset_types"]
-                        if profiles == declared_type["check_profiles"]
-                        and _route_token(asset_type) in {
-                            _route_token(declared_type["id"]),
-                            *(_route_token(alias) for alias in declared_type["aliases"]),
-                        }
-                    )
+                canonical_asset_type = _canonical_asset_type(route, asset_type)
+                if canonical_asset_type is None:
+                    _issue(issues, "asset_type_mismatch", f"{field}.asset.type is not registered for route {route_id!r}")
             delivery = _mapping(representation.get("delivery"), f"{field}.delivery", issues)
             if delivery is not None:
                 _check_record_keys(
@@ -1533,7 +1526,7 @@ def _validate_artistic_request(value: Any, issues: list[Issue]) -> dict[str, dic
                         "delivery": delivery or {},
                     }
         if primary_count != 1:
-            _issue(issues, "invalid_primary_count", "request.representations must declare exactly one primary route")
+            _issue(issues, "invalid_primary_count", "request.representations must declare exactly one primary component")
 
     constraints = _list(request.get("constraints"), "request.constraints", issues)
     if constraints is not None:
@@ -1614,16 +1607,16 @@ def _validate_representation_component(
     representation = _mapping(value, field, issues)
     if representation is None:
         return None
-    _check_record_keys(representation, {"id", "role", "medium", "asset", "measurements", "delivery"}, field, issues)
+    _check_record_keys(representation, {"id", "role", "route", "asset", "measurements", "delivery"}, field, issues)
     representation_id = _text(representation.get("id"), f"{field}.id", issues)
     role = _text(representation.get("role"), f"{field}.role", issues)
-    if role is not None and role not in {"primary", "adjacent"}:
-        _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'adjacent'")
-    medium = _text(representation.get("medium"), f"{field}.medium", issues)
-    route_id = _resolve_medium(medium) if medium is not None else None
+    if role is not None and role not in {"primary", "supporting"}:
+        _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'supporting'")
+    route_name = _text(representation.get("route"), f"{field}.route", issues)
+    route_id = _resolve_medium(route_name) if route_name is not None else None
     route = REPRESENTATIONS_BY_ID.get(route_id) if route_id else None
     if route is None:
-        _issue(issues, "unsupported_medium", f"{field}.medium is not in the representation registry")
+        _issue(issues, "unsupported_route", f"{field}.route is not in the representation registry")
 
     asset = _mapping(representation.get("asset"), f"{field}.asset", issues)
     asset_type: str | None = None
@@ -1638,7 +1631,7 @@ def _validate_representation_component(
         if route is not None and asset_type is not None:
             canonical_asset_type = _canonical_asset_type(route, asset_type)
             if canonical_asset_type is None:
-                _issue(issues, "asset_type_mismatch", f"{field}.asset.type is not registered for medium {route_id!r}")
+                _issue(issues, "asset_type_mismatch", f"{field}.asset.type is not registered for route {route_id!r}")
             else:
                 profiles = _profiles_for_asset_type(route, asset_type)
 
@@ -1722,7 +1715,7 @@ def _validate_case(
                     criteria_bases.extend(CHECK_PROFILES[profile][0] for profile in profile_names)
                 representations.append(component)
         if primary_count != 1:
-            _issue(issues, "invalid_primary_count", f"case[{index}].representations must declare exactly one primary route")
+            _issue(issues, "invalid_primary_count", f"case[{index}].representations must declare exactly one primary component")
 
         expected = request_representations or {}
         actual_by_id = {item["id"]: item for item in representations if item["id"] is not None}
@@ -1920,6 +1913,33 @@ def _safe_display(value: Any) -> str:
     return str(value).replace("\r", "\\r").replace("\n", "\\n").replace("\x1b", "\\x1b")
 
 
+def _case_route_summary(case: dict[str, Any], schema_version: str | None) -> str:
+    if schema_version != "1.3":
+        return _safe_display(case["medium"])
+    representations = case.get("representations")
+    if not isinstance(representations, list):
+        return "unknown"
+    routes_by_role = {
+        role: {
+            representation["route"]
+            for representation in representations
+            if isinstance(representation, dict)
+            and representation.get("role") == role
+            and isinstance(representation.get("route"), str)
+            and representation["route"]
+        }
+        for role in ("primary", "supporting")
+    }
+    primary_routes = sorted(routes_by_role["primary"])
+    all_routes = routes_by_role["primary"] | routes_by_role["supporting"]
+    if primary_routes:
+        primary = primary_routes[0]
+        ordered_routes = [primary, *sorted(all_routes - {primary})]
+    else:
+        ordered_routes = sorted(all_routes)
+    return " + ".join(_safe_display(route) for route in ordered_routes) or "unknown"
+
+
 def _text_report(report: dict[str, Any]) -> str:
     lines = [
         f"manifest: {_safe_display(report['manifest_id'])}",
@@ -1930,7 +1950,7 @@ def _text_report(report: dict[str, Any]) -> str:
         lines.append(f"manifest hold [{reason['code']}]: {reason['message']}")
     for case in report["cases"]:
         lines.append(
-            f"- {_safe_display(case['id'])} ({_safe_display(case['medium'])}): {case['status']}"
+            f"- {_safe_display(case['id'])} ({_case_route_summary(case, report['schema_version'])}): {case['status']}"
         )
         for reason in case["reasons"]:
             lines.append(f"  - [{reason['code']}] {reason['message']}")

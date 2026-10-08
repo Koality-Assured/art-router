@@ -6,6 +6,26 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+
+### 2026-10-08 — Summarize art bundle routes in text output
+
+- **Requesting user:** Robbie
+- **AI agent:** Codex
+- **User request:** Fix the schema 1.3 art-router text report so bundle cases show their routes.
+- **Summary:**
+  - Derive a stable route summary from 1.3 components while preserving legacy case.medium labels.
+  - Add regression coverage for 1.3 summaries and 1.0–1.2 formatting.
+
+### 2026-10-08 — Align art manifest 1.3 component shape
+
+- **Requesting user:** Robbie
+- **AI agent:** Codex
+- **User request:** Correct schema 1.3 art request and bundle fields to match the normative component shape.
+- **Summary:**
+  - Use route, nested asset.type, and primary/supporting roles; reject old 1.3 field names and adjacent role.
+  - Add a prose-conforming mixed-media fixture and keep 1.0–1.2 manifests compatible.
+
 ### 2026-10-08 — Expand art router representations
 
 - **Requesting user:** Robbie

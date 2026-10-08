@@ -33,6 +33,7 @@ from validate_art_router import (  # noqa: E402
 FIXTURE = _SCRIPTS / "validation" / "fixtures" / "next-steps.json"
 CONTRACT_FIXTURE = _SCRIPTS / "validation" / "fixtures" / "contract-cases.json"
 MEDIA_FIXTURE = _SCRIPTS / "validation" / "fixtures" / "portfolio-brand-media.json"
+BUNDLE_FIXTURE = _SCRIPTS / "validation" / "fixtures" / "schema-13-mixed-media.json"
 
 
 class ValidateArtRouterTests(unittest.TestCase):
@@ -44,6 +45,9 @@ class ValidateArtRouterTests(unittest.TestCase):
 
     def load_media_fixture(self) -> dict:
         return json.loads(MEDIA_FIXTURE.read_text(encoding="utf-8"))
+
+    def load_bundle_fixture(self) -> dict:
+        return json.loads(BUNDLE_FIXTURE.read_text(encoding="utf-8"))
 
     def complete_measurements(self) -> dict:
         return {
@@ -182,66 +186,7 @@ class ValidateArtRouterTests(unittest.TestCase):
         }
 
     def bundle_manifest(self) -> dict:
-        base_case = deepcopy(self.load_fixture()["cases"][0])
-        base_case["id"] = "mixed-artwork-bundle"
-        base_case.pop("medium", None)
-        base_case.pop("asset", None)
-        base_case.pop("measurements", None)
-        base_case["contract"] = deepcopy(self.load_contract_fixture()["cases"][0]["contract"])
-        base_case["external_media"] = {"sources": [], "publisher_embeds": []}
-
-        bundle_parts = [
-            ("poster", "primary", "graphic_design", "vector_poster", "image/svg+xml"),
-            ("sprites", "adjacent", "raster_vector_sprites", "pixel_sprite_sheet", "image/png"),
-            ("haptics", "adjacent", "haptic", "haptic_pattern", "application/json"),
-        ]
-        requested = []
-        delivered = []
-        for part_id, role, medium, asset_type, format_name in bundle_parts:
-            delivery = {"intended_use": "sample-gallery", "format": format_name}
-            requested.append(
-                {"id": part_id, "role": role, "medium": medium, "asset_type": asset_type, "delivery": delivery}
-            )
-            delivered.append(
-                {
-                    "id": part_id,
-                    "role": role,
-                    "medium": medium,
-                    "asset": {
-                        "label": part_id,
-                        "type": asset_type,
-                        "reference": "sample-source",
-                        "path": f"package/{part_id}",
-                    },
-                    "measurements": self.complete_measurements(),
-                    "delivery": deepcopy(delivery),
-                }
-            )
-        base_case["representations"] = delivered
-        request = {
-            "schema_version": "1.0",
-            "request_id": "sample-art-request",
-            "version": "1",
-            "operation": "generate",
-            "intent": {"primary_effect": "show varied art routes", "meaning": "sample"},
-            "subject_content": {},
-            "art_direction": {},
-            "representations": requested,
-            "constraints": [{"text": "keep the route labels clear", "source": "user", "status": "required"}],
-            "references": [],
-            "people_and_authority": {},
-            "audience_delivery": {},
-            "accessibility_safety": {},
-            "provenance": {},
-            "open_questions": [],
-            "review_handoff": {"owner": "sample-owner", "acceptance_tests": ["route and package check"]},
-        }
-        return {
-            "manifest_id": "mixed-artwork-bundle",
-            "schema_version": "1.3",
-            "request": request,
-            "cases": [base_case],
-        }
+        return self.load_bundle_fixture()
 
     def test_fixture_covers_next_steps_cases(self) -> None:
         report = validate_manifest(self.load_fixture())
@@ -339,15 +284,39 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertIn("asset_type_mismatch", {reason["code"] for reason in photo_report["reasons"]})
 
     def test_schema_13_validates_request_and_mixed_media_bundle(self) -> None:
-        report = validate_manifest(self.bundle_manifest())
+        manifest = self.bundle_manifest()
+        report = validate_manifest(manifest)
 
         self.assertEqual(report["status"], "pass")
         self.assertEqual(report["schema_version"], "1.3")
         self.assertEqual(report["cases"][0]["status"], "pass")
         self.assertEqual(
+            {item["role"] for item in manifest["cases"][0]["representations"]},
+            {"primary", "supporting"},
+        )
+        self.assertEqual(
             {item["route"] for item in report["cases"][0]["representations"]},
             {"graphic_design", "raster_vector_sprites", "audio_haptic"},
         )
+
+    def test_schema_13_text_report_summarizes_component_routes(self) -> None:
+        report = validate_manifest(self.bundle_manifest())
+
+        output = _text_report(report)
+
+        self.assertIn(
+            "- mixed-artwork-bundle (graphic_design + audio_haptic + raster_vector_sprites): pass",
+            output,
+        )
+        self.assertNotIn("(None)", output)
+
+    def test_legacy_text_report_keeps_case_medium(self) -> None:
+        for manifest in (self.load_fixture(), self.load_contract_fixture(), self.load_media_fixture()):
+            with self.subTest(schema_version=manifest["schema_version"]):
+                case = validate_manifest(manifest)["cases"][0]
+                output = _text_report(validate_manifest(manifest))
+
+                self.assertIn(f"- {case['id']} ({case['medium']}): {case['status']}", output)
 
     def test_schema_13_holds_when_request_and_bundle_drift(self) -> None:
         manifest = self.bundle_manifest()
@@ -362,9 +331,9 @@ class ValidateArtRouterTests(unittest.TestCase):
     def test_schema_13_holds_for_route_role_delivery_and_component_drift(self) -> None:
         mutations = (
             lambda manifest: manifest["cases"][0]["representations"][0].update(
-                {"medium": "collage", "asset": {"label": "poster", "type": "collage_raster", "path": "package/poster"}}
+                {"route": "collage", "asset": {"label": "poster", "type": "collage_raster", "path": "package/poster"}}
             ),
-            lambda manifest: manifest["cases"][0]["representations"][0].update({"role": "adjacent"}),
+            lambda manifest: manifest["cases"][0]["representations"][0].update({"role": "supporting"}),
             lambda manifest: manifest["cases"][0]["representations"][0]["delivery"].update({"format": "image/png"}),
             lambda manifest: manifest["cases"][0]["representations"].pop(),
         )
@@ -378,6 +347,63 @@ class ValidateArtRouterTests(unittest.TestCase):
                     "request_manifest_mismatch",
                     {reason["code"] for reason in report["cases"][0]["reasons"]},
                 )
+
+    def test_schema_13_rejects_legacy_component_field_names_and_roles(self) -> None:
+        def adjacent_request_role(manifest: dict) -> None:
+            representation = manifest["request"]["representations"][1]
+            representation["role"] = "adjacent"
+
+        def adjacent_manifest_role(manifest: dict) -> None:
+            manifest["cases"][0]["representations"][1]["role"] = "adjacent"
+
+        def medium_request_field(manifest: dict) -> None:
+            representation = manifest["request"]["representations"][1]
+            representation["medium"] = representation.pop("route")
+
+        def flat_request_asset_type(manifest: dict) -> None:
+            representation = manifest["request"]["representations"][1]
+            representation["asset_type"] = representation.pop("asset")["type"]
+
+        def medium_manifest_field(manifest: dict) -> None:
+            representation = manifest["cases"][0]["representations"][1]
+            representation["medium"] = representation.pop("route")
+
+        def flat_manifest_asset_type(manifest: dict) -> None:
+            representation = manifest["cases"][0]["representations"][1]
+            representation["asset_type"] = representation.pop("asset")["type"]
+
+        mutations = (
+            (adjacent_request_role, "invalid_value"),
+            (adjacent_manifest_role, "invalid_value"),
+            (medium_request_field, "unsupported_field"),
+            (flat_request_asset_type, "unsupported_field"),
+            (medium_manifest_field, "unsupported_field"),
+            (flat_manifest_asset_type, "unsupported_field"),
+        )
+        for mutate, expected_code in mutations:
+            with self.subTest(mutation=mutate.__name__):
+                manifest = self.bundle_manifest()
+                mutate(manifest)
+
+                report = validate_manifest(manifest)
+
+                self.assertEqual(report["status"], "hold")
+                reason_codes = {reason["code"] for reason in report["reasons"]}
+                for case in report["cases"]:
+                    reason_codes.update(reason["code"] for reason in case["reasons"])
+                self.assertIn(expected_code, reason_codes)
+
+    def test_schema_13_request_schema_uses_contract_component_shape(self) -> None:
+        schema_path = Path(__file__).resolve().parents[2] / "docs" / "standards" / "artistic-request-v1.schema.json"
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        representation = schema["$defs"]["representation"]
+        properties = representation["properties"]
+
+        self.assertEqual(set(representation["required"]), {"id", "route", "asset", "role", "delivery"})
+        self.assertEqual(properties["role"]["enum"], ["primary", "supporting"])
+        self.assertEqual(properties["asset"]["required"], ["type"])
+        self.assertNotIn("medium", properties)
+        self.assertNotIn("asset_type", properties)
 
     def test_schema_13_request_requires_formal_contract_fields(self) -> None:
         manifest = self.bundle_manifest()

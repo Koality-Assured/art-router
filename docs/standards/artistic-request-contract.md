@@ -54,7 +54,7 @@ The [artistic-request-v1.schema.json](./artistic-request-v1.schema.json) file de
 
 Manifest version `1.3` bundles place the request in `request` and list output components in `representations[]`. The validator checks that:
 
-- Each component declares `id`, `route`, `asset.type`, `role` (`primary` or `supporting`), and `delivery`; exactly one component is primary.
+- Each request declaration and delivered component declares `id`, `route`, nested `asset.type`, `role` (`primary` or `supporting`), and `delivery`. Request assets declare `type`; delivered assets include a package `path`. Exactly one component is primary.
 - The request's representation declarations match manifest components by `id`, `route`, asset type, and role, regardless of order. Neither side may contain an undeclared or omitted component.
 - Each component's `delivery` matches the request's delivery declaration.
 - Manifest 1.3 keeps external media in the existing case-level `external_media` structure and applies the controls below. These linked records are not local packaged assets; the validator does not match their identifiers to request components.
