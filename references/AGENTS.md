@@ -22,11 +22,11 @@ Ingest simply; do not duplicate skills or paste root Critical — link [`../AGEN
 
 ## Current families
 
-Tooling and validation families only. Domain reference families are fed later when this
-template is cloned for a topic.
+The family index includes tooling, validation, and domain reference captures.
 
 | Folder | Topic |
 | --- | --- |
+| `artistic/` | Accessibility, tactile and haptic interaction, and immersive XR source captures |
 | `conventional-commits/` | Commit / PR conventions |
 | `markdown/` | markdownlint library + cli2 (rules, config, invoke) |
 | `prompt-engineering/` | Prompt engineering principles, cache optimization, and structured framing |

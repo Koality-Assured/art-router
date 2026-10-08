@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "family": "artistic",
+  "source_capture": "accessibility-haptics-xr.md",
+  "captured_at_utc": "2026-10-08T15:44:31Z",
+  "advisory_only": true,
+  "sources": [
+    {
+      "id": "w3c-epub-a11y-11",
+      "publisher": "W3C",
+      "title": "EPUB Accessibility 1.1",
+      "version": "1.1",
+      "official_url": "https://www.w3.org/TR/epub-a11y-11/",
+      "status": "Recommendation",
+      "status_date": "2024-10-17",
+      "scope": "Accessibility requirements for EPUB publications."
+    },
+    {
+      "id": "w3c-epub-a11y-12-crd",
+      "publisher": "W3C",
+      "title": "EPUB Accessibility 1.2",
+      "version": "1.2",
+      "official_url": "https://www.w3.org/TR/epub-a11y/all/",
+      "version_url": "https://www.w3.org/TR/epub-a11y-12/",
+      "status": "Candidate Recommendation Draft",
+      "status_date": "2026-09-12",
+      "latest_snapshot_date": "2026-07-21",
+      "scope": "Accessibility requirements for EPUB publications."
+    },
+    {
+      "id": "iso-9241-910-2011",
+      "publisher": "ISO",
+      "title": "ISO 9241-910:2011 — Framework for tactile and haptic interaction",
+      "version": "2011",
+      "official_url": "https://www.iso.org/standard/51097.html",
+      "status": "Current; stage 90.93 confirmed",
+      "status_date": "2022-06-30",
+      "scope": "Tactile and haptic interaction framework; bibliographic metadata only.",
+      "source_use_note": "ISO content is restricted for AI/ML use outside ISO Open Data terms; this catalog entry contains bibliographic metadata only."
+    },
+    {
+      "id": "iso-9241-920-2024",
+      "publisher": "ISO",
+      "title": "ISO 9241-920:2024 — Tactile and haptic interactions",
+      "version": "2024",
+      "official_url": "https://www.iso.org/standard/80751.html",
+      "status": "Published current edition; stage 60.60",
+      "status_date": "2024-10-11",
+      "previous_version": "ISO 9241-920:2009 (withdrawn)",
+      "scope": "Tactile and haptic interactions; bibliographic metadata only.",
+      "source_use_note": "ISO content is restricted for AI/ML use outside ISO Open Data terms; this catalog entry contains bibliographic metadata only."
+    },
+    {
+      "id": "khronos-openxr-1-1",
+      "publisher": "Khronos Group",
+      "title": "OpenXR 1.1",
+      "version": "1.1.63",
+      "official_url": "https://registry.khronos.org/OpenXR/",
+      "related_urls": [
+        "https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html",
+        "https://registry.khronos.org/OpenXR/specs/1.1/man/html/xrApplyHapticFeedback.html"
+      ],
+      "status": "Current published 1.1 specification",
+      "status_date": "2026-10-08",
+      "scope": "OpenXR API specification and implementation references."
+    }
+  ]
+}

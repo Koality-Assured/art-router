@@ -13,6 +13,8 @@ rag_keywords: [painting, illustration, graphic-design, logos, icons, typography,
 
 Choose the row that describes the delivery risk, then add adjacent rows when a work crosses media. Each row requires a context decision, an artistic decision, a technical/accessibility/safety check, and handoff metadata. The gates are production controls, not universal laws of art. The legal and safety notes below are jurisdiction-specific and may require local counsel, a licensed practitioner, an accessibility specialist, an engineer, or an authority having jurisdiction.
 
+The [artistic representation registry](./artistic-representation-registry.json) is the source of truth for representation IDs, aliases, adjacent routes, default check profiles, and asset types. This page defines the controls for applying those routes.
+
 ## Medium matrix
 
 ### Painting and illustration

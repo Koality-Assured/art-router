@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "registry": "docs/standards/artistic-representation-registry.json",
+  "package_root": "ai-tooling/skills/artistic/representation-routing",
+  "samples": [
+    {
+      "id": "sample-collage",
+      "representation": "collage",
+      "asset_type": "collage_raster",
+      "format": "image/png",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-collage.png"
+    },
+    {
+      "id": "sample-comic-strip",
+      "representation": "comics",
+      "asset_type": "comic_strip",
+      "format": "image/png",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-comic-strip.png"
+    },
+    {
+      "id": "sample-pixel-sprite-sheet",
+      "representation": "raster_vector_sprites",
+      "asset_type": "pixel_sprite_sheet",
+      "format": "image/png",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-pixel-sprite-sheet.png"
+    },
+    {
+      "id": "sample-editorial-photo",
+      "representation": "photography",
+      "asset_type": "editorial_photo",
+      "format": "image/png",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-editorial-photo.png"
+    },
+    {
+      "id": "sample-3d-concept-render",
+      "representation": "cgi",
+      "asset_type": "concept_render",
+      "format": "image/png",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-3d-concept-render.png"
+    },
+    {
+      "id": "sample-vector-poster",
+      "representation": "graphic_design",
+      "asset_type": "vector_poster",
+      "format": "image/svg+xml",
+      "path": "ai-tooling/skills/artistic/representation-routing/sample-vector-poster.svg"
+    }
+  ]
+}

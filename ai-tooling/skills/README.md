@@ -33,6 +33,7 @@ Human index (not agent SoT):
 | [`doc-builder/`](./meta/doc-builder/) | document-operator | mutate |
 | [`downstream-repo-update/`](./meta/downstream-repo-update/) | harness-operator | mutate |
 | [`executive-report/`](./reporting/executive-report/) | document-operator | mutate |
+| [`evidence-validation/`](./artistic/evidence-validation/) | artistic-standards-reviewer | read-only |
 | [`foundation-site/`](./reporting/foundation-site/) | document-operator | mutate |
 | [`framework-mapper/`](./reporting/framework-mapper/) | document-operator | mutate |
 | [`gcp-logs/`](./gcp/gcp-logs/) | cloud-operator | mutate |
@@ -55,10 +56,13 @@ Human index (not agent SoT):
 | [`model-memory-operate/`](./model-memory-operate/) | harness-operator | mutate |
 | [`noir-scan/`](./reporting/noir-scan/) | security-tooling-operator | mutate |
 | [`proposal-report/`](./reporting/proposal-report/) | document-operator | mutate |
+| [`production-workflow/`](./artistic/production-workflow/) | artistic-production | mutate |
 | [`public-llm-admin/`](./admin/public-llm-admin/) | cloud-operator | mutate |
 | [`qmd-efficiency/`](./meta/qmd-efficiency/) | harness-operator | mutate |
 | [`qmd-usage/`](./meta/qmd-usage/) | harness-operator | read-only |
 | [`reference-maintain/`](./meta/reference-maintain/) | document-operator | mutate |
+| [`representation-routing/`](./artistic/representation-routing/) | artistic-standards-reviewer | read-only |
+| [`request-contract/`](./artistic/request-contract/) | artistic-standards-reviewer | read-only |
 | [`scratch-cleanup/`](./meta/scratch-cleanup/) | harness-operator | mutate |
 | [`script-builder/`](./meta/script-builder/) | harness-operator | mutate |
 | [`skill-builder/`](./meta/skill-builder/) | harness-operator | mutate |

@@ -54,52 +54,52 @@ YOUTUBE_SANDBOX_PROFILE = "youtube-player-restricted-v1"
 YOUTUBE_PERMISSIONS_PROFILE = "youtube-playback-no-autoplay-v1"
 YOUTUBE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-MEDIUM_ALIASES = {
-    "2d": "illustration",
-    "ar": "xr",
-    "body_art": "tattoo",
-    "cgi_3d": "cgi",
-    "cartography": "cartographic_art",
-    "data_viz": "data_visualization",
-    "dance": "performance",
-    "extended_reality": "xr",
-    "favicon": "icon",
-    "graphic_mark": "icon",
-    "graphic_novel": "comics",
-    "game": "games",
-    "icons": "icon",
-    "interactive_web": "web",
-    "information_visualization": "data_visualization",
-    "installation": "physical",
-    "lettering": "typography",
-    "live_performance": "performance",
-    "logo": "vector",
-    "map_art": "cartographic_art",
-    "mapping": "cartographic_art",
-    "material_fabrication": "physical",
-    "mixed_reality": "xr",
-    "motion": "animation",
-    "music": "audio",
-    "painting": "illustration",
-    "packaging": "print",
-    "photo": "photography",
-    "poetry": "literary",
-    "print_design": "print",
-    "prose": "literary",
-    "publication": "print",
-    "sculpture": "physical",
-    "sequential_art": "comics",
-    "software_art": "games",
-    "sound": "audio",
-    "storyboard": "comics",
-    "text": "literary",
-    "theatre": "performance",
-    "three_d": "cgi",
-    "video": "animation",
-    "voice": "audio",
-    "vr": "xr",
-    "writing": "literary",
-}
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+REPRESENTATION_REGISTRY_PATH = REPOSITORY_ROOT / "docs" / "standards" / "artistic-representation-registry.json"
+with REPRESENTATION_REGISTRY_PATH.open("r", encoding="utf-8") as registry_file:
+    REPRESENTATION_REGISTRY = json.load(registry_file)
+
+REPRESENTATION_ROWS: list[dict[str, Any]] = REPRESENTATION_REGISTRY["representations"]
+REPRESENTATIONS_BY_ID = {row["id"]: row for row in REPRESENTATION_ROWS}
+
+
+def _route_token(value: str) -> str:
+    return value.strip().lower().replace("-", "_").replace(" ", "_")
+
+
+MEDIUM_ALIASES: dict[str, str] = {}
+for _representation in REPRESENTATION_ROWS:
+    for _alias in [_representation["id"], *_representation["aliases"]]:
+        _token = _route_token(_alias)
+        _existing_route = MEDIUM_ALIASES.get(_token)
+        if _existing_route is not None and _existing_route != _representation["id"]:
+            raise ValueError(f"duplicate representation alias {_alias!r} in registry")
+        MEDIUM_ALIASES[_token] = _representation["id"]
+
+
+def _resolve_medium(value: str) -> str | None:
+    return MEDIUM_ALIASES.get(_route_token(value))
+
+
+for _representation in REPRESENTATION_ROWS:
+    _unknown_adjacent = set(_representation["adjacent_routes"]) - set(REPRESENTATIONS_BY_ID)
+    if _unknown_adjacent:
+        raise ValueError(f"unknown adjacent routes for {_representation['id']}: {sorted(_unknown_adjacent)}")
+    _asset_type_aliases: dict[str, str] = {}
+    _declared_profiles = set(_representation["default_check_profiles"])
+    for _asset_type in _representation["asset_types"]:
+        for _asset_type_name in [_asset_type["id"], *_asset_type["aliases"]]:
+            _asset_type_token = _route_token(_asset_type_name)
+            _existing_asset_type = _asset_type_aliases.get(_asset_type_token)
+            if _existing_asset_type is not None and _existing_asset_type != _asset_type["id"]:
+                raise ValueError(
+                    f"duplicate asset type alias {_asset_type_name!r} for {_representation['id']}"
+                )
+            _asset_type_aliases[_asset_type_token] = _asset_type["id"]
+        _declared_profiles.update(_asset_type["check_profiles"])
+    _unknown_profiles = _declared_profiles - set(REPRESENTATION_REGISTRY["check_profiles"])
+    if _unknown_profiles:
+        raise ValueError(f"unknown registry check profiles for {_representation['id']}: {sorted(_unknown_profiles)}")
 
 
 class Issue:
@@ -144,8 +144,7 @@ def _text(
             _issue(issues, "missing_value", f"{field} must be provided")
         return None
     if not isinstance(value, str):
-        if required:
-            _issue(issues, "invalid_type", f"{field} must be a string")
+        _issue(issues, "invalid_type", f"{field} must be a string")
         return None
     stripped = value.strip()
     if required and not stripped:
@@ -298,7 +297,7 @@ def _check_allowed_number(
 CriterionCheck = Callable[[dict[str, Any], list[Issue]], None]
 
 
-MEDIUM_CRITERIA: dict[str, tuple[str, CriterionCheck]] = {
+CHECK_PROFILES: dict[str, tuple[str, CriterionCheck]] = {
     "illustration": (
         "delivery-size, equivalent-description, and color-profile declarations",
         lambda m, i: (
@@ -505,7 +504,126 @@ MEDIUM_CRITERIA: dict[str, tuple[str, CriterionCheck]] = {
             _check_bool(m, "preflight_run", i),
         ),
     ),
+    "graphic_design": (
+        "contrast, non-color meaning, reading order, real-content review, and font record",
+        lambda m, i: (
+            _check_min_number(m, "contrast_ratio", 4.5, i),
+            _check_bool(m, "non_color_meaning", i),
+            _check_bool(m, "reading_order_tested", i),
+            _check_bool(m, "real_content_tested", i),
+            _check_bool(m, "font_license_recorded", i),
+        ),
+    ),
+    "collage": (
+        "source count, source ledger, rights status, transformation notes, and equivalent description",
+        lambda m, i: (
+            _check_positive_integer(m, "source_count", i),
+            _check_bool(m, "source_ledger_recorded", i),
+            _check_bool(m, "rights_status_recorded", i),
+            _check_bool(m, "transformation_notes_recorded", i),
+            _check_text_min(m, "alt_text_chars", 40, i),
+        ),
+    ),
+    "raster": (
+        "pixel dimensions, color profile, lossless export, and alpha-edge review",
+        lambda m, i: (
+            _check_positive_number(m, "width_px", i),
+            _check_positive_number(m, "height_px", i),
+            _check_declared_text(m, "color_profile", i),
+            _check_bool(m, "lossless_export_declared", i),
+            _check_bool(m, "alpha_edges_tested", i),
+        ),
+    ),
+    "sprite": (
+        "sheet dimensions, frame count, grid, nearest-neighbor scaling, and transparent-edge review",
+        lambda m, i: (
+            _check_positive_integer(m, "width_px", i),
+            _check_positive_integer(m, "height_px", i),
+            _check_positive_integer(m, "frame_count", i),
+            _check_bool(m, "grid_declared", i),
+            _check_bool(m, "nearest_neighbor_tested", i),
+            _check_bool(m, "transparent_edges_tested", i),
+        ),
+    ),
+    "haptic": (
+        "actuator profile, intensity and duration units, safety review, alternative, and stop path",
+        lambda m, i: (
+            _check_declared_text(m, "actuator_profile", i),
+            _check_positive_integer(m, "pattern_count", i),
+            _check_positive_number(m, "duration_ms", i),
+            _check_declared_text(m, "intensity_units", i),
+            _check_bool(m, "safety_review_recorded", i),
+            _check_bool(m, "non_haptic_alternative", i),
+            _check_bool(m, "stop_control_tested", i),
+        ),
+    ),
+    "installation": (
+        "venue, access, egress, load, hazard, and removal plans",
+        lambda m, i: (
+            _check_bool(m, "venue_plan_recorded", i),
+            _check_bool(m, "access_plan_recorded", i),
+            _check_bool(m, "egress_reviewed", i),
+            _check_bool(m, "load_reviewed", i),
+            _check_bool(m, "hazard_reviewed", i),
+            _check_bool(m, "removal_plan_recorded", i),
+        ),
+    ),
+    "participatory": (
+        "consent scope, attribution, data minimization, authority, participant count, and withdrawal path",
+        lambda m, i: (
+            _check_bool(m, "consent_scope_recorded", i),
+            _check_bool(m, "attribution_policy_recorded", i),
+            _check_bool(m, "data_minimized", i),
+            _check_bool(m, "community_authority_recorded", i),
+            _check_positive_integer(m, "participant_count", i),
+            _check_bool(m, "withdrawal_path_recorded", i),
+        ),
+    ),
+    "music": (
+        "duration, audio format, score or stems, loudness target, and listening alternative",
+        lambda m, i: (
+            _check_positive_number(m, "duration_seconds", i),
+            _check_allowed_number(m, "sample_rate_hz", {44100, 48000, 96000}, i),
+            _check_positive_integer(m, "bit_depth_bits", i),
+            _check_positive_integer(m, "channels", i),
+            _check_bool(m, "score_or_stems_recorded", i),
+            _check_bool(m, "loudness_target_recorded", i),
+            _check_bool(m, "listening_alternative_recorded", i),
+        ),
+    ),
 }
+
+
+def _profiles_for_asset_type(route: dict[str, Any], asset_type: str | None) -> list[str]:
+    if asset_type is None:
+        return list(route["default_check_profiles"])
+    token = _route_token(asset_type)
+    for declared_type in route["asset_types"]:
+        accepted = {_route_token(declared_type["id"]), *(_route_token(alias) for alias in declared_type["aliases"])}
+        if token in accepted:
+            return list(declared_type["check_profiles"])
+    return []
+
+
+MEDIUM_CRITERIA: dict[str, tuple[str, CriterionCheck]] = {}
+for _representation in REPRESENTATION_ROWS:
+    _profiles = _representation["default_check_profiles"]
+    _missing_profiles = set(_profiles) - set(CHECK_PROFILES)
+    if _missing_profiles:
+        raise ValueError(f"unknown check profiles for {_representation['id']}: {sorted(_missing_profiles)}")
+
+    def _run_profiles(
+        measurements: dict[str, Any],
+        issues: list[Issue],
+        profiles: tuple[str, ...] = tuple(_profiles),
+    ) -> None:
+        for profile in profiles:
+            CHECK_PROFILES[profile][1](measurements, issues)
+
+    MEDIUM_CRITERIA[_representation["id"]] = (
+        "; ".join(CHECK_PROFILES[profile][0] for profile in _profiles),
+        _run_profiles,
+    )
 
 
 def _check_fps_number(measurements: dict[str, Any], issues: list[Issue]) -> None:
@@ -980,8 +1098,10 @@ def _check_record_keys(
     allowed: set[str],
     field: str,
     issues: list[Issue],
+    *,
+    allow_extra: bool = False,
 ) -> None:
-    if any(not isinstance(key, str) or key not in allowed for key in record):
+    if not allow_extra and any(not isinstance(key, str) or key not in allowed for key in record):
         _issue(issues, "unsupported_field", f"{field} contains an unsupported field")
 
 
@@ -1231,7 +1351,7 @@ def _validate_publisher_embed(
 def _validate_external_media(value: Any, issues: list[Issue]) -> None:
     field = "external_media"
     if value is None:
-        _issue(issues, "missing_value", f"{field} must be provided for schema 1.2")
+        _issue(issues, "missing_value", f"{field} must be provided for schema 1.2 and later")
         return
     media = _mapping(value, field, issues)
     if media is None:
@@ -1270,7 +1390,284 @@ def _validate_external_media(value: Any, issues: list[Issue]) -> None:
             _validate_publisher_embed(embed, index, sources, issues)
 
 
-def _validate_case(case: Any, index: int, *, schema_version: str | None = None) -> dict[str, Any]:
+REQUEST_OPERATIONS = {"generate", "edit", "transform", "critique", "package"}
+REQUEST_CONSTRAINT_SOURCES = {"user", "reference", "standard", "agent_default"}
+REQUEST_CONSTRAINT_STATUSES = {"required", "preferred", "open", "blocked"}
+MAX_REPRESENTATIONS = 100
+
+
+def _validate_artistic_request(value: Any, issues: list[Issue]) -> dict[str, dict[str, Any]]:
+    request = _mapping(value, "request", issues)
+    if request is None:
+        return {}
+    _check_record_keys(
+        request,
+        {
+            "schema_version", "request_id", "version", "operation", "intent",
+            "subject_content", "art_direction", "representations", "constraints",
+            "references", "people_and_authority", "audience_delivery",
+            "accessibility_safety", "provenance", "open_questions", "review_handoff",
+        },
+        "request",
+        issues,
+    )
+    schema_version = _text(request.get("schema_version"), "request.schema_version", issues)
+    if schema_version != "1.0":
+        _issue(issues, "unsupported_request_schema", "request.schema_version must be '1.0'")
+    _text(request.get("request_id"), "request.request_id", issues)
+    _text(request.get("version"), "request.version", issues)
+    operation = _text(request.get("operation"), "request.operation", issues)
+    if operation is not None and operation not in REQUEST_OPERATIONS:
+        _issue(issues, "invalid_value", "request.operation is not supported")
+
+    if request.get("intent") is None:
+        _issue(issues, "missing_value", "request.intent must be provided")
+        intent = None
+    else:
+        intent = _mapping(request.get("intent"), "request.intent", issues)
+    if intent is not None:
+        _check_record_keys(
+            intent,
+            {"primary_effect", "meaning", "deliberate_counter_effect", "preserve"},
+            "request.intent",
+            issues,
+            allow_extra=True,
+        )
+        _text(intent.get("primary_effect"), "request.intent.primary_effect", issues)
+        _text(intent.get("meaning"), "request.intent.meaning", issues)
+        _text(intent.get("deliberate_counter_effect"), "request.intent.deliberate_counter_effect", issues, required=False)
+        if "preserve" in intent:
+            preserve = _list(intent["preserve"], "request.intent.preserve", issues)
+            if preserve is not None:
+                for index, item in enumerate(preserve):
+                    field = f"request.intent.preserve[{index}]"
+                    if not isinstance(item, str):
+                        _issue(issues, "invalid_type", f"{field} must be a string")
+                    elif len(item) > MAX_TEXT_LENGTH:
+                        _issue(issues, "text_too_long", f"{field} exceeds {MAX_TEXT_LENGTH} characters")
+
+    for field in (
+        "subject_content", "art_direction", "people_and_authority", "audience_delivery",
+        "accessibility_safety", "provenance",
+    ):
+        if request.get(field) is None:
+            _issue(issues, "missing_value", f"request.{field} must be provided")
+        else:
+            _mapping(request.get(field), f"request.{field}", issues)
+
+    raw_representations = _list(request.get("representations"), "request.representations", issues)
+    expected: dict[str, dict[str, Any]] = {}
+    if raw_representations is not None:
+        if not raw_representations:
+            _issue(issues, "missing_value", "request.representations must not be empty")
+        if len(raw_representations) > MAX_REPRESENTATIONS:
+            _issue(issues, "too_many_items", f"request.representations must contain at most {MAX_REPRESENTATIONS} items")
+        primary_count = 0
+        for index, raw_representation in enumerate(raw_representations[:MAX_REPRESENTATIONS]):
+            field = f"request.representations[{index}]"
+            representation = _mapping(raw_representation, field, issues)
+            if representation is None:
+                continue
+            _check_record_keys(
+                representation,
+                {"id", "role", "route", "asset", "delivery"},
+                field,
+                issues,
+            )
+            representation_id = _text(representation.get("id"), f"{field}.id", issues)
+            role = _text(representation.get("role"), f"{field}.role", issues)
+            if role == "primary":
+                primary_count += 1
+            elif role is not None and role != "supporting":
+                _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'supporting'")
+            route_name = _text(representation.get("route"), f"{field}.route", issues)
+            route_id = _resolve_medium(route_name) if route_name is not None else None
+            route = REPRESENTATIONS_BY_ID.get(route_id) if route_id else None
+            if route is None:
+                _issue(issues, "unsupported_route", f"{field}.route is not in the representation registry")
+            asset = _mapping(representation.get("asset"), f"{field}.asset", issues)
+            asset_type: str | None = None
+            canonical_asset_type: str | None = None
+            if asset is not None:
+                _check_record_keys(asset, {"type"}, f"{field}.asset", issues)
+                asset_type = _text(asset.get("type"), f"{field}.asset.type", issues)
+            if route is not None and asset_type is not None:
+                canonical_asset_type = _canonical_asset_type(route, asset_type)
+                if canonical_asset_type is None:
+                    _issue(issues, "asset_type_mismatch", f"{field}.asset.type is not registered for route {route_id!r}")
+            delivery = _mapping(representation.get("delivery"), f"{field}.delivery", issues)
+            if delivery is not None:
+                _check_record_keys(
+                    delivery,
+                    {"intended_use", "format", "width_px", "height_px", "duration_seconds", "quantity"},
+                    f"{field}.delivery",
+                    issues,
+                    allow_extra=True,
+                )
+                _text(delivery.get("intended_use"), f"{field}.delivery.intended_use", issues)
+                _text(delivery.get("format"), f"{field}.delivery.format", issues)
+                for numeric_field in ("width_px", "height_px", "quantity"):
+                    if numeric_field in delivery:
+                        numeric_value = delivery[numeric_field]
+                        if isinstance(numeric_value, bool) or not isinstance(numeric_value, int) or numeric_value < 1:
+                            _issue(issues, "invalid_value", f"{field}.delivery.{numeric_field} must be a positive integer")
+                if "duration_seconds" in delivery:
+                    duration = _finite_number(delivery["duration_seconds"], f"{field}.delivery.duration_seconds", issues)
+                    if duration is not None and duration <= 0:
+                        _issue(issues, "invalid_value", f"{field}.delivery.duration_seconds must be greater than 0")
+            if representation_id is not None:
+                if representation_id in expected:
+                    _issue(issues, "duplicate_representation_id", f"duplicate request representation id {representation_id!r}")
+                else:
+                    expected[representation_id] = {
+                        "route": route_id,
+                        "asset_type": canonical_asset_type,
+                        "role": role,
+                        "delivery": delivery or {},
+                    }
+        if primary_count != 1:
+            _issue(issues, "invalid_primary_count", "request.representations must declare exactly one primary component")
+
+    constraints = _list(request.get("constraints"), "request.constraints", issues)
+    if constraints is not None:
+        if len(constraints) > MAX_CONTRACT_ITEMS:
+            _issue(issues, "too_many_items", f"request.constraints must contain at most {MAX_CONTRACT_ITEMS} items")
+        for index, item in enumerate(constraints[:MAX_CONTRACT_ITEMS]):
+            field = f"request.constraints[{index}]"
+            constraint = _mapping(item, field, issues)
+            if constraint is None:
+                continue
+            _check_record_keys(constraint, {"text", "source", "status"}, field, issues)
+            _text(constraint.get("text"), f"{field}.text", issues)
+            source = _text(constraint.get("source"), f"{field}.source", issues)
+            status = _text(constraint.get("status"), f"{field}.status", issues)
+            if source is not None and source not in REQUEST_CONSTRAINT_SOURCES:
+                _issue(issues, "invalid_value", f"{field}.source is not a recognized constraint source")
+            if status is not None and status not in REQUEST_CONSTRAINT_STATUSES:
+                _issue(issues, "invalid_value", f"{field}.status is not a recognized constraint status")
+
+    references = _list(request.get("references"), "request.references", issues)
+    if references is not None:
+        if len(references) > MAX_CONTRACT_ITEMS:
+            _issue(issues, "too_many_items", f"request.references must contain at most {MAX_CONTRACT_ITEMS} items")
+        for index, reference in enumerate(references[:MAX_CONTRACT_ITEMS]):
+            _mapping(reference, f"request.references[{index}]", issues)
+    questions = _list(request.get("open_questions"), "request.open_questions", issues)
+    if questions is not None:
+        if len(questions) > MAX_CONTRACT_ITEMS:
+            _issue(issues, "too_many_items", f"request.open_questions must contain at most {MAX_CONTRACT_ITEMS} items")
+        for index, question in enumerate(questions[:MAX_CONTRACT_ITEMS]):
+            _text(question, f"request.open_questions[{index}]", issues)
+
+    if request.get("review_handoff") is None:
+        _issue(issues, "missing_value", "request.review_handoff must be provided")
+        handoff = None
+    else:
+        handoff = _mapping(request.get("review_handoff"), "request.review_handoff", issues)
+    if handoff is not None:
+        _check_record_keys(
+            handoff,
+            {"owner", "reviewer", "acceptance_tests", "rollback_or_withdrawal_contact"},
+            "request.review_handoff",
+            issues,
+            allow_extra=True,
+        )
+        _text(handoff.get("owner"), "request.review_handoff.owner", issues)
+        _text(handoff.get("reviewer"), "request.review_handoff.reviewer", issues, required=False)
+        _text(
+            handoff.get("rollback_or_withdrawal_contact"),
+            "request.review_handoff.rollback_or_withdrawal_contact",
+            issues,
+            required=False,
+        )
+        tests = _list(handoff.get("acceptance_tests"), "request.review_handoff.acceptance_tests", issues)
+        if tests is not None:
+            if not tests:
+                _issue(issues, "missing_value", "request.review_handoff.acceptance_tests must not be empty")
+            for index, test in enumerate(tests):
+                _text(test, f"request.review_handoff.acceptance_tests[{index}]", issues)
+    return expected
+
+
+def _canonical_asset_type(route: dict[str, Any], asset_type: str) -> str | None:
+    token = _route_token(asset_type)
+    for declared_type in route["asset_types"]:
+        accepted = {_route_token(declared_type["id"]), *(_route_token(alias) for alias in declared_type["aliases"])}
+        if token in accepted:
+            return declared_type["id"]
+    return None
+
+
+def _validate_representation_component(
+    value: Any,
+    index: int,
+    issues: list[Issue],
+) -> dict[str, Any] | None:
+    field = f"representations[{index}]"
+    representation = _mapping(value, field, issues)
+    if representation is None:
+        return None
+    _check_record_keys(representation, {"id", "role", "route", "asset", "measurements", "delivery"}, field, issues)
+    representation_id = _text(representation.get("id"), f"{field}.id", issues)
+    role = _text(representation.get("role"), f"{field}.role", issues)
+    if role is not None and role not in {"primary", "supporting"}:
+        _issue(issues, "invalid_value", f"{field}.role must be 'primary' or 'supporting'")
+    route_name = _text(representation.get("route"), f"{field}.route", issues)
+    route_id = _resolve_medium(route_name) if route_name is not None else None
+    route = REPRESENTATIONS_BY_ID.get(route_id) if route_id else None
+    if route is None:
+        _issue(issues, "unsupported_route", f"{field}.route is not in the representation registry")
+
+    asset = _mapping(representation.get("asset"), f"{field}.asset", issues)
+    asset_type: str | None = None
+    canonical_asset_type: str | None = None
+    profiles: list[str] = []
+    if asset is not None:
+        _check_record_keys(asset, {"label", "type", "reference", "path"}, f"{field}.asset", issues, allow_extra=True)
+        _text(asset.get("label"), f"{field}.asset.label", issues, required=False)
+        asset_type = _text(asset.get("type"), f"{field}.asset.type", issues)
+        _text(asset.get("reference"), f"{field}.asset.reference", issues, required=False)
+        _text(asset.get("path"), f"{field}.asset.path", issues)
+        if route is not None and asset_type is not None:
+            canonical_asset_type = _canonical_asset_type(route, asset_type)
+            if canonical_asset_type is None:
+                _issue(issues, "asset_type_mismatch", f"{field}.asset.type is not registered for route {route_id!r}")
+            else:
+                profiles = _profiles_for_asset_type(route, asset_type)
+
+    delivery = _mapping(representation.get("delivery"), f"{field}.delivery", issues)
+    if delivery is not None:
+        _check_record_keys(
+            delivery,
+            {"intended_use", "format", "width_px", "height_px", "duration_seconds", "quantity"},
+            f"{field}.delivery",
+            issues,
+            allow_extra=True,
+        )
+        _text(delivery.get("intended_use"), f"{field}.delivery.intended_use", issues)
+        _text(delivery.get("format"), f"{field}.delivery.format", issues)
+
+    measurements = _mapping(representation.get("measurements"), f"{field}.measurements", issues)
+    if measurements is not None:
+        for profile in profiles:
+            CHECK_PROFILES[profile][1](measurements, issues)
+
+    return {
+        "id": representation_id,
+        "route": route_id,
+        "asset_type": canonical_asset_type,
+        "role": role,
+        "delivery": delivery or {},
+    }
+
+
+def _validate_case(
+    case: Any,
+    index: int,
+    *,
+    schema_version: str | None = None,
+    request_representations: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     issues: list[Issue] = []
     if not _is_mapping(case):
         _issue(issues, "invalid_type", f"case[{index}] must be an object")
@@ -1286,43 +1683,120 @@ def _validate_case(case: Any, index: int, *, schema_version: str | None = None) 
 
     warnings: list[Issue] = []
     case_id = _text(case.get("id"), f"case[{index}].id", issues) or f"case[{index}]"
-    medium_input = _text(case.get("medium"), f"case[{index}].medium", issues)
-    canonical_medium = MEDIUM_ALIASES.get(medium_input.lower(), medium_input.lower()) if medium_input else None
-    if canonical_medium not in MEDIUM_CRITERIA:
-        _issue(
-            issues,
-            "unsupported_medium",
-            f"case {_safe_display(case_id)} uses unsupported medium {_safe_display(medium_input)!r}",
-        )
+    is_bundle = schema_version == "1.3"
+    medium_input: str | None = None
+    canonical_medium: str | None = None
+    representations: list[dict[str, Any]] = []
+    criteria_bases: list[str] = []
 
-    asset = case.get("asset")
-    if asset is not None:
-        asset_map = _mapping(asset, f"case[{index}].asset", issues)
-        if asset_map is not None:
-            _text(asset_map.get("label"), f"case[{index}].asset.label", issues)
-            _text(asset_map.get("type"), f"case[{index}].asset.type", issues)
-            # `reference` is informational only; it is never opened or resolved.
-            _text(asset_map.get("reference"), f"case[{index}].asset.reference", issues)
+    if is_bundle:
+        raw_representations = _list(case.get("representations"), f"case[{index}].representations", issues)
+        seen_representation_ids: set[str] = set()
+        primary_count = 0
+        if raw_representations is not None:
+            if not raw_representations:
+                _issue(issues, "missing_value", f"case[{index}].representations must not be empty")
+            if len(raw_representations) > MAX_REPRESENTATIONS:
+                _issue(issues, "too_many_items", f"case[{index}].representations must contain at most {MAX_REPRESENTATIONS} items")
+            for representation_index, value in enumerate(raw_representations[:MAX_REPRESENTATIONS]):
+                component = _validate_representation_component(value, representation_index, issues)
+                if component is None:
+                    continue
+                representation_id = component["id"]
+                if representation_id is not None:
+                    if representation_id in seen_representation_ids:
+                        _issue(issues, "duplicate_representation_id", f"duplicate representation id {representation_id!r}")
+                    seen_representation_ids.add(representation_id)
+                if component["role"] == "primary":
+                    primary_count += 1
+                route = REPRESENTATIONS_BY_ID.get(component["route"])
+                if route is not None:
+                    profile_names = _profiles_for_asset_type(route, component["asset_type"])
+                    criteria_bases.extend(CHECK_PROFILES[profile][0] for profile in profile_names)
+                representations.append(component)
+        if primary_count != 1:
+            _issue(issues, "invalid_primary_count", f"case[{index}].representations must declare exactly one primary component")
+
+        expected = request_representations or {}
+        actual_by_id = {item["id"]: item for item in representations if item["id"] is not None}
+        missing_ids = set(expected) - set(actual_by_id)
+        extra_ids = set(actual_by_id) - set(expected)
+        if missing_ids:
+            _issue(issues, "request_manifest_mismatch", f"case[{index}] omits requested representation ids: {sorted(missing_ids)}")
+        if extra_ids:
+            _issue(issues, "request_manifest_mismatch", f"case[{index}] adds unrequested representation ids: {sorted(extra_ids)}")
+        for representation_id in sorted(set(expected) & set(actual_by_id)):
+            requested = expected[representation_id]
+            delivered = actual_by_id[representation_id]
+            for field in ("route", "asset_type", "role"):
+                if requested[field] != delivered[field]:
+                    _issue(
+                        issues,
+                        "request_manifest_mismatch",
+                        f"case[{index}].representations[{representation_id!r}].{field} does not match the request",
+                    )
+            for field, expected_value in requested["delivery"].items():
+                if delivered["delivery"].get(field) != expected_value:
+                    _issue(
+                        issues,
+                        "request_manifest_mismatch",
+                        f"case[{index}].representations[{representation_id!r}].delivery.{field} does not match the request",
+                    )
+    else:
+        medium_input = _text(case.get("medium"), f"case[{index}].medium", issues)
+        canonical_medium = _resolve_medium(medium_input) if medium_input else None
+        route = REPRESENTATIONS_BY_ID.get(canonical_medium) if canonical_medium else None
+        if route is None:
+            _issue(
+                issues,
+                "unsupported_medium",
+                f"case {_safe_display(case_id)} uses unsupported medium {_safe_display(medium_input)!r}",
+            )
+
+        asset = case.get("asset")
+        asset_type: str | None = None
+        profiles: list[str] = []
+        if asset is not None:
+            asset_map = _mapping(asset, f"case[{index}].asset", issues)
+            if asset_map is not None:
+                _text(asset_map.get("label"), f"case[{index}].asset.label", issues)
+                asset_type = _text(asset_map.get("type"), f"case[{index}].asset.type", issues)
+                # `reference` is informational only; it is never opened or resolved.
+                _text(asset_map.get("reference"), f"case[{index}].asset.reference", issues, required=False)
+                if route is not None and asset_type is not None:
+                    profiles = _profiles_for_asset_type(route, asset_type)
+                    if not profiles:
+                        _issue(issues, "asset_type_mismatch", f"case[{index}].asset.type is not registered for medium {canonical_medium!r}")
+        elif route is not None:
+            profiles = list(route["default_check_profiles"])
+
+        if route is not None and asset_type is not None and profiles:
+            canonical_asset_type = _canonical_asset_type(route, asset_type)
+            representations.append(
+                {"id": case_id, "route": canonical_medium, "asset_type": canonical_asset_type, "role": "primary"}
+            )
+        criteria_bases.extend(CHECK_PROFILES[profile][0] for profile in profiles)
+        measurements = case.get("measurements")
+        if profiles:
+            measurement_map = _mapping(measurements, "measurements", issues)
+            if measurement_map is not None:
+                for profile in profiles:
+                    CHECK_PROFILES[profile][1](measurement_map, issues)
+        elif measurements is not None:
+            _mapping(measurements, "measurements", issues)
 
     _validate_controls(case, issues)
     contract_report = _validate_contract(case, issues, warnings, required=False)
-    if schema_version == "1.2":
+    if schema_version in {"1.2", "1.3"}:
         _validate_external_media(case.get("external_media"), issues)
 
-    criteria_basis: str | None = None
-    measurements = case.get("measurements")
-    if canonical_medium in MEDIUM_CRITERIA:
-        criteria_basis, criterion_check = MEDIUM_CRITERIA[canonical_medium]
-        measurement_map = _mapping(measurements, "measurements", issues)
-        if measurement_map is not None:
-            criterion_check(measurement_map, issues)
-    elif measurements is not None:
-        _mapping(measurements, "measurements", issues)
+    criteria_basis = "; ".join(dict.fromkeys(criteria_bases)) or None
 
     return {
         "id": case_id,
         "medium": medium_input,
         "canonical_medium": canonical_medium,
+        "representations": representations,
         "status": "pass" if not issues else "hold",
         "reasons": [issue.as_dict() for issue in issues],
         "warnings": [warning.as_dict() for warning in warnings],
@@ -1352,7 +1826,8 @@ def validate_manifest(data: Any) -> dict[str, Any]:
         "scope_note": (
             "Validates declared controls and supplied measurements only; it does not "
             "fetch or resolve assets or URLs, or prove artistic quality, rights, safety, "
-            "accessibility, or asset existence."
+            "accessibility, or asset existence. Schema 1.3 also checks declared request "
+            "and bundle consistency; local sample paths are checked by validate_art_samples.py."
         ),
     }
     manifest_issues: list[Issue] = []
@@ -1365,8 +1840,15 @@ def validate_manifest(data: Any) -> dict[str, Any]:
     report["manifest_id"] = manifest_id
     schema_version = _text(data.get("schema_version"), "schema_version", manifest_issues)
     report["schema_version"] = schema_version
-    if schema_version not in {"1.0", "1.1", "1.2"}:
-        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0', '1.1', or '1.2'")
+    if schema_version not in {"1.0", "1.1", "1.2", "1.3"}:
+        _issue(manifest_issues, "unsupported_schema", "schema_version must be '1.0', '1.1', '1.2', or '1.3'")
+
+    request_representations: dict[str, dict[str, Any]] = {}
+    if schema_version == "1.3":
+        if "request" not in data or data.get("request") is None:
+            _issue(manifest_issues, "missing_value", "request must be provided for schema 1.3")
+        else:
+            request_representations = _validate_artistic_request(data.get("request"), manifest_issues)
 
     cases = _list(data.get("cases"), "cases", manifest_issues)
     if cases is not None:
@@ -1376,11 +1858,16 @@ def validate_manifest(data: Any) -> dict[str, Any]:
             _issue(manifest_issues, "too_many_cases", f"cases must contain at most {MAX_CASES} cases")
         seen_ids: set[str] = set()
         for index, case in enumerate(cases[:MAX_CASES]):
-            result = _validate_case(case, index, schema_version=schema_version)
-            if schema_version in {"1.1", "1.2"} and isinstance(case, dict):
+            result = _validate_case(
+                case,
+                index,
+                schema_version=schema_version,
+                request_representations=request_representations,
+            )
+            if schema_version in {"1.1", "1.2", "1.3"} and isinstance(case, dict):
                 if "contract" not in case or case.get("contract") is None:
                     result["reasons"].append(
-                        {"code": "missing_value", "message": "contract must be provided for schema 1.1 cases"}
+                        {"code": "missing_value", "message": "contract must be provided for schema 1.1 and later cases"}
                     )
                     result["status"] = "hold"
             if result["id"] in seen_ids:
@@ -1426,6 +1913,33 @@ def _safe_display(value: Any) -> str:
     return str(value).replace("\r", "\\r").replace("\n", "\\n").replace("\x1b", "\\x1b")
 
 
+def _case_route_summary(case: dict[str, Any], schema_version: str | None) -> str:
+    if schema_version != "1.3":
+        return _safe_display(case["medium"])
+    representations = case.get("representations")
+    if not isinstance(representations, list):
+        return "unknown"
+    routes_by_role = {
+        role: {
+            representation["route"]
+            for representation in representations
+            if isinstance(representation, dict)
+            and representation.get("role") == role
+            and isinstance(representation.get("route"), str)
+            and representation["route"]
+        }
+        for role in ("primary", "supporting")
+    }
+    primary_routes = sorted(routes_by_role["primary"])
+    all_routes = routes_by_role["primary"] | routes_by_role["supporting"]
+    if primary_routes:
+        primary = primary_routes[0]
+        ordered_routes = [primary, *sorted(all_routes - {primary})]
+    else:
+        ordered_routes = sorted(all_routes)
+    return " + ".join(_safe_display(route) for route in ordered_routes) or "unknown"
+
+
 def _text_report(report: dict[str, Any]) -> str:
     lines = [
         f"manifest: {_safe_display(report['manifest_id'])}",
@@ -1436,7 +1950,7 @@ def _text_report(report: dict[str, Any]) -> str:
         lines.append(f"manifest hold [{reason['code']}]: {reason['message']}")
     for case in report["cases"]:
         lines.append(
-            f"- {_safe_display(case['id'])} ({_safe_display(case['medium'])}): {case['status']}"
+            f"- {_safe_display(case['id'])} ({_case_route_summary(case, report['schema_version'])}): {case['status']}"
         )
         for reason in case["reasons"]:
             lines.append(f"  - [{reason['code']}] {reason['message']}")

@@ -2,15 +2,14 @@
 schema_version: "2.0.0"
 agent_id: ai-tooling-ops
 name: AI tooling operations
-description: AI-tooling specialist. Owns skill-builder, skill-dry-run,
-  memory-create/adjust/cleanup, and agent-builder. Use for skills, user/agent
+description: AI-tooling specialist. Owns skill-dry-run,
+  memory-create/adjust/cleanup, and agent-builder. Use for skill dry-runs, user/agent
   memory checkpoints, A2A specs, and agent definitions. Do not use for
   model-memory-operate (memory-operator). Spawned by the router; do not edit
   docs/ standards unless assigned.
 model_tier: standard
 token_ceiling: 100000
 capabilities:
-- skill-builder
 - skill-dry-run
 - harness-review
 - memory-create
@@ -58,7 +57,7 @@ Specialist for `ai-tooling/` enablement (skills, memory, agents, cards).
 
 ## Owns
 
-`skill-builder`, `skill-dry-run`, `harness-review`, `memory-create`, `memory-adjust`, `memory-cleanup`, `agent-builder`. Not `model-memory-operate` (`memory-operator`).
+`skill-dry-run`, `harness-review`, `memory-create`, `memory-adjust`, `memory-cleanup`, `agent-builder`. Not `skill-builder` (`harness-operator`) or `model-memory-operate` (`memory-operator`).
 
 Default specialist for `ai-tooling/`.
 

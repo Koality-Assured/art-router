@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Artistic request contract",
+  "description": "Versioned machine-readable request shape used by manifest schema 1.3. The prose standard remains authoritative for interpretation and release controls.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "version",
+    "operation",
+    "intent",
+    "subject_content",
+    "art_direction",
+    "representations",
+    "constraints",
+    "references",
+    "people_and_authority",
+    "audience_delivery",
+    "accessibility_safety",
+    "provenance",
+    "open_questions",
+    "review_handoff"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "request_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "operation": {"enum": ["generate", "edit", "transform", "critique", "package"]},
+    "intent": {
+      "type": "object",
+      "required": ["primary_effect", "meaning"],
+      "properties": {
+        "primary_effect": {"type": "string", "minLength": 1},
+        "meaning": {"type": "string", "minLength": 1},
+        "deliberate_counter_effect": {"type": "string"},
+        "preserve": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "subject_content": {"type": "object", "additionalProperties": true},
+    "art_direction": {"type": "object", "additionalProperties": true},
+    "representations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {"$ref": "#/$defs/representation"}
+    },
+    "constraints": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {"$ref": "#/$defs/constraint"}
+    },
+    "references": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": true}},
+    "people_and_authority": {"type": "object", "additionalProperties": true},
+    "audience_delivery": {"type": "object", "additionalProperties": true},
+    "accessibility_safety": {"type": "object", "additionalProperties": true},
+    "provenance": {"type": "object", "additionalProperties": true},
+    "open_questions": {"type": "array", "maxItems": 100, "items": {"type": "string"}},
+    "review_handoff": {
+      "type": "object",
+      "required": ["owner", "acceptance_tests"],
+      "properties": {
+        "owner": {"type": "string", "minLength": 1},
+        "reviewer": {"type": "string"},
+        "acceptance_tests": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "rollback_or_withdrawal_contact": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "representation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "route", "asset", "role", "delivery"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "route": {"type": "string", "minLength": 1},
+        "asset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {"type": "string", "minLength": 1}
+          }
+        },
+        "role": {"enum": ["primary", "supporting"]},
+        "delivery": {
+          "type": "object",
+          "required": ["intended_use", "format"],
+          "properties": {
+            "intended_use": {"type": "string", "minLength": 1},
+            "format": {"type": "string", "minLength": 1},
+            "width_px": {"type": "integer", "minimum": 1},
+            "height_px": {"type": "integer", "minimum": 1},
+            "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "quantity": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source", "status"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "source": {"enum": ["user", "reference", "standard", "agent_default"]},
+        "status": {"enum": ["required", "preferred", "open", "blocked"]}
+      }
+    }
+  }
+}

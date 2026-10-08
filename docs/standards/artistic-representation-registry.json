@@ -1,0 +1,290 @@
+{
+  "schema_version": "1.0",
+  "standards_source": "artistic-representations.md",
+  "purpose": "Machine-readable route and check-profile index for the representation matrix. The matrix remains the normative source for context and release controls.",
+  "check_profiles": {
+    "illustration": "Image dimensions, equivalent description, and color profile",
+    "graphic_design": "Contrast, reading order, real-content review, and design handoff",
+    "icon": "Small-size exports, monochrome behavior, contrast, and accessible name",
+    "typography": "Font format, glyph coverage, licensing, readability, and text layer",
+    "photography": "Capture scale, lens, equivalent description, and edit history",
+    "collage": "Source inventory, permission record, transformation notes, and description",
+    "raster": "Pixel dimensions, color profile, lossless export, and alpha-edge review",
+    "vector": "Vector format, viewBox, stroke, fonts, and spot colors",
+    "sprite": "Sheet dimensions, frame count, grid, and pixel-filter checks",
+    "web": "Keyboard path, focus, reduced motion, contrast, non-color meaning, and fallback",
+    "tattoo": "Placement, line weight, aging, consent, and non-body preview",
+    "print": "Page count, trim, bleed, profile, PDF standard, fonts, and preflight",
+    "animation": "Duration, frame rate, alternatives, pause, flashing, and colorimetry",
+    "cgi": "Scene format, frame range, camera, lighting, units, and render settings",
+    "audio": "Duration, sample rate, bit depth, channels, and transcript or lyrics",
+    "haptic": "Actuator profile, intensity and duration, safety review, alternative, and stop path",
+    "installation": "Venue, access, egress, load, hazard, and removal plans",
+    "data_visualization": "Source, units, legend, non-color meaning, precision, and description",
+    "participatory": "Consent, attribution, data minimization, authority, and withdrawal",
+    "xr": "Runtime, tracking, frame rate, scale, comfort review, and non-XR fallback",
+    "literary": "Word count, language, reading level, version, and alternate format",
+    "performance": "Duration, cast, cue sheet, access, venue or capture, and consent",
+    "music": "Duration, audio format, stems or score, loudness, and listening alternative",
+    "physical": "Material, dimensions, fabrication, handling, and non-physical preview",
+    "comics": "Page and panel counts, sequence, extractable text, description, and profile",
+    "games": "Build, platform, input, pause, save state, and render mode",
+    "cartographic_art": "Projection, CRS, scale, orientation, legend, and source date"
+  },
+  "representations": [
+    {
+      "id": "illustration",
+      "standard_heading": "Painting and illustration",
+      "aliases": ["2d", "painting", "painting_and_illustration"],
+      "adjacent_routes": ["graphic_design", "collage", "raster_vector_sprites"],
+      "default_check_profiles": ["illustration"],
+      "asset_types": [
+        {"id": "raster", "aliases": ["bitmap"], "check_profiles": ["illustration"]},
+        {"id": "illustration", "aliases": [], "check_profiles": ["illustration"]},
+        {"id": "painting", "aliases": [], "check_profiles": ["illustration"]}
+      ]
+    },
+    {
+      "id": "graphic_design",
+      "standard_heading": "Graphic design and minimalism",
+      "aliases": ["design", "graphic_design_and_minimalism"],
+      "adjacent_routes": ["logos_icons", "typography", "photography", "collage", "raster_vector_sprites", "print"],
+      "default_check_profiles": ["graphic_design"],
+      "asset_types": [
+        {"id": "graphic_design", "aliases": ["layout"], "check_profiles": ["graphic_design"]},
+        {"id": "poster", "aliases": [], "check_profiles": ["graphic_design"]},
+        {"id": "vector_poster", "aliases": [], "check_profiles": ["graphic_design", "vector"]}
+      ]
+    },
+    {
+      "id": "logos_icons",
+      "standard_heading": "Logos, icons, and favicons",
+      "aliases": ["icon", "icons", "favicon", "graphic_mark", "logo", "logos"],
+      "adjacent_routes": ["graphic_design", "typography", "raster_vector_sprites", "web"],
+      "default_check_profiles": ["icon"],
+      "asset_types": [
+        {"id": "vector", "aliases": ["logo"], "check_profiles": ["icon"]},
+        {"id": "favicon", "aliases": [], "check_profiles": ["icon"]},
+        {"id": "icon", "aliases": [], "check_profiles": ["icon"]}
+      ]
+    },
+    {
+      "id": "typography",
+      "standard_heading": "Typography and color",
+      "aliases": ["lettering", "type", "typography_and_color"],
+      "adjacent_routes": ["graphic_design", "logos_icons", "web", "print"],
+      "default_check_profiles": ["typography"],
+      "asset_types": [
+        {"id": "font", "aliases": ["typeface"], "check_profiles": ["typography"]},
+        {"id": "typography", "aliases": [], "check_profiles": ["typography"]}
+      ]
+    },
+    {
+      "id": "photography",
+      "standard_heading": "Photography",
+      "aliases": ["photo", "editorial_photo"],
+      "adjacent_routes": ["collage", "print", "animation", "web"],
+      "default_check_profiles": ["photography"],
+      "asset_types": [
+        {"id": "raster", "aliases": ["bitmap"], "check_profiles": ["photography"]},
+        {"id": "photograph", "aliases": [], "check_profiles": ["photography"]},
+        {"id": "editorial_photo", "aliases": [], "check_profiles": ["photography"]}
+      ]
+    },
+    {
+      "id": "collage",
+      "standard_heading": "Collage",
+      "aliases": ["assemblage", "remix"],
+      "adjacent_routes": ["photography", "illustration", "raster_vector_sprites", "comics", "print"],
+      "default_check_profiles": ["collage"],
+      "asset_types": [
+        {"id": "collage_raster", "aliases": ["collage", "raster"], "check_profiles": ["collage"]},
+        {"id": "collage_vector", "aliases": [], "check_profiles": ["collage", "vector"]}
+      ]
+    },
+    {
+      "id": "raster_vector_sprites",
+      "standard_heading": "Raster, vector, and sprites",
+      "aliases": ["raster", "vector", "sprite", "sprites", "sprite_sheet", "pixel_sprite_sheet", "raster_vector"],
+      "adjacent_routes": ["illustration", "graphic_design", "collage", "animation", "games", "web", "cgi"],
+      "default_check_profiles": ["raster"],
+      "asset_types": [
+        {"id": "raster", "aliases": ["bitmap"], "check_profiles": ["raster"]},
+        {"id": "vector", "aliases": ["svg"], "check_profiles": ["vector"]},
+        {"id": "sprite_sheet", "aliases": ["sprites", "pixel_sprite_sheet"], "check_profiles": ["sprite"]}
+      ]
+    },
+    {
+      "id": "web",
+      "standard_heading": "Websites and creative UI",
+      "aliases": ["interactive_web", "website", "creative_ui"],
+      "adjacent_routes": ["graphic_design", "typography", "animation", "audio_haptic", "xr"],
+      "default_check_profiles": ["web"],
+      "asset_types": [
+        {"id": "web", "aliases": ["interactive_art"], "check_profiles": ["web"]}
+      ]
+    },
+    {
+      "id": "tattoo",
+      "standard_heading": "Tattoos and body art",
+      "aliases": ["body_art", "tattoos"],
+      "adjacent_routes": ["illustration", "graphic_design", "physical"],
+      "default_check_profiles": ["tattoo"],
+      "asset_types": [
+        {"id": "vector", "aliases": ["tattoo_design"], "check_profiles": ["tattoo"]}
+      ]
+    },
+    {
+      "id": "print",
+      "standard_heading": "Print, merchandise, and packaging",
+      "aliases": ["packaging", "print_design", "publication", "print_merchandise_packaging"],
+      "adjacent_routes": ["graphic_design", "typography", "photography", "illustration", "comics"],
+      "default_check_profiles": ["print"],
+      "asset_types": [
+        {"id": "print", "aliases": ["print_document", "publication"], "check_profiles": ["print"]},
+        {"id": "packaging", "aliases": [], "check_profiles": ["print"]}
+      ]
+    },
+    {
+      "id": "animation",
+      "standard_heading": "Animation, video, and projection",
+      "aliases": ["motion", "video", "animation_video_projection"],
+      "adjacent_routes": ["cgi", "audio_haptic", "web", "performance"],
+      "default_check_profiles": ["animation"],
+      "asset_types": [
+        {"id": "video", "aliases": ["animation", "motion_graphic"], "check_profiles": ["animation"]}
+      ]
+    },
+    {
+      "id": "cgi",
+      "standard_heading": "CGI, 3D, and VFX",
+      "aliases": ["cgi_3d", "three_d", "3d", "vfx"],
+      "adjacent_routes": ["animation", "games", "xr", "raster_vector_sprites"],
+      "default_check_profiles": ["cgi"],
+      "asset_types": [
+        {"id": "3d_scene", "aliases": ["3d-scene", "3d_model", "cgi_render", "concept_render"], "check_profiles": ["cgi"]}
+      ]
+    },
+    {
+      "id": "audio_haptic",
+      "standard_heading": "Audio and haptic work",
+      "aliases": ["audio", "sound", "voice", "haptic", "haptics", "audio_haptics"],
+      "adjacent_routes": ["performance", "web", "music", "installation", "xr"],
+      "default_check_profiles": ["audio"],
+      "asset_types": [
+        {"id": "audio", "aliases": ["sound_art"], "check_profiles": ["audio"]},
+        {"id": "haptic_pattern", "aliases": ["haptic", "haptics"], "check_profiles": ["haptic"]}
+      ]
+    },
+    {
+      "id": "installation",
+      "standard_heading": "Installation, public art, and signage",
+      "aliases": ["public_art", "signage", "installation_public_art_signage"],
+      "adjacent_routes": ["physical", "performance", "audio_haptic", "participatory", "xr"],
+      "default_check_profiles": ["installation"],
+      "asset_types": [
+        {"id": "installation", "aliases": ["public_art", "signage"], "check_profiles": ["installation"]}
+      ]
+    },
+    {
+      "id": "data_visualization",
+      "standard_heading": "Data visualization",
+      "aliases": ["data_viz", "information_visualization"],
+      "adjacent_routes": ["graphic_design", "cartographic_art", "web"],
+      "default_check_profiles": ["data_visualization"],
+      "asset_types": [
+        {"id": "data_visualization", "aliases": ["chart", "web", "raster"], "check_profiles": ["data_visualization"]}
+      ]
+    },
+    {
+      "id": "participatory",
+      "standard_heading": "Participatory and social work",
+      "aliases": ["participatory_social", "social_art"],
+      "adjacent_routes": ["performance", "installation", "web", "audio_haptic"],
+      "default_check_profiles": ["participatory"],
+      "asset_types": [
+        {"id": "participatory_work", "aliases": ["participatory", "social_work"], "check_profiles": ["participatory"]}
+      ]
+    },
+    {
+      "id": "xr",
+      "standard_heading": "XR, AR, and VR",
+      "aliases": ["ar", "extended_reality", "mixed_reality", "vr", "xr_ar_vr"],
+      "adjacent_routes": ["cgi", "games", "web", "audio_haptic", "installation"],
+      "default_check_profiles": ["xr"],
+      "asset_types": [
+        {"id": "software", "aliases": ["xr_scene", "spatial_experience"], "check_profiles": ["xr"]}
+      ]
+    },
+    {
+      "id": "literary",
+      "standard_heading": "Literary, textual, and poetic work",
+      "aliases": ["poetry", "prose", "text", "writing", "literary_textual"],
+      "adjacent_routes": ["comics", "print", "web", "performance"],
+      "default_check_profiles": ["literary"],
+      "asset_types": [
+        {"id": "text", "aliases": ["ebook", "epub"], "check_profiles": ["literary"]}
+      ]
+    },
+    {
+      "id": "performance",
+      "standard_heading": "Performance, theatre, and dance",
+      "aliases": ["dance", "live_performance", "theatre", "performance_theatre_dance"],
+      "adjacent_routes": ["participatory", "installation", "audio_haptic", "music"],
+      "default_check_profiles": ["performance"],
+      "asset_types": [
+        {"id": "performance", "aliases": ["video", "recording"], "check_profiles": ["performance"]}
+      ]
+    },
+    {
+      "id": "music",
+      "standard_heading": "Music, composition, and live sound",
+      "aliases": ["composition", "live_sound", "music_composition_live_sound"],
+      "adjacent_routes": ["audio_haptic", "performance"],
+      "default_check_profiles": ["music"],
+      "asset_types": [
+        {"id": "music", "aliases": ["audio", "music_score"], "check_profiles": ["music"]}
+      ]
+    },
+    {
+      "id": "physical",
+      "standard_heading": "Sculpture, ceramics, textiles, and material fabrication",
+      "aliases": ["material_fabrication", "sculpture", "ceramics", "textiles", "physical"],
+      "adjacent_routes": ["installation", "audio_haptic", "tattoo"],
+      "default_check_profiles": ["physical"],
+      "asset_types": [
+        {"id": "physical", "aliases": ["sculpture", "ceramics", "textile"], "check_profiles": ["physical"]}
+      ]
+    },
+    {
+      "id": "comics",
+      "standard_heading": "Comics, sequential art, storyboards, and illustrated narrative",
+      "aliases": ["graphic_novel", "sequential_art", "storyboard", "comic", "comics"],
+      "adjacent_routes": ["literary", "print", "illustration"],
+      "default_check_profiles": ["comics"],
+      "asset_types": [
+        {"id": "raster", "aliases": ["comic_page", "comic_strip"], "check_profiles": ["comics"]}
+      ]
+    },
+    {
+      "id": "games",
+      "standard_heading": "Games and software-based artworks",
+      "aliases": ["game", "software_art", "software", "interactive_fiction"],
+      "adjacent_routes": ["raster_vector_sprites", "animation", "xr", "audio_haptic"],
+      "default_check_profiles": ["games"],
+      "asset_types": [
+        {"id": "software", "aliases": ["game_build"], "check_profiles": ["games"]}
+      ]
+    },
+    {
+      "id": "cartographic_art",
+      "standard_heading": "Cartographic and geospatial art",
+      "aliases": ["cartography", "map_art", "mapping", "geospatial_art"],
+      "adjacent_routes": ["data_visualization", "web", "participatory"],
+      "default_check_profiles": ["cartographic_art"],
+      "asset_types": [
+        {"id": "raster", "aliases": ["map"], "check_profiles": ["cartographic_art"]}
+      ]
+    }
+  ]
+}

@@ -50,7 +50,7 @@ High: every router skill must share this shape so dispatch, validation, and spec
 
 ## Isolation
 
-`mutate`. Parent spawns `ai-tooling-ops` in a worktree covering `ai-tooling` (and `routing` if the dispatch table will regenerate). Do not author skills on the primary checkout while another agent holds `ai-tooling`.
+`mutate`. Parent spawns `harness-operator` in a worktree covering `ai-tooling` (and `routing` if the dispatch table will regenerate). Do not author skills on the primary checkout while another agent holds `ai-tooling`.
 
 ## How to use
 
