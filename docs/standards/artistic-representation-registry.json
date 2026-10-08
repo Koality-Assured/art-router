@@ -5,7 +5,7 @@
   "check_profiles": {
     "illustration": "Image dimensions, equivalent description, and color profile",
     "graphic_design": "Contrast, reading order, real-content review, and design handoff",
-    "icon": "Small-size exports, monochrome behavior, contrast, and accessible name",
+    "icon": "Small-size exports including favicon and touch icon, monochrome behavior, contrast, and accessible name",
     "typography": "Font format, glyph coverage, licensing, readability, and text layer",
     "photography": "Capture scale, lens, equivalent description, and edit history",
     "collage": "Source inventory, permission record, transformation notes, and description",
@@ -59,13 +59,16 @@
     {
       "id": "logos_icons",
       "standard_heading": "Logos, icons, and favicons",
-      "aliases": ["icon", "icons", "favicon", "graphic_mark", "logo", "logos"],
+      "aliases": ["icon", "icons", "favicon", "graphic_mark", "logo", "logos", "app_mark", "touch_icon"],
       "adjacent_routes": ["graphic_design", "typography", "raster_vector_sprites", "web"],
       "default_check_profiles": ["icon"],
       "asset_types": [
         {"id": "vector", "aliases": ["logo"], "check_profiles": ["icon"]},
         {"id": "favicon", "aliases": [], "check_profiles": ["icon"]},
-        {"id": "icon", "aliases": [], "check_profiles": ["icon"]}
+        {"id": "icon", "aliases": [], "check_profiles": ["icon"]},
+        {"id": "app_mark", "aliases": ["app mark", "product mark"], "check_profiles": ["icon"]},
+        {"id": "touch_icon", "aliases": ["apple touch icon", "touch icon"], "check_profiles": ["icon"]},
+        {"id": "site_icon_set", "aliases": ["favicon set", "web icon set"], "check_profiles": ["icon"]}
       ]
     },
     {
@@ -117,11 +120,12 @@
     {
       "id": "web",
       "standard_heading": "Websites and creative UI",
-      "aliases": ["interactive_web", "website", "creative_ui"],
-      "adjacent_routes": ["graphic_design", "typography", "animation", "audio_haptic", "xr"],
+      "aliases": ["interactive_web", "website", "creative_ui", "open_graph", "social_image"],
+      "adjacent_routes": ["logos_icons", "graphic_design", "typography", "animation", "audio_haptic", "xr"],
       "default_check_profiles": ["web"],
       "asset_types": [
-        {"id": "web", "aliases": ["interactive_art"], "check_profiles": ["web"]}
+        {"id": "web", "aliases": ["interactive_art"], "check_profiles": ["web"]},
+        {"id": "open_graph_image", "aliases": ["open graph", "og image", "social image", "social card"], "check_profiles": ["graphic_design"]}
       ]
     },
     {
