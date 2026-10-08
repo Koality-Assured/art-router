@@ -29,7 +29,7 @@ contracts:
 
 ## When to use
 
-Use before reviewing a generated, commissioned, or revised work when the medium, delivery channel, or risk owner is unclear. The result is a review scope: one primary representation row, any adjacent rows, and the shared controls that must be checked.
+Use before reviewing a generated, commissioned, or revised work when the medium, delivery channel, or risk owner is unclear. The result is a review scope: one primary representation row, any adjacent rows, and the shared controls that must be checked. Product web chrome uses both rows: favicon, touch icon, and app mark route through logos and icons; Open Graph and other social images route through websites and creative UI.
 
 ## When not to use
 
