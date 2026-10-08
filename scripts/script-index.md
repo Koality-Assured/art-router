@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: script-index
 topics: [scripts, routing]
-generated_at_utc: 2026-09-22T16:02:52Z
+generated_at_utc: 2026-10-08T15:45:22Z
 generator: scripts/routing/generate_script_index.py
 ---
 
@@ -73,13 +73,16 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 | [`tests/test_skill_graph.py`](./tests/test_skill_graph.py) | `tests`, `routing`, `skills`, `dag` | tests, dag, topological-sort, dependencies, prerequisites | Unit tests for skill dependency DAG resolution, topological ordering, and Schema V2 conventions. |
 | [`tests/test_subagent_context_config.py`](./tests/test_subagent_context_config.py) | `tests`, `subagents`, `context`, `config` | tests, subagents, context-isolation, host-config | Unit tests for cross-host subagent context isolation and project-level settings. |
 | [`tests/test_validate_agent.py`](./tests/test_validate_agent.py) | `tests`, `ai-tooling`, `agents`, `schema-v2` | tests, validate-agent, agents | Unit tests for Schema V2 agent validation. |
+| [`tests/test_validate_art_references.py`](./tests/test_validate_art_references.py) | `tests`, `validation`, `art-router`, `references` | art-references, source-status, official-source-capture | Regression checks for captured official sources used by art routing. |
 | [`tests/test_validate_art_router.py`](./tests/test_validate_art_router.py) | `tests`, `validation`, `art-router` | manifest, fixtures, provenance, accessibility, delivery, review, request-contract | Focused tests for the portable art-router manifest validator. |
+| [`tests/test_validate_art_samples.py`](./tests/test_validate_art_samples.py) | `tests`, `validation`, `art-router`, `samples` | sample-gallery, package-paths, representation-registry | Tests for the art sample gallery package-path validator. |
 | [`tests/test_validate_context_budget.py`](./tests/test_validate_context_budget.py) | `tests`, `docs`, `validation`, `cost-layers` | tests, validate_context_budget, context-budget, tokens | Unit tests for validate_context_budget.py. |
 | [`tests/test_validate_prompt_caching.py`](./tests/test_validate_prompt_caching.py) | `tests`, `cost-layers`, `prompt-caching` | tests, prompt-caching, invariance | Unit tests for validate_prompt_caching.py prompt KV-cache invariance linter. |
 | [`tests/test_validate_router_structure.py`](./tests/test_validate_router_structure.py) | `tests`, `docs`, `validation`, `results` | tests, validate_router_structure, results-layout | Unit tests for router structure validator results-layout check. |
 | [`tests/test_validate_skill.py`](./tests/test_validate_skill.py) | `tests`, `ai-tooling`, `skills`, `schema-v2` | tests, validate-skill, skills | Unit tests for Schema V2 skill validation. |
 | [`tests/test_validate_structure_fast.py`](./tests/test_validate_structure_fast.py) | `tests`, `docs`, `validation` | tests, validate_structure_fast, markdown | Unit tests for fast structural validator. |
 | [`validation/validate_art_router.py`](./validation/validate_art_router.py) | `validation`, `art-router`, `scripts` | manifest, fixtures, provenance, accessibility, delivery, review, request-contract | Validate art-router next-steps case manifests without external services. |
+| [`validation/validate_art_samples.py`](./validation/validate_art_samples.py) | `validation`, `art-router`, `samples` | sample-gallery, package-paths, representation-registry | Validate the declared sample gallery's routes and local package paths. |
 
 ## By tag
 
@@ -88,7 +91,7 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 - **ai-tooling:** `ai-tooling/model_memory.py`, `ai-tooling/validate_agent.py`, `ai-tooling/validate_skill.py`, `routing/generate_skill_dispatch.py`, `routing/hybrid_dispatch.py`, `tests/test_hybrid_dispatch.py`, `tests/test_validate_agent.py`, `tests/test_validate_skill.py`
 - **analysis:** `research/community_analyzer.py`
 - **anthropic:** `cli/auth/oauth_flows.py`
-- **art-router:** `tests/test_validate_art_router.py`, `validation/validate_art_router.py`
+- **art-router:** `tests/test_validate_art_references.py`, `tests/test_validate_art_router.py`, `tests/test_validate_art_samples.py`, `validation/validate_art_router.py`, `validation/validate_art_samples.py`
 - **ast-grep:** `benchmarks/benchmark_tool_efficiency.py`, `cost-layers/extract_ast_facts.py`, `cost-layers/validate_ast_grep.py`, `cost-layers/validate_cost_layers.py`
 - **auth:** `cli/auth/keyring_vault.py`, `cli/auth/oauth_flows.py`, `cli/harness.py`, `tests/test_harness_auth.py`
 - **benchmarks:** `benchmarks/benchmark_agent_fleet.py`, `benchmarks/benchmark_retrieval.py`, `benchmarks/benchmark_task_eval.py`, `benchmarks/benchmark_tool_efficiency.py`, `benchmarks/estimate_agent_costs.py`, `benchmarks/run_benchmark_suite.py`, `cost-layers/validate_cost_layers.py`, `cost-layers/validate_headroom_compression.py`, `qmd/validate_qmd_retrieval.py`, `research/benchlm_lookup.py`, `research/local_webfetch.py`, `tests/test_benchmarks.py`
@@ -139,12 +142,14 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 - **qmd:** `benchmarks/benchmark_retrieval.py`, `cost-layers/extract_ast_facts.py`, `cost-layers/validate_ast_grep.py`, `cost-layers/validate_cost_layers.py`, `cost-layers/validate_headroom_compression.py`, `qmd/qmd_preflight.py`, `qmd/refresh_qmd_index.py`, `qmd/setup_qmd_collections.py`, `qmd/validate_qmd_retrieval.py`, `tests/test_qmd_preflight.py`
 - **quota:** `tests/test_pacing.py`
 - **rag:** `benchmarks/benchmark_retrieval.py`
+- **references:** `tests/test_validate_art_references.py`
 - **registry:** `cli/registry.py`, `research/manage_social_registry.py`, `tests/test_harness_registry.py`
 - **repos:** `repos/scaffold_public_repos.py`
 - **research:** `cost-layers/validate_cost_layers.py`, `research/ai_vendor_briefing.py`, `research/benchlm_lookup.py`, `research/community_analyzer.py`, `research/local_webfetch.py`, `research/manage_social_registry.py`, `tests/test_local_webfetch.py`
 - **results:** `tests/test_validate_router_structure.py`
 - **retrieval:** `benchmarks/benchmark_retrieval.py`, `benchmarks/run_benchmark_suite.py`, `qmd/validate_qmd_retrieval.py`, `tests/test_benchmarks.py`
 - **routing:** `ai-tooling/validate_agent.py`, `ai-tooling/validate_skill.py`, `cli/harness.py`, `cost-layers/validate_prompt_caching.py`, `docs/validate_router_structure.py`, `routing/generate_routing_index.py`, `routing/generate_script_index.py`, `routing/generate_skill_dispatch.py`, `routing/hybrid_dispatch.py`, `routing/resolve_skill_graph.py`, `routing/spawn_worktree.py`, `tests/test_hybrid_dispatch.py`, `tests/test_pacing.py`, `tests/test_skill_graph.py`
+- **samples:** `tests/test_validate_art_samples.py`, `validation/validate_art_samples.py`
 - **scaffold:** `repos/scaffold_public_repos.py`, `sync/scaffold_harness.py`
 - **schema:** `cli/schema_adapter.py`
 - **schema-v2:** `tests/test_validate_agent.py`, `tests/test_validate_skill.py`
@@ -157,10 +162,10 @@ Generated from Python docstring `tags:` / `routing_hints:`. Do not hand-edit —
 - **switcher:** `cli/registry.py`, `cli/tui.py`, `tests/test_harness_registry.py`
 - **sync:** `sync/propose_core_update.py`, `sync/pull_harness_core.py`, `sync/scaffold_harness.py`, `sync/sync_and_push_downstreams.py`, `sync/sync_public_repos.py`, `tests/test_harness_core_sync.py`
 - **tasks:** `benchmarks/benchmark_task_eval.py`
-- **tests:** `tests/test_benchmarks.py`, `tests/test_harness_auth.py`, `tests/test_harness_cli.py`, `tests/test_harness_core_sync.py`, `tests/test_harness_registry.py`, `tests/test_hybrid_dispatch.py`, `tests/test_local_webfetch.py`, `tests/test_pacing.py`, `tests/test_pretty_docs_security.py`, `tests/test_qmd_preflight.py`, `tests/test_skill_graph.py`, `tests/test_subagent_context_config.py`, `tests/test_validate_agent.py`, `tests/test_validate_art_router.py`, `tests/test_validate_context_budget.py`, `tests/test_validate_prompt_caching.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_skill.py`, `tests/test_validate_structure_fast.py`
+- **tests:** `tests/test_benchmarks.py`, `tests/test_harness_auth.py`, `tests/test_harness_cli.py`, `tests/test_harness_core_sync.py`, `tests/test_harness_registry.py`, `tests/test_hybrid_dispatch.py`, `tests/test_local_webfetch.py`, `tests/test_pacing.py`, `tests/test_pretty_docs_security.py`, `tests/test_qmd_preflight.py`, `tests/test_skill_graph.py`, `tests/test_subagent_context_config.py`, `tests/test_validate_agent.py`, `tests/test_validate_art_references.py`, `tests/test_validate_art_router.py`, `tests/test_validate_art_samples.py`, `tests/test_validate_context_budget.py`, `tests/test_validate_prompt_caching.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_skill.py`, `tests/test_validate_structure_fast.py`
 - **tokens:** `benchmarks/benchmark_retrieval.py`, `benchmarks/benchmark_tool_efficiency.py`, `benchmarks/estimate_agent_costs.py`
 - **tui:** `cli/tui.py`, `tests/test_harness_registry.py`
-- **validation:** `docs/validate_context_budget.py`, `docs/validate_structure_fast.py`, `tests/test_validate_art_router.py`, `tests/test_validate_context_budget.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_structure_fast.py`, `validation/validate_art_router.py`
+- **validation:** `docs/validate_context_budget.py`, `docs/validate_structure_fast.py`, `tests/test_validate_art_references.py`, `tests/test_validate_art_router.py`, `tests/test_validate_art_samples.py`, `tests/test_validate_context_budget.py`, `tests/test_validate_router_structure.py`, `tests/test_validate_structure_fast.py`, `validation/validate_art_router.py`, `validation/validate_art_samples.py`
 - **vault:** `cli/auth/keyring_vault.py`
 - **web:** `research/local_webfetch.py`
 - **webfetch:** `tests/test_local_webfetch.py`

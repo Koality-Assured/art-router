@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" role="img" aria-labelledby="title desc">
+  <title id="title">Art in Many Forms - vector poster</title>
+  <desc id="desc">A geometric poster with the title Art in Many Forms, layered circles, lines, a folded paper shape, and a dark footer listing image, motion, space, and sound.</desc>
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#177C78"/>
+      <stop offset="1" stop-color="#84C4AC"/>
+    </linearGradient>
+    <clipPath id="orb">
+      <circle cx="875" cy="490" r="210"/>
+    </clipPath>
+  </defs>
+  <rect width="1200" height="1600" fill="#F6F0E4"/>
+  <path d="M0 0h1200v48H0z" fill="#E36F4C"/>
+  <text x="86" y="134" fill="#173A3A" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="5">REPRESENTATION / 06</text>
+  <text x="80" y="324" fill="#173A3A" font-family="Arial, Helvetica, sans-serif" font-size="132" font-weight="800" letter-spacing="-7">ART</text>
+  <text x="86" y="427" fill="#173A3A" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="500" letter-spacing="1">IN MANY</text>
+  <text x="80" y="555" fill="#173A3A" font-family="Arial, Helvetica, sans-serif" font-size="116" font-weight="800" letter-spacing="-6">FORMS</text>
+  <path d="M86 602h470" stroke="#173A3A" stroke-width="3"/>
+  <text x="88" y="656" fill="#405A55" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="1">ONE IDEA CAN TRAVEL</text>
+  <text x="88" y="694" fill="#405A55" font-family="Arial, Helvetica, sans-serif" font-size="26" letter-spacing="1">THROUGH MANY MEDIA.</text>
+
+  <circle cx="875" cy="490" r="210" fill="url(#sea)"/>
+  <g clip-path="url(#orb)">
+    <path d="M610 546c105-152 176-164 247-88 62 67 109 91 215 5v281H610z" fill="#F3C55B"/>
+    <path d="M620 590c97-112 157-128 227-58 56 56 119 80 226 0" fill="none" stroke="#173A3A" stroke-width="22" stroke-linecap="round"/>
+    <path d="M708 300l78 0-50 267h-76z" fill="#E36F4C"/>
+    <path d="M861 283l164 125-127 83-163-124z" fill="#F6F0E4"/>
+    <path d="M861 283l-126 84 164 124 126-83z" fill="#E9A296"/>
+    <circle cx="925" cy="611" r="54" fill="#E36F4C"/>
+    <circle cx="925" cy="611" r="19" fill="#F6F0E4"/>
+  </g>
+  <circle cx="875" cy="490" r="210" fill="none" stroke="#173A3A" stroke-width="4"/>
+  <path d="M637 778h478" stroke="#173A3A" stroke-width="3"/>
+  <text x="638" y="834" fill="#173A3A" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="4">DRAW / BUILD / PLAY / SHARE</text>
+
+  <path d="M0 1010h1200v590H0z" fill="#173A3A"/>
+  <circle cx="1038" cy="1104" r="24" fill="#F3C55B"/>
+  <text x="84" y="1117" fill="#F6F0E4" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="5">A SMALL FIELD GUIDE</text>
+  <text x="82" y="1262" fill="#F6F0E4" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="700" letter-spacing="-2">IMAGE / MOTION</text>
+  <text x="82" y="1354" fill="#F6F0E4" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="700" letter-spacing="-2">OBJECT / SPACE</text>
+  <path d="M86 1425h1028" stroke="#84C4AC" stroke-width="3"/>
+  <text x="86" y="1490" fill="#C6DED0" font-family="Arial, Helvetica, sans-serif" font-size="25" letter-spacing="2">A ROUTE IS A STARTING POINT, NOT A VERDICT.</text>
+  <text x="86" y="1542" fill="#C6DED0" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="4">ARTWORK SAMPLE / ORIGINAL VECTOR / NO EXTERNAL ASSETS</text>
+</svg>

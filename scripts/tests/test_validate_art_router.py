@@ -13,6 +13,7 @@ import json
 import sys
 import tempfile
 import unittest
+from copy import deepcopy
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
@@ -20,8 +21,9 @@ _SCRIPTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_SCRIPTS / "validation"))
 
 from validate_art_router import (  # noqa: E402
-    MEDIUM_ALIASES,
     MEDIUM_CRITERIA,
+    REPRESENTATION_ROWS,
+    _resolve_medium,
     _text_report,
     main,
     validate_manifest,
@@ -42,6 +44,204 @@ class ValidateArtRouterTests(unittest.TestCase):
 
     def load_media_fixture(self) -> dict:
         return json.loads(MEDIA_FIXTURE.read_text(encoding="utf-8"))
+
+    def complete_measurements(self) -> dict:
+        return {
+            "width_px": 4096,
+            "height_px": 4096,
+            "alt_text_chars": 200,
+            "color_profile": "sRGB",
+            "target_sizes_px": [16, 32, 48],
+            "monochrome_tested": True,
+            "contrast_ratio": 7,
+            "accessible_name_chars": 2,
+            "lens_mm": 50,
+            "edit_history_recorded": True,
+            "placement_approved": True,
+            "line_weight_mm": 0.5,
+            "aging_reviewed": True,
+            "consent_confirmed": True,
+            "non_body_preview": True,
+            "keyboard_accessible": True,
+            "visible_focus": True,
+            "reduced_motion": True,
+            "non_color_meaning": True,
+            "fallback_behavior": True,
+            "duration_seconds": 30,
+            "fps": 30,
+            "captions_or_transcript": True,
+            "pause_control": True,
+            "flash_rate_hz": 0,
+            "delivery_colorimetry": "BT.709",
+            "scene_format": "GLB",
+            "frame_start": 1,
+            "frame_end": 30,
+            "camera_defined": True,
+            "lighting_defined": True,
+            "units_defined": True,
+            "render_settings_defined": True,
+            "vector_format": "SVG",
+            "viewbox_defined": True,
+            "min_stroke_width_mm": 0.2,
+            "fonts_recorded_or_outlined": True,
+            "spot_colors_declared": True,
+            "font_format": "OTF",
+            "glyph_coverage_percent": 100,
+            "font_license_recorded": True,
+            "readability_tested": True,
+            "text_version_chars": 100,
+            "sample_rate_hz": 48000,
+            "bit_depth_bits": 24,
+            "channels": 2,
+            "transcript_or_lyrics": True,
+            "word_count": 100,
+            "language": "en",
+            "reading_level_measured": True,
+            "text_versioned": True,
+            "alternate_format_recorded": True,
+            "page_count": 2,
+            "panel_count": 8,
+            "reading_order_declared": True,
+            "text_layer_extractable": True,
+            "transcript_or_alt_text": True,
+            "cast_count": 2,
+            "cue_sheet_recorded": True,
+            "accessibility_plan_recorded": True,
+            "venue_or_capture_plan_recorded": True,
+            "consent_log_recorded": True,
+            "build_id_chars": 8,
+            "target_platform": "portable-web",
+            "input_path_tested": True,
+            "pause_behavior_tested": True,
+            "save_state_tested": True,
+            "render_mode": "2d",
+            "runtime": "WebXR",
+            "tracking_mode": "head-and-controller",
+            "scale_units_defined": True,
+            "comfort_review_recorded": True,
+            "non_xr_fallback": True,
+            "data_source_cited": True,
+            "data_version_chars": 8,
+            "legend_or_key_present": True,
+            "numerical_precision_declared": True,
+            "projection": "Equal Earth",
+            "coordinate_reference_system_chars": 8,
+            "scale_denominator": 10000,
+            "scale_statement_recorded": True,
+            "orientation_declared": True,
+            "legend_present": True,
+            "source_date_recorded": True,
+            "material_chars": 8,
+            "fabrication_method": "hand-built",
+            "height_cm": 20,
+            "width_cm": 30,
+            "depth_cm": 5,
+            "fabrication_plan_recorded": True,
+            "material_disclosure": True,
+            "handling_notes_recorded": True,
+            "non_physical_preview": True,
+            "trim_size_declared": True,
+            "bleed_mm": 3,
+            "pdf_standard": "PDF/X-4",
+            "fonts_embedded_or_outlined": True,
+            "preflight_run": True,
+            "reading_order_tested": True,
+            "real_content_tested": True,
+            "source_count": 4,
+            "source_ledger_recorded": True,
+            "rights_status_recorded": True,
+            "transformation_notes_recorded": True,
+            "lossless_export_declared": True,
+            "alpha_edges_tested": True,
+            "frame_count": 8,
+            "grid_declared": True,
+            "nearest_neighbor_tested": True,
+            "transparent_edges_tested": True,
+            "actuator_profile": "test-device",
+            "pattern_count": 2,
+            "duration_ms": 400,
+            "intensity_units": "device-relative",
+            "safety_review_recorded": True,
+            "non_haptic_alternative": True,
+            "stop_control_tested": True,
+            "venue_plan_recorded": True,
+            "access_plan_recorded": True,
+            "egress_reviewed": True,
+            "load_reviewed": True,
+            "hazard_reviewed": True,
+            "removal_plan_recorded": True,
+            "consent_scope_recorded": True,
+            "attribution_policy_recorded": True,
+            "data_minimized": True,
+            "community_authority_recorded": True,
+            "participant_count": 4,
+            "withdrawal_path_recorded": True,
+            "score_or_stems_recorded": True,
+            "loudness_target_recorded": True,
+            "listening_alternative_recorded": True,
+        }
+
+    def bundle_manifest(self) -> dict:
+        base_case = deepcopy(self.load_fixture()["cases"][0])
+        base_case["id"] = "mixed-artwork-bundle"
+        base_case.pop("medium", None)
+        base_case.pop("asset", None)
+        base_case.pop("measurements", None)
+        base_case["contract"] = deepcopy(self.load_contract_fixture()["cases"][0]["contract"])
+        base_case["external_media"] = {"sources": [], "publisher_embeds": []}
+
+        bundle_parts = [
+            ("poster", "primary", "graphic_design", "vector_poster", "image/svg+xml"),
+            ("sprites", "adjacent", "raster_vector_sprites", "pixel_sprite_sheet", "image/png"),
+            ("haptics", "adjacent", "haptic", "haptic_pattern", "application/json"),
+        ]
+        requested = []
+        delivered = []
+        for part_id, role, medium, asset_type, format_name in bundle_parts:
+            delivery = {"intended_use": "sample-gallery", "format": format_name}
+            requested.append(
+                {"id": part_id, "role": role, "medium": medium, "asset_type": asset_type, "delivery": delivery}
+            )
+            delivered.append(
+                {
+                    "id": part_id,
+                    "role": role,
+                    "medium": medium,
+                    "asset": {
+                        "label": part_id,
+                        "type": asset_type,
+                        "reference": "sample-source",
+                        "path": f"package/{part_id}",
+                    },
+                    "measurements": self.complete_measurements(),
+                    "delivery": deepcopy(delivery),
+                }
+            )
+        base_case["representations"] = delivered
+        request = {
+            "schema_version": "1.0",
+            "request_id": "sample-art-request",
+            "version": "1",
+            "operation": "generate",
+            "intent": {"primary_effect": "show varied art routes", "meaning": "sample"},
+            "subject_content": {},
+            "art_direction": {},
+            "representations": requested,
+            "constraints": [{"text": "keep the route labels clear", "source": "user", "status": "required"}],
+            "references": [],
+            "people_and_authority": {},
+            "audience_delivery": {},
+            "accessibility_safety": {},
+            "provenance": {},
+            "open_questions": [],
+            "review_handoff": {"owner": "sample-owner", "acceptance_tests": ["route and package check"]},
+        }
+        return {
+            "manifest_id": "mixed-artwork-bundle",
+            "schema_version": "1.3",
+            "request": request,
+            "cases": [base_case],
+        }
 
     def test_fixture_covers_next_steps_cases(self) -> None:
         report = validate_manifest(self.load_fixture())
@@ -69,7 +269,7 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertEqual(
             {case["canonical_medium"] for case in report["cases"]},
             {
-                "illustration", "animation", "web", "vector", "typography", "audio",
+                "illustration", "animation", "web", "raster_vector_sprites", "typography", "audio_haptic",
                 "literary", "comics", "performance", "games", "xr", "data_visualization",
                 "cartographic_art", "physical", "print",
             },
@@ -79,24 +279,126 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertEqual(report["cases"][0]["contract"]["capabilities"]["adapters"][1]["status"], "adapted")
 
     def test_new_medium_aliases_resolve_to_registered_families(self) -> None:
-        aliases = {
-            "logo": "vector",
-            "lettering": "typography",
-            "music": "audio",
-            "voice": "audio",
-            "text": "literary",
-            "sequential_art": "comics",
-            "dance": "performance",
-            "software_art": "games",
-            "ar": "xr",
-            "data_viz": "data_visualization",
-            "cartography": "cartographic_art",
-            "sculpture": "physical",
-            "packaging": "print",
-        }
+        self.assertEqual(len(REPRESENTATION_ROWS), 24)
+        self.assertEqual(len({row["standard_heading"] for row in REPRESENTATION_ROWS}), 24)
+        for row in REPRESENTATION_ROWS:
+            self.assertIn(row["id"], MEDIUM_CRITERIA)
+            self.assertEqual(_resolve_medium(row["id"]), row["id"])
+            for alias in row["aliases"]:
+                self.assertEqual(_resolve_medium(alias), row["id"])
+            for adjacent_route in row["adjacent_routes"]:
+                self.assertIn(adjacent_route, MEDIUM_CRITERIA)
+        self.assertEqual(_resolve_medium("logo"), "logos_icons")
+        self.assertEqual(_resolve_medium("haptics"), "audio_haptic")
+        self.assertEqual(_resolve_medium("pixel sprite sheet"), "raster_vector_sprites")
 
-        self.assertEqual({alias: MEDIUM_ALIASES[alias] for alias in aliases}, aliases)
-        self.assertTrue(all(canonical in MEDIUM_CRITERIA for canonical in aliases.values()))
+    def test_every_registry_route_passes_its_declared_check_profile(self) -> None:
+        base_case = self.load_fixture()["cases"][0]
+        cases = []
+        for row in REPRESENTATION_ROWS:
+            case = deepcopy(base_case)
+            case["id"] = f"route-{row['id']}"
+            case["medium"] = row["id"]
+            case["asset"]["type"] = row["asset_types"][0]["id"]
+            case["measurements"] = self.complete_measurements()
+            cases.append(case)
+
+        report = validate_manifest({"manifest_id": "all-representation-routes", "schema_version": "1.0", "cases": cases})
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["case_count"], 24)
+        self.assertEqual(report["passed"], 24)
+        self.assertEqual({case["canonical_medium"] for case in report["cases"]}, {row["id"] for row in REPRESENTATION_ROWS})
+        self.assertTrue(all(case["criteria_basis"] for case in report["cases"]))
+
+    def test_every_registered_asset_type_and_alias_passes_its_route_profiles(self) -> None:
+        base_case = self.load_fixture()["cases"][0]
+        cases = []
+        for row in REPRESENTATION_ROWS:
+            for type_index, declared_type in enumerate(row["asset_types"]):
+                for asset_type in (declared_type["id"], *declared_type["aliases"]):
+                    case = deepcopy(base_case)
+                    case["id"] = f"{row['id']}-{type_index}-{asset_type}"
+                    case["medium"] = row["id"]
+                    case["asset"]["type"] = asset_type
+                    case["measurements"] = self.complete_measurements()
+                    cases.append(case)
+
+        report = validate_manifest({"manifest_id": "all-registered-art-types", "schema_version": "1.0", "cases": cases})
+
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["case_count"], len(cases))
+        self.assertTrue(all(case["criteria_basis"] for case in report["cases"]))
+
+    def test_asset_type_is_checked_against_legacy_route(self) -> None:
+        manifest = self.load_fixture()
+        manifest["cases"][2]["asset"]["type"] = "vector"
+        report = validate_manifest(manifest)
+        photo_report = next(case for case in report["cases"] if case["id"] == "ethical-photo-scene")
+
+        self.assertEqual(photo_report["status"], "hold")
+        self.assertIn("asset_type_mismatch", {reason["code"] for reason in photo_report["reasons"]})
+
+    def test_schema_13_validates_request_and_mixed_media_bundle(self) -> None:
+        report = validate_manifest(self.bundle_manifest())
+
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["schema_version"], "1.3")
+        self.assertEqual(report["cases"][0]["status"], "pass")
+        self.assertEqual(
+            {item["route"] for item in report["cases"][0]["representations"]},
+            {"graphic_design", "raster_vector_sprites", "audio_haptic"},
+        )
+
+    def test_schema_13_holds_when_request_and_bundle_drift(self) -> None:
+        manifest = self.bundle_manifest()
+        manifest["cases"][0]["representations"][1]["asset"]["type"] = "editorial_photo"
+        report = validate_manifest(manifest)
+
+        self.assertEqual(report["status"], "hold")
+        reasons = {reason["code"] for reason in report["cases"][0]["reasons"]}
+        self.assertIn("asset_type_mismatch", reasons)
+        self.assertIn("request_manifest_mismatch", reasons)
+
+    def test_schema_13_holds_for_route_role_delivery_and_component_drift(self) -> None:
+        mutations = (
+            lambda manifest: manifest["cases"][0]["representations"][0].update(
+                {"medium": "collage", "asset": {"label": "poster", "type": "collage_raster", "path": "package/poster"}}
+            ),
+            lambda manifest: manifest["cases"][0]["representations"][0].update({"role": "adjacent"}),
+            lambda manifest: manifest["cases"][0]["representations"][0]["delivery"].update({"format": "image/png"}),
+            lambda manifest: manifest["cases"][0]["representations"].pop(),
+        )
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                manifest = self.bundle_manifest()
+                mutate(manifest)
+                report = validate_manifest(manifest)
+                self.assertEqual(report["status"], "hold")
+                self.assertIn(
+                    "request_manifest_mismatch",
+                    {reason["code"] for reason in report["cases"][0]["reasons"]},
+                )
+
+    def test_schema_13_request_requires_formal_contract_fields(self) -> None:
+        manifest = self.bundle_manifest()
+        manifest["request"].pop("audience_delivery")
+        report = validate_manifest(manifest)
+
+        self.assertEqual(report["status"], "hold")
+        self.assertIn("missing_value", {reason["code"] for reason in report["reasons"]})
+
+    def test_schema_13_request_validates_optional_preserve_list_types(self) -> None:
+        manifest = self.bundle_manifest()
+        manifest["request"]["intent"]["preserve"] = [""]
+        self.assertEqual(validate_manifest(manifest)["status"], "pass")
+
+        manifest = self.bundle_manifest()
+        manifest["request"]["intent"]["preserve"] = ["keep the primary subject", 7]
+
+        report = validate_manifest(manifest)
+
+        self.assertEqual(report["status"], "hold")
+        self.assertIn("invalid_type", {reason["code"] for reason in report["reasons"]})
 
     def test_hard_and_soft_unmet_are_distinguished(self) -> None:
         manifest = self.load_contract_fixture()

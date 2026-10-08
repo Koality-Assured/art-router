@@ -21,6 +21,8 @@ Human index (not agent SoT):
 | --- | --- | --- |
 | [`router/`](./router/) | Parent coordinator: classify, isolate, spawn | standard |
 | [`as-code-agent/`](./as-code-agent/) | Dedicated Terraform/OpenTofu/IaC authoring & plan validation | high |
+| [`artistic-production/`](./artistic-production/) | Artwork creation, revision, and local package handoff | standard |
+| [`artistic-standards-reviewer/`](./artistic-standards-reviewer/) | Read-only representation routing, request review, and evidence findings | standard |
 | [`detailed-activity/`](./detailed-activity/) | Dedicated adversarial / antagonistic review and challenge audits | high |
 | [`benchmark-agent/`](./benchmark-agent/) | Empirical benchmarking: cost estimation, fleet dry runs, retrieval, tool efficiency | standard |
 | [`github-ops/`](./github-ops/) | GitHub PR workflow, branch discipline, issue management | standard |

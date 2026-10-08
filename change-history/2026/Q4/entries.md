@@ -5,6 +5,16 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 ## Entries
 
 
+
+### 2026-10-08 — Expand art router representations
+
+- **Requesting user:** Robbie
+- **AI agent:** Codex
+- **User request:** Expand the art router with validated representation coverage, production guidance, official references, and sample gallery entries.
+- **Summary:**
+  - Add registry-driven routing and schema 1.3 mixed-media validation while preserving manifest 1.0–1.2.
+  - Add a write-capable production workflow, focused standards captures, and package-validated sample metadata.
+
 ### 2026-10-07 — Allow factual employer-mark identification
 
 - **Requesting user:** portfolio owner

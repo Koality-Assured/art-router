@@ -4,7 +4,7 @@ canonical_id: art-representation-retrieval
 purpose: [process]
 rank: medium
 topics: [qmd, retrieval, art-representation, accessibility, safety, culture, authorship, provenance, delivery]
-rag_keywords: [image-generation, visual-representation, alt-text, WCAG, AI-RMF, cultural-diversity, human-authorship, C2PA, IPTC, content-credentials]
+rag_keywords: [image-generation, visual-representation, alt-text, WCAG, EPUB-Accessibility, ISO-9241-910, ISO-9241-920, haptic-interaction, OpenXR, AI-RMF, cultural-diversity, human-authorship, C2PA, IPTC, content-credentials]
 ---
 
 # Art representation retrieval
@@ -28,6 +28,10 @@ Use the terms in the left column as anchors; add one or two terms describing the
 
 | Control family | Retrieval vocabulary | BM25 query shape |
 | --- | --- | --- |
+| EPUB publishing accessibility | `EPUB Accessibility 1.1`, `EPUB Accessibility 1.2`, `accessibility metadata`, `publication conformance`, `reading order`, `text alternatives`, `navigation` | `EPUB Accessibility 1.1 1.2 metadata conformance reading order` |
+| Tactile/haptic interaction framework | `ISO 9241-910:2011`, `tactile/haptic framework`, `confirmed 2022` | `tactile haptic framework confirmed` |
+| Tactile/haptic requirements and recommendations | `ISO 9241-920:2024`, `requirements`, `recommendations`, `ISO 9241-920:2009 withdrawn` | `haptic requirements recommendations withdrawn 2009` |
+| OpenXR delivery | `OpenXR 1.1`, `xrApplyHapticFeedback`, `XrHapticVibration`, `haptic action`, `runtime support`, `device support` | `OpenXR 1.1 xrApplyHapticFeedback haptic action vibration` |
 | Technical | `image-generation`, `render`, `dimensions`, `aspect-ratio`, `resolution`, `file-format`, `PNG`, `JPEG`, `WebP`, `transparency`, `color-profile`, `ICC`, `metadata`, `export` | `image output format resolution transparency metadata` |
 | Accessibility | `WCAG 2.2`, `non-text content`, `text alternative`, `alt text`, `long description`, `decorative image`, `captions`, `audio description`, `photosensitivity` | `WCAG 2.2 non-text content text alternative` |
 | Safety | `AI RMF`, `generative AI profile`, `risk identification`, `content moderation`, `privacy`, `biometric`, `sensitive traits`, `misuse`, `human review`, `red team` | `AI RMF generative AI image safety privacy human review` |
@@ -58,6 +62,10 @@ Link the canonical primary source that supports the specific control, not a sear
 | Control family | Primary starting point | Link label should identify |
 | --- | --- | --- |
 | Accessibility | [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/) | Standard, version, and success criterion or supporting document |
+| EPUB publishing accessibility | [EPUB Accessibility 1.1 Recommendation (17 Oct 2024)](https://www.w3.org/TR/epub-a11y-11/) and [EPUB Accessibility 1.2 Candidate Recommendation Draft (12 Sep 2026; retrieved 8 Oct 2026)](https://www.w3.org/TR/epub-a11y-12/); [W3C status series (checked 8 Oct 2026)](https://www.w3.org/TR/epub-a11y/all/) | Version and publication status; check W3C for the latest 1.2 revision |
+| Tactile/haptic interaction framework | [ISO 9241-910:2011, Edition 1 (confirmed 30 Jun 2022; status checked 8 Oct 2026)](https://www.iso.org/standard/51097.html) | Part 910 framework and its current status |
+| Tactile/haptic requirements and recommendations | [ISO 9241-920:2024, Edition 2 (published 11 Oct 2024; status checked 8 Oct 2026)](https://www.iso.org/standard/80751.html); [ISO 9241-920:2009, Edition 1 (withdrawn 11 Oct 2024)](https://www.iso.org/standard/42904.html) | Use the current 2024 edition; identify the 2009 edition as withdrawn |
+| OpenXR delivery | [Khronos OpenXR Registry (retrieved 8 Oct 2026)](https://registry.khronos.org/OpenXR/) and [OpenXR 1.1 `xrApplyHapticFeedback` reference (retrieved 8 Oct 2026)](https://registry.khronos.org/OpenXR/specs/1.1/man/html/xrApplyHapticFeedback.html) | Specification branch and API entry |
 | Safety | [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework) and its [Generative AI Profile](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf) | Framework/profile, function or risk, and publication version |
 | Culture | [UNESCO Recommendation on the Ethics of AI](https://www.unesco.org/en/artificial-intelligence/recommendation-ethics) | Recommendation, policy area, and relevant cultural principle |
 | Authorship | [U.S. Copyright Office: Copyright and AI](https://www.copyright.gov/ai/) and [registration guidance](https://www.copyright.gov/ai/ai_policy_guidance.pdf) | Jurisdiction, guidance title, date/version, and the human contribution at issue |
@@ -68,7 +76,7 @@ For technical output requirements, link the current provider documentation or fi
 
 ## Minimal retrieval sequence
 
-1. Classify the requested control family and medium: generated image, animation, audio-visual piece, web presentation, print export, or archive asset.
+1. Classify the requested control family and medium: generated image, animation, audio-visual piece, EPUB publication, web presentation, tactile or haptic interaction, OpenXR experience, print export, or archive asset.
 2. Search `docs` for the governing repository requirement using two or three anchors from the vocabulary table.
 3. Search `references` for the named primary framework, then `qmd get` the unique source capture and follow its canonical URL.
 4. Check the output contract: dimensions and format, text alternative or caption, moderation/review evidence, cultural consultation or sensitivity note, authorship/rights record, and provenance/metadata preservation.

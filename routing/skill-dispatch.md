@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: skill-dispatch
 topics: [routing, skills, agents]
-generated_at_utc: 2026-09-22T16:02:51Z
+generated_at_utc: 2026-10-08T15:39:47Z
 generator: scripts/routing/generate_routing_index.py
 ---
 
@@ -13,6 +13,7 @@ Generated from `ai-tooling/skills/**/SKILL.md` frontmatter. Do not hand-edit —
 | Skill | Owner agent | Rank | Isolation | When |
 | --- | --- | --- | --- | --- |
 | [`evidence-validation`](../ai-tooling/skills/artistic/evidence-validation/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Validate declared art-manifest evidence and package handoff integrity. Use when reviewing a generated, commissioned, or revised work before human release review. Do not use this skill as legal, safety, accessibility, or artistic approval. |
+| [`production-workflow`](../ai-tooling/skills/artistic/production-workflow/SKILL.md) | [`artistic-production`](../ai-tooling/agents/artistic-production/AGENT.md) | `high` | `mutate` | Produce, revise, and package requested artwork using the available host capabilities and the repository representation registry. Use when authorized local artwork files are required. Do not use for standards approval or to certify rights, safety, accessibility, or artistic quality. |
 | [`representation-routing`](../ai-tooling/skills/artistic/representation-routing/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Route an art work to its applicable representation row and cross-cutting controls. Use when a generated, commissioned, or revised work crosses media or needs a standards-backed review scope. Do not use it to duplicate standards or grant approval. |
 | [`request-contract`](../ai-tooling/skills/artistic/request-contract/SKILL.md) | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | `high` | `read-only` | Normalize, execute, or review artistic requests with a provider-neutral contract, hard/soft constraint ledger, host capability negotiation, drift checks, and evidence-backed handoff. Use when handling AI-generated, edited, composited, animated, audio, interactive, or physical-art requests. Do not use it to grant artistic, legal, rights, safety, accessibility, cultural, or release approval. |
 | [`agent-cost-estimator`](../ai-tooling/skills/benchmarks/agent-cost-estimator/SKILL.md) | [`benchmark-agent`](../ai-tooling/agents/benchmark-agent/AGENT.md) | `high` | `mutate` | Estimate token consumption, system prompt overhead, tool schema footprints, KV prompt cache hit ratios, and financial costs for standalone agent definitions and paired skill executions across model tiers (fast, standard, high, max) and major provider pricing matrices. Use when forecasting agent run budgets, evaluating prompt caching economics, or comparing model tier pricing for single-turn or multi-turn agent workflows. |
@@ -64,6 +65,7 @@ Generated from `ai-tooling/skills/**/SKILL.md` frontmatter. Do not hand-edit —
 | Skill | Required skills | Delegated skills | In-session skills | Binary prerequisites | Failure policy |
 | --- | --- | --- | --- | --- | --- |
 | [`evidence-validation`](../ai-tooling/skills/artistic/evidence-validation/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `python`, `qmd` | `continue_with_partial` |
+| [`production-workflow`](../ai-tooling/skills/artistic/production-workflow/SKILL.md) | [`isolate-work`](../ai-tooling/skills/meta/isolate-work/SKILL.md) | — | [`request-contract`](../ai-tooling/skills/artistic/request-contract/SKILL.md), [`representation-routing`](../ai-tooling/skills/artistic/representation-routing/SKILL.md), [`evidence-validation`](../ai-tooling/skills/artistic/evidence-validation/SKILL.md) | `python`, `qmd` | `abort_and_rollback` |
 | [`representation-routing`](../ai-tooling/skills/artistic/representation-routing/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `qmd` | `fallback_degrade` |
 | [`request-contract`](../ai-tooling/skills/artistic/request-contract/SKILL.md) | [`qmd-usage`](../ai-tooling/skills/meta/qmd-usage/SKILL.md) | — | — | `qmd`, `python` | `continue_with_partial` |
 | [`harness-review`](../ai-tooling/skills/harness-review/SKILL.md) | [`isolate-work`](../ai-tooling/skills/meta/isolate-work/SKILL.md) | — | — | `python` | `continue_with_partial` |

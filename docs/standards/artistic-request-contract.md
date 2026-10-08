@@ -48,6 +48,19 @@ Each item in `Explicit constraints` MUST carry a source (`user`, `reference`,
 dimensions, exclusions, and consent limits. The normalized form is a traceable
 translation, not permission to rewrite the request.
 
+## Machine-readable requests and manifest bundles
+
+The [artistic-request-v1.schema.json](./artistic-request-v1.schema.json) file defines the JSON shape for a normalized request. This prose standard governs interpretation and review.
+
+Manifest version `1.3` bundles place the request in `request` and list output components in `representations[]`. The validator checks that:
+
+- Each component declares `id`, `route`, `asset.type`, `role` (`primary` or `supporting`), and `delivery`; exactly one component is primary.
+- The request's representation declarations match manifest components by `id`, `route`, asset type, and role, regardless of order. Neither side may contain an undeclared or omitted component.
+- Each component's `delivery` matches the request's delivery declaration.
+- Manifest 1.3 keeps external media in the existing case-level `external_media` structure and applies the controls below. These linked records are not local packaged assets; the validator does not match their identifiers to request components.
+
+Manifest versions 1.0–1.2 remain compatible with the single-medium `case.medium` form. These checks compare request and output declarations; a pass does not establish artwork quality, ownership, rights, accessibility conformance, or release readiness.
+
 ## External marks and publisher-hosted media
 
 Schema `1.2` cases MUST include `external_media.sources` and

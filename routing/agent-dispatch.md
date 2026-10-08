@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: agent-dispatch
 topics: [routing, agents, specialists]
-generated_at_utc: 2026-09-22T16:02:51Z
+generated_at_utc: 2026-10-08T15:39:47Z
 generator: scripts/routing/generate_routing_index.py
 ---
 
@@ -14,8 +14,9 @@ Generated from `ai-tooling/agents/*/AGENT.md` frontmatter. Do not hand-edit — 
 
 | Agent ID | Name | Model tier | Isolation modes | Role / Description |
 | --- | --- | --- | --- | --- |
-| [`ai-tooling-ops`](../ai-tooling/agents/ai-tooling-ops/AGENT.md) | AI tooling operations | `standard` | `mutate`, `read-only` | AI-tooling specialist. Owns skill-builder, skill-dry-run, memory-create/adjust/cleanup, and agent-builder. Use for skills, user/agent memory checkpoints, A2A specs, and agent definitions. Do not use for model-memory-operate (memory-operator). Spawned by the router; do not edit docs/ standards unless assigned. |
+| [`ai-tooling-ops`](../ai-tooling/agents/ai-tooling-ops/AGENT.md) | AI tooling operations | `standard` | `mutate`, `read-only` | AI-tooling specialist. Owns skill-dry-run, memory-create/adjust/cleanup, and agent-builder. Use for skill dry-runs, user/agent memory checkpoints, A2A specs, and agent definitions. Do not use for model-memory-operate (memory-operator). Spawned by the router; do not edit docs/ standards unless assigned. |
 | [`artifact-agent`](../ai-tooling/agents/artifact-agent/AGENT.md) | Artifact agent | `standard` | `mutate`, `read-only` | Diagrams and modular documents specialist. Owns mermaid-diagram, architecture-diagram, executive-report, proposal-report, corpus-draft, guidance-draft, code-review-report, framework-mapper, tabler-dashboard, noir-scan, foundation-site, anti-slop, and humanizer. Use for mermaid diagrams, structured reports under results/, Tabler/Foundation presentation, Noir endpoint inventory for reviews, and dedicated anti-slop/humanizer rewrite or detect asks. Default specialist for results/ when no more specific skill applies. |
+| [`artistic-production`](../ai-tooling/agents/artistic-production/AGENT.md) | Artistic production | `standard` | `mutate`, `read-only` | Write-capable specialist for producing and packaging requested artwork from an approved request contract. Use for asset creation, revisions, and local package handoff. Do not use it for standards approval or rights, safety, access, or artistic-quality decisions. |
 | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | Artistic standards reviewer | `standard` | `read-only` | Read-only specialist for preparing or reviewing artistic requests against repository representation and evidence controls. Use for ranked findings and review scope; never grant legal, rights, safety, accessibility, or artistic approval. |
 | [`as-code-agent`](../ai-tooling/agents/as-code-agent/AGENT.md) | As-code agent | `high` | `mutate`, `read-only` | Infrastructure-as-code specialist. Owns as-code-builder, terraform-plan-validate, terraform-module-builder, and iac-security-audit. Use for Terraform, OpenTofu, Pulumi, Ansible, Kyverno, Rego, and IaC security audits under results/as-code/. Do not apply or deploy to real clouds via A2A. Spawned by the router. |
 | [`benchmark-agent`](../ai-tooling/agents/benchmark-agent/AGENT.md) | Benchmark Agent | `standard` | `mutate`, `read-only` | Specialist for empirical benchmarks across agent cost estimation, paired skill execution economics, multi-agent fleet dry-run simulations, retrieval quality, tool compression efficiency, and coding task evaluations. Use when measuring agent and skill costs, executing dry-run validation sweeps, running retrieval/compression benchmarks, or scoring agent task performance. |
@@ -43,8 +44,9 @@ Generated from `ai-tooling/agents/*/AGENT.md` frontmatter. Do not hand-edit — 
 
 | Agent | Primary capabilities | Allowed tools | Delegation targets |
 | --- | --- | --- | --- |
-| [`ai-tooling-ops`](../ai-tooling/agents/ai-tooling-ops/AGENT.md) | skill-builder, skill-dry-run, harness-review, memory-create (+3 more) | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `router-maintenance`, `script-ops`, `documentation-ops` |
+| [`ai-tooling-ops`](../ai-tooling/agents/ai-tooling-ops/AGENT.md) | skill-dry-run, harness-review, memory-create, memory-adjust (+2 more) | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `router-maintenance`, `script-ops`, `documentation-ops` |
 | [`artifact-agent`](../ai-tooling/agents/artifact-agent/AGENT.md) | mermaid-diagram, architecture-diagram, modular reports via build_document.py, tabler-dashboard (+5 more) | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `router`, `detailed-activity` |
+| [`artistic-production`](../ai-tooling/agents/artistic-production/AGENT.md) | artwork-production, artwork-revision, local-art-package-handoff | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `artistic-standards-reviewer` |
 | [`artistic-standards-reviewer`](../ai-tooling/agents/artistic-standards-reviewer/AGENT.md) | evidence-validation, representation-routing, request-contract, ranked artistic standards findings (+1 more) | `read_file`, `run_command`, `grep_search`, `find_by_name` | `detailed-activity` |
 | [`as-code-agent`](../ai-tooling/agents/as-code-agent/AGENT.md) | as-code-builder, terraform-plan-validate, terraform-module-builder, iac-security-audit (+3 more) | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `artifact-agent` |
 | [`benchmark-agent`](../ai-tooling/agents/benchmark-agent/AGENT.md) | agent-cost-estimator, agent-fleet-benchmark, retrieval-benchmark, tool-efficiency-benchmark (+4 more) | `read_file`, `write_file`, `replace_file_content`, `run_command`, `grep_search` (+1 more) | `artifact-agent`, `router-maintenance`, `script-ops` |
