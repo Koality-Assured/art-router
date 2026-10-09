@@ -1,230 +1,218 @@
-# Koality-Assured AI Harness Core
+<div align="center">
 
-Decoupled AI agent harness engine and generic template for multi-agent routing, 5-tier context hierarchies, multi-vendor prompt caching, precision cost layers, and sandboxed worktree execution.
+<img src="./assets/art-router-banner.svg" alt="Art Router Banner" width="100%" />
 
-## Mission Statement
+<br/><br/>
 
-Provide a clean, embeddable, framework-agnostic harness template and execution engine that brings production-grade multi-agent orchestration, worktree isolation, multi-vendor prompt caching, dual-retrieval (BM25 + ast-grep), and token-saving cost layers to any software repository or domain router.
+<img src="./assets/art-router-logo.svg" alt="Art Router Logo" width="140" height="140" />
 
----
+# Art Router
 
-## Operating Modes: How It Can Be Used
+**Domain AI harness router for multi-modal artistic generation, vector craftsmanship, and governed creative synthesis.**
 
-The harness core is designed to support two primary operating models:
+[![CI](https://github.com/Koality-Assured/art-router/actions/workflows/ci.yml/badge.svg)](https://github.com/Koality-Assured/art-router/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Koality-Assured/art-router/blob/main/LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/status-active-success.svg)]()
 
-### Mode A: Generic Domain Router Template (Clone & Feed)
-Clone this repository as a clean base to create a specialized domain harness (e.g., security router, infrastructure router, legal compliance router) without inheriting another instance's domain corpus:
-1. **Clone the template**: Start from `ai-harness-core`.
-2. **Feed domain standards**: Place authoritative policies and requirements in `docs/standards/`.
-3. **Feed domain references**: Add machine-readable catalogs and industry frameworks in `references/<framework-family>/`.
-4. **Feed domain skills & agents**: Add Schema V2 skills in `ai-tooling/skills/<family>/<name>/SKILL.md` and specialists in `ai-tooling/agents/<agent-id>/AGENT.md`.
-5. **Regenerate routing indexes**:
-   ```bash
-   python scripts/routing/generate_routing_index.py
-   python scripts/qmd/refresh_qmd_index.py
-   ```
-
-### Mode B: Embeddable Engine Scaffolding (`.harness/` & CLI)
-Embed the core engine directly into an existing software project to give AI coding agents isolation, caching, and retrieval capabilities:
-1. Scaffold configuration and skeleton directories via CLI:
-   ```bash
-   python scripts/harness_init.py --target /path/to/target-repo
-   ```
-2. Configure provider thresholds and adapter paths in `config/harness.config.json`.
-3. Leverage `.harness/` Python adapters for worktree sandboxing, prompt cache breakpoint planning, and Headroom compression.
-
-### Core ↔ spoke protocol
-Domain routers are **spokes**. `ai-harness-core` is the generic **core**.
-
-1. Scaffold a spoke with `python scripts/sync/scaffold_harness.py` (local template export and/or clone of `ai-harness-core`). Remotes: `origin` = the domain repo, `harness-core` = `Koality-Assured/ai-harness-core`. Private visibility is first-class (`--visibility private|public`).
-2. Pull material core updates with `python scripts/sync/pull_harness_core.py` (allowlisted core paths only; never auto-merge).
-3. Propose generic core improvements back with `python scripts/sync/propose_core_update.py` (refuses domain overlay paths; `--create-issue` only; never open a PR from the spoke working tree). Game-dev spokes default private; `--visibility public` is refused unless `--allow-public-game-dev`.
-
-Do not copy instance `projects/`, `research/`, or `ai-tooling/memory/` dumps, and do not feed a fed instance (for example a security corpus) in as the template source.
+</div>
 
 ---
 
-## Architecture Overview
+## Overview
 
-The public export is a complete, decoupled repository taxonomy (same top-level areas as the private router), not a flattened Python package:
+**Art Router** is the domain-specialized AI orchestration router for creative generation and media synthesis within the Koality-Assured ecosystem. It governs end-to-end creative workflows across **24 distinct representation routes**—from precision vector SVG, responsive web assets, and raster illustration, to CGI/3D concepts, procedural animation, audio/haptics, and spatial XR.
 
-```text
-ai-harness-core/
-├── AGENTS.md                 # Root normative contract, directive ranking, and cost rules
-├── routing/                  # Area map, 3-tier hybrid dispatch, and skill catalog
-│   ├── areas.yaml            # Canonical 12-area repository taxonomy configuration
-│   ├── AGENTS.md             # Routing hops and context-loading protocols
-│   └── skill-dispatch.md     # Generated skill catalog with agent ownership and contracts
-├── ai-tooling/               # Filtered generic skills, agents, A2A, and memory scaffolds
-│   ├── skills/               # Schema V2 skills (meta/, git/, reporting/, cost-layers/)
-│   ├── agents/               # Canonical specialist agent definitions (AGENT.md)
-│   ├── a2a/                  # Agent-to-Agent protocol and structured communication cards
-│   └── memory/               # Checkpoint partitions (user/, agent/, model/)
-├── .harness/                 # Embeddable core engine (kept as .harness/, not harness/)
-│   ├── config.py             # Config manifest loader and schema validator
-│   ├── isolation/worktree.py # Concurrency-safe Git worktree sandbox manager
-│   ├── a2a/protocol.py       # Sandboxed A2A protocol (8-exchange budget & envelope validation)
-│   ├── cache/manager.py      # Multi-vendor prompt caching (Anthropic, OpenAI, Gemini)
-│   ├── adapters/             # Tool adapters (qmd, ast_grep, headroom)
-│   └── cli/harness_init.py   # Bootstrap scaffolding CLI for new repositories
-├── scripts/                  # Automation, routing, cost-layers, change-history, and sync
-│   ├── _lib/                 # Shared non-indexed helper modules
-│   ├── routing/              # Hybrid dispatch, DAG resolver, worktree spawn scripts
-│   ├── cost-layers/          # Precision retrieval, prompt cache audit, and benchmark runners
-│   └── ai-tooling/           # Fast frontmatter and agent schema validators
-├── supporting/               # Universal runtime tool patterns (qmd, ast-grep, headroom, github)
-├── docs/                     # Session security MUSTs, anti-slop, and portable harness standards
-│   ├── agent-session-security.md
-│   ├── anti-slop.md
-│   └── standards/            # context-management.md, harness-template.md
-└── actionable/ projects/ research/ results/ scratch/ change-history/ # Managed lifecycle zones
+Built upon a strict governance foundation, Art Router enforces a core tenet: **"A route is a starting point, not a verdict."** Every creative assignment begins with a normalized, zero-drift request contract, proceeds through isolated worktree production, and undergoes rigorous offline evidence validation before human handoff.
+
+### Why Art Router?
+
+- **24 Comprehensive Representation Routes**: Machine-readable media definitions with dedicated preflight check profiles.
+- **Zero-Drift Request Contracts**: Normalizes briefs into verifiable schema constraints; missing fields stay `unknown` rather than hallucinated.
+- **Dual-Agent Specialist Hub**: Decouples mutating artwork synthesis (`artistic-production`) from read-only governance and evidence auditing (`artistic-standards-reviewer`).
+- **Sandboxed Worktree Execution**: All creative iterations run in isolated Git worktrees (`scratch/worktrees/<slug>`), keeping `main` pristine.
+- **Offline Evidence Validation**: Fully local validator checking geometry, viewBox, colorimetry, fixity checksums, and contract fulfillment without third-party leaks.
+
+---
+
+## Architecture & Lifecycle
+
+Art Router organizes creative execution into a five-stage pipeline:
+
+```mermaid
+flowchart TD
+    subgraph Intake["1. Request Intake &amp; Contract"]
+        UserBrief["🎨 Creative Brief / User Request"] --> ReqContract["📜 Request Contract Standard<br/><code>request-contract</code>"]
+        ReqContract --> Normalized["📋 Normalized Manifest<br/><code>artistic-request-v1.json</code><br/><i>Explicit Constraints • Zero Drift</i>"]
+    end
+
+    subgraph Routing["2. Multi-Modal Representation Routing"]
+        Normalized --> RepRouting["🧭 Representation Router<br/><code>representation-routing</code>"]
+        RepRouting --> Registry[("📚 Representation Registry<br/>24 Routes • Check Profiles")]
+        Registry --> SelectedRoute["🎯 Target Route &amp; Profile<br/><i>Raster • Vector • 3D • Motion • Audio • XR</i>"]
+    end
+
+    subgraph Execution["3. Isolated Production &amp; Synthesis"]
+        SelectedRoute --> Worktree["🔒 Isolated Task Worktree<br/><code>scratch/worktrees/&lt;slug&gt;</code>"]
+        Worktree --> ProdSpecialist["⚡ Artistic Production Agent<br/><code>artistic-production</code><br/><i><code>production-workflow</code></i>"]
+        ProdSpecialist --> MediaEngines["🛠️ Host Synthesis Adapters<br/><i>SVG/Canvas • Image AI • 3D • Audio/Video</i>"]
+        MediaEngines --> RawAssets["📦 Raw Art Package &amp; Metadata"]
+    end
+
+    subgraph Governance["4. Standards Review &amp; Verification"]
+        RawAssets --> Validator["🛡️ Evidence Validation<br/><code>validate_art_router.py</code><br/><code>evidence-validation</code>"]
+        Validator --> Reviewer["🔍 Standards Reviewer Agent<br/><code>artistic-standards-reviewer</code>"]
+        Reviewer --> AuditFindings["📊 Ranked Findings Ledger<br/><i>Fixity • Contrast • Geometry • Checks</i>"]
+    end
+
+    subgraph Handoff["5. Delivery &amp; Human Accountability"]
+        AuditFindings --> HumanGate{"👤 Accountable Human Owner"}
+        HumanGate -->|Approve| Packaged["✨ Packaged Deliverable<br/><i>Validated Assets • Manifest • Provenance</i>"]
+        HumanGate -->|Revisions| ProdSpecialist
+        HumanGate -->|Hold / Block| HoldRecord["🛑 Bounded Hold Record"]
+    end
 ```
 
-### Canonical 12-Area Repository Taxonomy
+### The 5 Operational Phases
+
+1. **Request Intake & Contract**: Converts messy briefs, sketches, or conversational prompts into an immutable [`artistic-request-v1.json`](./docs/standards/artistic-request-v1.schema.json) contract via [`request-contract`](./ai-tooling/skills/artistic/request-contract/SKILL.md).
+2. **Representation Routing**: Dynamically resolves media routes, adjacent fallback routes, and required check profiles via [`representation-routing`](./ai-tooling/skills/artistic/representation-routing/SKILL.md) and [`artistic-representation-registry.json`](./docs/standards/artistic-representation-registry.json).
+3. **Isolated Production**: The [`artistic-production`](./ai-tooling/agents/artistic-production/AGENT.md) specialist generates or modifies artwork inside an isolated worktree via [`production-workflow`](./ai-tooling/skills/artistic/production-workflow/SKILL.md).
+4. **Evidence Validation**: The [`artistic-standards-reviewer`](./ai-tooling/agents/artistic-standards-reviewer/AGENT.md) executes offline verification via [`validate_art_router.py`](./scripts/validation/validate_art_router.py) and [`evidence-validation`](./ai-tooling/skills/artistic/evidence-validation/SKILL.md).
+5. **Handoff & Human Review**: An accountable human owner makes final release and aesthetic determinations. Agents record findings but never fabricate release authority.
+
+---
+
+## 24 Representation Routes
+
+Art Router categorizes all artistic mediums in [`docs/standards/artistic-representation-registry.json`](./docs/standards/artistic-representation-registry.json), each paired with normative verification controls:
+
+| Route ID | Medium & Standard Family | Key Asset Types | Verification Profile & Controls |
+| :--- | :--- | :--- | :--- |
+| `illustration` | Painting & 2D Illustration | `raster`, `illustration`, `painting` | Dimensions, color profile, equivalent description |
+| `graphic_design` | Graphic Design & Minimalism | `graphic_design`, `poster`, `vector_poster` | WCAG contrast, reading order, design handoff |
+| `logos_icons` | Logos, Icons & Favicons | `vector`, `favicon`, `icon`, `app_mark`, `touch_icon` | Small-size exports, monochrome behavior, accessible name |
+| `typography` | Typography & Lettering | `font`, `typography` | Font format, glyph coverage, readability, text layers |
+| `photography` | Photography & Editorial | `raster`, `photograph`, `editorial_photo` | Capture scale, lens focal length, edit history |
+| `collage` | Collage & Assemblage | `collage_raster`, `collage_vector` | Source inventory, license records, transformation notes |
+| `raster_vector_sprites`| Raster, Vector & Pixel Sprites | `raster`, `vector`, `sprite_sheet` | Sheet dimensions, frame count, grid pitch, pixel filters |
+| `web` | Websites & Creative UI | `web`, `open_graph_image` | Keyboard navigation, focus states, reduced motion, fallback |
+| `tattoo` | Tattoos & Body Art | `vector` | Placement, line weight, skin aging, non-body preview |
+| `print` | Print, Packaging & Merch | `print`, `packaging` | Page count, trim, bleed, CMYK profile, PDF preflight |
+| `animation` | Animation, Video & Projection | `video` | Duration, frame rate, time alternatives, seizure flash check |
+| `cgi` | CGI, 3D & VFX | `3d_scene` | Scene format, frame range, camera, lighting, render units |
+| `audio_haptic` | Audio & Haptic Patterns | `audio`, `haptic_pattern` | Sample rate, bit depth, loudness, transcript, haptic safety |
+| `installation` | Public Art & Signage | `installation` | Venue access, egress, structural load, hazard plans |
+| `data_visualization` | Data & Info Visualization | `data_visualization` | Data source, units, legend, precision, non-color meaning |
+| `participatory` | Participatory & Social Work | `participatory_work` | Participant consent, attribution, data minimization |
+| `xr` | XR, AR & VR Experiences | `software` | Tracking runtime, frame rate, comfort scale, 2D fallback |
+| `literary` | Literary, Textual & Poetic | `text` | Word count, language, reading level, alternate formats |
+| `performance` | Performance, Theatre & Dance | `performance` | Cue sheet, cast, access requirements, venue capture |
+| `music` | Music Composition & Sound | `music` | Stems, score notation, loudness target, audio format |
+| `physical` | Sculpture, Ceramics & Textiles | `physical` | Material specs, fabrication tolerance, handling guides |
+| `comics` | Comics & Sequential Narrative | `raster` | Panel counts, reading sequence, extractable typography |
+| `games` | Games & Interactive Fiction | `software` | Build target, platform inputs, pause/save state controls |
+| `cartographic_art` | Cartographic & Geospatial Art | `raster` | Projection, CRS, scale bar, orientation, source date |
+
+---
+
+## Specialist Agents & Skill Ecosystem
+
+Art Router strictly enforces operator discipline through dedicated Schema V2 agent and skill pairings:
+
+### Specialist Agents
+
+- [`artistic-production`](./ai-tooling/agents/artistic-production/AGENT.md) (`mutate` / `read-only`):
+  Write-capable synthesis specialist. Operates in isolated task worktrees to produce vector artwork, package raster assets, run conversion tools, and emit manifest updates.
+- [`artistic-standards-reviewer`](./ai-tooling/agents/artistic-standards-reviewer/AGENT.md) (`read-only`):
+  Read-only governance auditor. Evaluates deliverables against representation controls, executes verification scripts, generates ranked findings ledgers, and surfaces human-review boundaries.
+
+### Core Artistic Skills
+
+- [`request-contract`](./ai-tooling/skills/artistic/request-contract/SKILL.md):
+  Normalizes loose creative requests into structured, schema-compliant contract records. Evaluates host capability constraints, logs deviation ledgers, and prevents prompt drift.
+- [`representation-routing`](./ai-tooling/skills/artistic/representation-routing/SKILL.md):
+  Maps normalized intent to exact representation routes, adjacent fallbacks, and check profiles from the registry.
+- [`production-workflow`](./ai-tooling/skills/artistic/production-workflow/SKILL.md):
+  Drives asset generation and modification within isolated worktrees, applying declared host tool adapters (SVG, Pillow, Blender, ffmpeg, AI generators).
+- [`evidence-validation`](./ai-tooling/skills/artistic/evidence-validation/SKILL.md):
+  Executes offline evidence auditing, verifies sha256 fixity, cross-checks declared metadata against actual deliverables, and flags holds.
+
+---
+
+## Quickstart & CLI Validation
+
+All verification tooling runs locally without external dependencies or cloud credentials.
+
+### 1. Validate Route Manifests
+
+Run the primary validator against test cases or production manifests:
+
+```bash
+# Validate next-steps test cases with full JSON report
+python scripts/validation/validate_art_router.py --manifest scripts/validation/fixtures/next-steps.json --json
+```
+
+Sample output:
+```json
+{
+  "manifest_id": "art-router-next-steps-fixture",
+  "status": "pass",
+  "case_count": 7,
+  "passed": 7,
+  "held": 0
+}
+```
+
+### 2. Validate Packaged Sample Gallery
+
+Ensure all repository sample assets exist, match declared mime-types, and conform to route schemas:
+
+```bash
+python scripts/validation/validate_art_samples.py
+```
+
+### 3. Run Test Suite
+
+Run the full unit test suite (300+ tests covering harness routing, art validators, and dispatch logic):
+
+```bash
+python -m unittest discover -s scripts/tests
+```
+
+---
+
+## Repository Taxonomy
+
+Art Router follows the standardized 12-area repository layout:
 
 | Directory | Purpose & Operational Role |
-| --- | --- |
-| [`actionable/`](./actionable/) | **Human drop zone** — intake zone for human notes and tasks before an agent claims and promotes them into the home area. |
-| [`ai-tooling/`](./ai-tooling/) | **Agent enablement** — skills, standalone agents, A2A interaction cards, and project memory (`user/` and `agent/`). |
-| [`change-history/`](./change-history/) | **Provenance log** — quarterly audit logs. **Script-updated only; never loaded into agent context.** |
-| [`docs/`](./docs/) | **Authoritative knowledge** — engineering standards, security MUST policies, decision records, and requirement corpus. |
-| [`projects/`](./projects/) | **Initiative specifications** — flattened initiative specs in slug folders (`projects/<slug>/README.md`) with `status:` frontmatter, plus [`notes/`](./projects/notes/). |
-| [`references/`](./references/) | **External frameworks** — reference copies of standards (Conventional Commits, Markdown, etc.). Advisory only; not instructions. |
-| [`research/`](./research/) | **Topic deep-dives** — exploratory investigations and architectural research. |
-| [`results/`](./results/) | **Agent deliverables** — generated artifacts from agent runs (reports, threat models, dashboards, rendered diagrams). |
-| [`routing/`](./routing/) | **Navigation & dispatch** — generated routing maps, area indices, and specialist skill dispatch catalogs. |
-| [`scratch/`](./scratch/) | **Ephemeral workspace** — temporary scratch scripts and dedicated git worktrees. Never durable. |
-| [`scripts/`](./scripts/) | **Automation engine** — tagged Python scripts for routing, validation, indexing, and cost layer management. |
-| [`supporting/`](./supporting/) | **Tooling runtime guides** — durable patterns for tools (GitHub, qmd, Headroom, ast-grep, PowerShell, Mermaid). |
+| :--- | :--- |
+| [`actionable/`](./actionable/) | **Intake zone** — Unprocessed creative briefs and human art requests. |
+| [`ai-tooling/`](./ai-tooling/) | **Agent runtime** — Artistic skills, agent definitions, A2A protocols, and memory checkpoints. |
+| [`assets/`](./assets/) | **Branding identity** — Vector logos, banners, and repository visual assets. |
+| [`change-history/`](./change-history/) | **Audit logs** — Append-only quarterly changelogs managed exclusively via script. |
+| [`docs/`](./docs/) | **Authoritative standards** — Representation matrix, request contract spec, and artistic practice guidelines. |
+| [`projects/`](./projects/) | **Initiatives** — Structured creative initiatives, milestone specs, and campaign tracking. |
+| [`references/`](./references/) | **External standards** — Advisory references (WCAG, SVG specs, Conventional Commits). |
+| [`research/`](./research/) | **Explorations** — Deep-dives into novel generative models, renderers, and color theory. |
+| [`results/`](./results/) | **Deliverables** — Generated art packages, validation ledgers, and delivery archives. |
+| [`routing/`](./routing/) | **Dispatch layer** — Area maps, skill dispatch catalog, and hybrid routing tables. |
+| [`scratch/`](./scratch/) | **Ephemeral work** — Task worktrees (`scratch/worktrees/`) and temporary scratch files. |
+| [`scripts/`](./scripts/) | **Automation engine** — Python tools for validation, worktree spawning, and routing indexes. |
+| [`supporting/`](./supporting/) | **Tool runtimes** — Guides for ast-grep, qmd, Headroom, Mermaid, and image utilities. |
 
 ---
 
-## Key Elements & Architectural Layers
+## Operating Contracts & Governance
 
-The harness architecture integrates four core operational layers:
-
-### 1. Context Hierarchy & Multi-Vendor Prompt Caching
-* **Normative Standard**: `docs/standards/context-management.md`
-* **5-Tier Context Hierarchy**:
-  1. `Tier 1: Static Base Prefix` -- Universal MUST rules, system guardrails, immutable tool schemas (Breakpoint 1).
-  2. `Tier 2: Static Skill Context` -- Specialist definition (`AGENT.md`) and active `SKILL.md`.
-  3. `Tier 3: Monotonic Conversation History` -- Append-only turns 1 to N-1 (Breakpoint 2).
-  4. `Tier 4: Ephemeral Turn Context` -- Nearest folder `AGENTS.md` injected dynamically at the turn tail.
-  5. `Tier 5: Dynamic Turn Delta` -- Current user prompt and compressed tool execution results.
-* **Prefix Invariance**: Guarantees exact byte matching from token 0. Placing JIT area rules in Tier 4 ensures mid-session directory switches never invalidate historical conversation caches (maintaining 92-98% cache hit rates).
-* **Multi-Provider Caching**:
-  * **Anthropic**: 2-breakpoint allocation (system/tools + penultimate turn; max 4 blocks, 5-min rolling TTL).
-  * **OpenAI**: Automatic prefix caching with 128-token boundary alignment (>= 1,024 tokens).
-  * **Gemini**: Explicit Context Caching API descriptors for large static corpuses (>= 32k tokens).
-
-### 2. Precision Cost Layers & Context Compression
-* **ast-grep (Outline-First Precision Retrieval)**:
-  * Symbol discovery via `ast-grep outline` and line-bounded reads (`StartLine`/`EndLine`).
-  * Yields **83%-94% token savings** compared to full-file dumps.
-  * Mechanical AST batch refactoring via `ast-grep --rewrite`.
-* **qmd (BM25 Lexical & Hybrid Search)**:
-  * Fast, indexed on-demand snippet search (`qmd search` -> `qmd get`), avoiding costly repo-wide tree walks.
-* **Headroom (Context Compression Proxy)**:
-  * Local proxy (`http://127.0.0.1:8787`) compressing verbose tool outputs (JSON arrays ~70%+, compiler logs ~30%+) while preserving 100% of structural facts.
-  * Automatic fallback to `scripts/_lib/tool_output.py` when the proxy is offline.
-* **Web Distillation**:
-  * `local_webfetch.py` strips HTML boilerplate and neutralizes hidden prompt injection vectors prior to ingestion.
-
-### 3. Routing, DAG Resolution & Hybrid Dispatch
-* **3-Tier Hybrid Dispatch** (`scripts/routing/hybrid_dispatch.py`):
-  * *Tier 1*: Fast-path regex / keyword routing (<1ms, 0 tokens).
-  * *Tier 2*: In-memory BM25 lexical ranking (~5ms, 0 tokens) over skill and area metadata.
-  * *Tier 3*: Structured LLM Ambiguity Gate for multi-intent triage.
-* **Skill Dependency DAGs** (`scripts/routing/resolve_skill_graph.py`):
-  * Resolves execution order using Kahn's topological sort.
-  * Models `required_skills`, `delegated_skills`, and `in_session_skills`.
-  * Enforces failure lifecycle policies: `abort_and_rollback`, `fallback_degrade`, `continue_with_partial`.
-
-### 4. Sandboxed Worktree Isolation & Clean-Slate Delegation
-* **Git Worktree Isolation** (`scripts/routing/spawn_worktree.py`):
-  * Mutating tasks run in isolated worktrees (`scratch/worktrees/<slug>`) on dedicated feature branches, preventing dirty-state contamination.
-* **Parent Discovery Bound**:
-  * The orchestrator stops context reading once the skill owner agent is identified; specialists spawn with a clean context slate.
-* **Structured Result Envelope**:
-  * Specialists return standard envelopes containing `task_id`, `status`, `artifacts`, `handoff_requests`, and `metrics`.
-  * `handoff_requests` are strictly advisory metadata (preventing autonomous recursive subagent minting).
+- **Human Accountability**: AI agents synthesize assets and report evidence; only accountable human owners grant release, legal, copyright, or ethical approval.
+- **Traceable Provenance**: Models, prompts, seeds, host tools, and edit histories are permanently recorded in delivery manifests.
+- **Privacy & Safety**: No unauthorized likenesses, confidential branding assets, or private training materials are submitted to external public APIs.
+- **Zero-Drift Ingestion**: AI agents adhere strictly to [`AGENTS.md`](./AGENTS.md) and [`routing/AGENTS.md`](./routing/AGENTS.md), loading area context Just-In-Time (JIT) without preloading.
 
 ---
 
-## Empirical Cost Optimization & Benchmark Results
-
-The harness cost layers are validated continuously via automated benchmarks (`python scripts/cost-layers/validate_cost_layers.py`). Measured results from the benchmark suite:
-
-| Cost Layer / Subsystem | Benchmark Payload / Target | Measured Token Reduction | Fact Retention / Accuracy | Economic & Operational Benefit |
-| :--- | :--- | :--- | :--- | :--- |
-| **`ast-grep` Outline** | Python script inspection (`.py`) | **93.7% reduction** (2,571 tokens saved) | 100% structural symbols | Eliminates full file body dumps |
-| **`ast-grep` Kind Match** | Skill frontmatter (`SKILL.md`) | **94.9% reduction** (632 tokens saved) | 100% frontmatter keys | Instant YAML AST parsing via stdin |
-| **`ast-grep` Kind Match** | Agent cards (`a2a/*.json`) | **90.5% reduction** (542 tokens saved) | 100% agent card attributes | Surgical schema & metadata reads |
-| **`Headroom` Compression** | JSON tool output arrays | **72.2% reduction** (5,901 tokens saved) | 100% match text facts | Intercepts verbose tool responses |
-| **`Headroom` Logs & Grep** | Grep hits & compile logs | **5.9% - 30.8% reduction** | 100% error signatures | Compresses repetitive log output |
-| **`local_webfetch`** | External web HTML distillation | **77.2% reduction** (448 tokens saved) | **100.0%** (4/4 gold facts) | Strips HTML bloat & neutralizes prompt injections |
-| **Prompt Cache Manager** | 25 audited prompt definitions | **0 invariance violations** | 100% byte stability | **~90% input cost discount** (Anthropic/OpenAI KV caches) |
-| **`qmd` BM25 Search** | Repository Markdown corpus | **0.67s average search** | High top-1 precision | Eliminates recursive directory tree walks |
-
-### Cost Layer Verification Commands
-
-```bash
-# Run full combined cost-layer validation suite (ast-grep + headroom + prompt-caching + webfetch + qmd)
-python scripts/cost-layers/validate_cost_layers.py
-
-# Run standalone prompt cache byte invariance linter
-python scripts/cost-layers/validate_prompt_caching.py
-
-# Run standalone web retrieval distillation benchmark
-python scripts/research/local_webfetch.py --dry-run
-
-# Run standalone Headroom tool output compression benchmark
-python scripts/cost-layers/validate_headroom_compression.py
-
-# Run standalone ast-grep precision retrieval benchmark
-python scripts/cost-layers/validate_ast_grep.py
-```
-
----
-
-## Frontmatter & Component Conventions
-
-All components adhere to strict machine-readable frontmatter verified by automated validators:
-
-| Component | Standard | Mandatory Fields & Rules | Validation Script |
-| :--- | :--- | :--- | :--- |
-| **Skills** | **Schema V2** (`ai-tooling/skills/**/SKILL.md`) | `schema_version: "2.0.0"`, `name`, `description` ("Use when..."), `owner_agent`, `rank`, `isolation`, `on_failure`, `prerequisites`, `dependencies`, `contracts` (`inputs`, `outputs`). 9 required sections & mandatory cost-layer inheritance. | `python scripts/ai-tooling/validate_skill.py --all` |
-| **Agents** | **Agent Frontmatter** (`ai-tooling/agents/**/AGENT.md`) | `id`, `name`, `model_tier`, `role`, `isolation`, `capabilities`, `allowed_tools`, `constraints`. | `python scripts/ai-tooling/validate_agent.py --all` |
-| **Standards & Docs** | **Corpus Frontmatter** (`docs/**`, `supporting/**`) | `doc_kind`, `canonical_id`, `purpose`, `rank`, `topics`, `rag_keywords`. Retrievable `##` headings with topic/intent in opening sentence. | `python scripts/docs/validate_structure_fast.py` |
-| **Taxonomy** | **8-Point AGENTS Schema** | 12 top-level areas: Content ownership, Placement, Lifecycle, Relationships, SoT boundaries, Validation, Escalation, Local exceptions. | `python scripts/routing/generate_routing_index.py` |
-
----
-
-## Verification & Testing Suite
-
-Run the full validation suite to verify syntax, cost layers, skill DAGs, and prompt cache invariance:
-
-```bash
-# 1. Compile all Python scripts and .harness engine
-python -m compileall -q scripts .harness
-
-# 2. Validate skill schemas and dependency DAGs
-python scripts/ai-tooling/validate_skill.py --all
-python scripts/routing/resolve_skill_graph.py --validate-all
-
-# 3. Run cost-layer benchmarks and prompt cache verification
-python scripts/cost-layers/validate_cost_layers.py
-
-# 4. Execute unit test suite
-python -m unittest discover -s scripts/tests -v
-```
-
----
-
-## Security Notice
-
-Public export and template instances run automated redaction audits. Never commit credentials, API keys, private tokens, or real PII. Redacted examples must be obviously fake. Full session security rules live in `docs/agent-session-security.md`.
-
-## License
-
-MIT License Copyright (c) 2026 Koality-Assured.
+<div align="center">
+<sub>Crafted with precision for the Koality-Assured domain routing ecosystem.</sub>
+</div>
