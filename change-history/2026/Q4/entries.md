@@ -8,6 +8,19 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-10-11 — Integrate ComfyUI Wan 2.2 video generation into art-router harness
+
+- **Requesting user:** Distasteful
+- **AI agent:** antigravity
+- **User request:** Make sure ComfyUI Wan 2.2 video generation is integrated into art harness
+- **Summary:**
+  - Ported ComfyVideoClient scripts/tools/test_comfy_video.py with WebSocket progress streaming and auto MP4 download
+  - Integrated harness video generate/status/models command into art-router harness.py
+  - Added stdio MCP server scripts/tools/comfy_video_mcp_server.py exposing video tools to coding agents
+  - Created video-generation skill in ai-tooling/skills/artistic/video-generation/SKILL.md with Schema V2 validation
+  - Added test_comfy_video_integration.py and supporting/comfyui/ documentation
+
 ### 2026-10-08 — Summarize art bundle routes in text output
 
 - **Requesting user:** Robbie

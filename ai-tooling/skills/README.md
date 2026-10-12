@@ -57,6 +57,7 @@ Human index (not agent SoT):
 | [`noir-scan/`](./reporting/noir-scan/) | security-tooling-operator | mutate |
 | [`proposal-report/`](./reporting/proposal-report/) | document-operator | mutate |
 | [`production-workflow/`](./artistic/production-workflow/) | artistic-production | mutate |
+| [`video-generation/`](./artistic/video-generation/) | artistic-production | mutate |
 | [`public-llm-admin/`](./admin/public-llm-admin/) | cloud-operator | mutate |
 | [`qmd-efficiency/`](./meta/qmd-efficiency/) | harness-operator | mutate |
 | [`qmd-usage/`](./meta/qmd-usage/) | harness-operator | read-only |
