@@ -635,11 +635,10 @@ def cmd_auth_login(args: argparse.Namespace) -> int:
     api_key = getattr(args, "api_key", None)
 
     if api_key:
-        print(
-            "warning: providing secrets via the '--api-key' CLI argument can expose credentials "
-            "to process table inspection (ps, Task Manager, /proc). "
-            "Consider using interactive masked input instead.",
-            file=sys.stderr,
+        import logging
+        logging.getLogger("harness").warning(
+            "DEPRECATED: the '--api-key' CLI argument is deprecated and will be removed. "
+            "Prefer passing credentials via environment variables, stdin, or the interactive masked prompt to avoid exposing secrets to process table inspection."
         )
 
     try:

@@ -787,6 +787,20 @@ class ValidateArtRouterTests(unittest.TestCase):
         self.assertIn("manifest: manifest\\x1b[31m\\ninjection", output)
         self.assertIn("- case\\x1b[32m\\ninjection (illustration)", output)
 
+    def test_failing_fixture_execution(self) -> None:
+        bad_manifest = {"cases": [{"media": "unknown_media_type"}]}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "bad.json"
+            path.write_text(json.dumps(bad_manifest), encoding="utf-8")
+            
+            output = io.StringIO()
+            errors = io.StringIO()
+            with redirect_stdout(output), redirect_stderr(errors):
+                rc = main(["--manifest", str(path), "--fail-on-hold"])
+        
+        self.assertEqual(rc, 1)
+        self.assertIn("status: hold", output.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
