@@ -3,9 +3,9 @@ schema_version: "2.0.0"
 name: video-generation
 description: >-
   Trigger local text-to-video and video synthesis workflows using the local ComfyUI
-  instance and Wan 2.1 / 2.2 models. Use when generating animation, cinematic video,
-  or dynamic motion visual media on local GPU infrastructure. Do not use for rights clearance
-  or unapproved external deployment.
+  instance and Wan 2.1 / 2.2 models upon explicit operator request. Use when an operator
+  explicitly requests local GPU animation, cinematic video, or motion media. Do not use
+  as a default for generic media prompts.
 owner_agent: artistic-production
 rank: high
 isolation: mutate
@@ -30,11 +30,11 @@ contracts:
 
 ## When to use
 
-Use when an authorized artistic or creative request requires generating video, animated visual sequences, or dynamic motion media using local compute and Wan 2.1 / 2.2 model pipelines.
+Use ONLY when an operator explicitly requests local GPU text-to-video or motion generation (e.g. specifying `local`, `comfyui`, `wan 2.1/2.2`, or on-device generation). Local GPU generation is an operator opt-in capability that allocates substantial workstation resources; it is never the default fallback for generic creative or video requests.
 
 ## When not to use
 
-Do not use for read-only critique, static vector illustrations, text copywriting, unconstrained real-person depictions, rights clearance, or external deployment. Use [`production-workflow`](../production-workflow/SKILL.md) for general asset packaging and [`representation-routing`](../representation-routing/SKILL.md) for selecting media representation routes.
+Do not use as a default for unconstrained or generic video requests where local generation was not explicitly requested by the operator. Do not use for read-only critique, static vector illustrations, text copywriting, unconstrained real-person depictions, rights clearance, or external deployment. Use [`production-workflow`](../production-workflow/SKILL.md) for general asset packaging and [`representation-routing`](../representation-routing/SKILL.md) for selecting media representation routes.
 
 ## Criticality
 

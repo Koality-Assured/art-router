@@ -2,7 +2,7 @@
 doc_kind: routing_map
 canonical_id: area-map
 topics: [routing, write-back, structure]
-generated_at_utc: 2026-10-12T02:54:23Z
+generated_at_utc: 2026-10-12T03:08:36Z
 generator: scripts/routing/generate_routing_index.py
 ---
 
