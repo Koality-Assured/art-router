@@ -914,6 +914,21 @@ def cmd_tui(args: argparse.Namespace) -> int:
     return run_switcher_tui(reg)
 
 
+def cmd_prompt(args: argparse.Namespace) -> int:
+    prompt_cmd = getattr(args, "prompt_cmd", None)
+    if prompt_cmd == "compile":
+        from tools.compile_prompt import main as compile_main
+        compile_argv = ["--prompt", args.prompt, "--model", args.model]
+        if getattr(args, "negative", None):
+            compile_argv.extend(["--negative", args.negative])
+        if getattr(args, "json", False):
+            compile_argv.append("--json")
+        return compile_main(compile_argv)
+    else:
+        print("Usage: harness prompt compile --prompt <tags> [--model <model>]")
+        return 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     shared = argparse.ArgumentParser(add_help=False)
     shared.add_argument("--json", action="store_true", help="Format output as machine-readable JSON")
@@ -1003,6 +1018,14 @@ def build_parser() -> argparse.ArgumentParser:
     # tui
     sub.add_parser("tui", aliases=["switcher"], help="Launch interactive terminal UI switcher", parents=[shared])
 
+    # prompt
+    p_prompt = sub.add_parser("prompt", help="Compile and optimize Danbooru tag prompts", parents=[shared])
+    pr_sub = p_prompt.add_subparsers(dest="prompt_cmd")
+    p_pr_compile = pr_sub.add_parser("compile", help="Compile tags into canonical 8-slot sequence", parents=[shared])
+    p_pr_compile.add_argument("--prompt", "-p", required=True, help="Input prompt tags (comma-separated)")
+    p_pr_compile.add_argument("--model", "-m", default="illustrious_xl", choices=["illustrious_xl", "pony_v6_xl", "animagine_xl_v3", "wan_video", "novelai_v3"], help="Target model dialect")
+    p_pr_compile.add_argument("--negative", "-n", default=None, help="Additional negative tags")
+
     return parser
 
 
@@ -1041,6 +1064,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_scan(args)
     if args.cmd in ("tui", "switcher"):
         return cmd_tui(args)
+    if args.cmd == "prompt":
+        return cmd_prompt(args)
 
     return 2
 

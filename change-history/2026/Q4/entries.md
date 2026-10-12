@@ -8,6 +8,19 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-10-11 — Incorporate Danbooru tag ontology, prompt ordering standards, catalogs, and compiler into art-router
+
+- **Requesting user:** Robbie
+- **AI agent:** artistic-production
+- **User request:** Let's figure out incorporating tag groups, do deep research here and get it added into the art-router. https://danbooru.donmai.us/wiki_pages/tag_groups
+- **Summary:**
+  - Conducted deep research into Danbooru tag groups hierarchy, 5 native category IDs, and REST API endpoints
+  - Authored docs/standards/danbooru-tag-ontology.md and docs/standards/prompt-token-ordering.md defining 8-slot canonical sequence
+  - Built machine-readable catalogs under references/prompt-engineering/catalogs/danbooru-tags/ (categories.json, tag-groups.json, model-dialects.json)
+  - Created scripts/tools/compile_prompt.py CLI and harness prompt compile with 100% test coverage
+  - Created danbooru-tagging Schema V2 skill and regenerated routing index
+
 ### 2026-10-08 — Summarize art bundle routes in text output
 
 - **Requesting user:** Robbie

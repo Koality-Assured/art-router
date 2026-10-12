@@ -16,3 +16,4 @@ Portable workflows for creating artwork and reviewing requests, representation r
 - [`representation-routing/`](./representation-routing/) selects representation rows and cross-cutting controls.
 - [`request-contract/`](./request-contract/) preserves request parameters, negotiates host capabilities, and checks execution drift.
 - [`production-workflow/`](./production-workflow/) creates artwork and packages output under declared host capabilities.
+- [`danbooru-tagging/`](./danbooru-tagging/) compiles and optimizes tag-based prompts into the canonical 8-slot sequence across diffusion dialects.

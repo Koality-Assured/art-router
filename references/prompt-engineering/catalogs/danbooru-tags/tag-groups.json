@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Danbooru Tag Groups Catalog",
+  "description": "Functional hierarchy of Danbooru tag groups mapped to the universal 8-slot prompt architecture",
+  "groups": [
+    {
+      "id": "character_count",
+      "slug": "tag_group:character_count",
+      "canonical_slot": 2,
+      "branch": "visual_characteristics",
+      "description": "Character counts and human presence indicators.",
+      "sample_tags": ["solo", "1girl", "2girls", "1boy", "multiple_girls", "no_humans"]
+    },
+    {
+      "id": "body_parts",
+      "slug": "tag_group:body_parts",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "General anatomical features and bodily traits.",
+      "sample_tags": ["navel", "bare_shoulders", "collarbone", "abs", "legs", "wings", "tail"]
+    },
+    {
+      "id": "face_tags",
+      "slug": "tag_group:face_tags",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Facial expressions, mouth shapes, and facial features.",
+      "sample_tags": ["smile", "open_mouth", "closed_mouth", "blush", "parted_lips", "fangs", "expressionless"]
+    },
+    {
+      "id": "eyes_tags",
+      "slug": "tag_group:eyes_tags",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Eye colors, pupil shapes, and eye states.",
+      "sample_tags": ["blue_eyes", "red_eyes", "green_eyes", "amber_eyes", "looking_at_viewer", "closed_eyes", "half-closed_eyes", "tsurime", "tareme"]
+    },
+    {
+      "id": "hair",
+      "slug": "tag_group:hair",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Overall hair characteristics and lengths.",
+      "sample_tags": ["long_hair", "short_hair", "medium_hair", "very_long_hair"]
+    },
+    {
+      "id": "hair_color",
+      "slug": "tag_group:hair_color",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Hair colors, gradients, and streaks.",
+      "sample_tags": ["black_hair", "blonde_hair", "brown_hair", "white_hair", "silver_hair", "blue_hair", "pink_hair", "two-tone_hair", "multicolored_hair"]
+    },
+    {
+      "id": "hair_styles",
+      "slug": "tag_group:hair_styles",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Hair cuts, styling, braids, and ornaments.",
+      "sample_tags": ["twintails", "ponytail", "side_ponytail", "braid", "ahoge", "blunt_bangs", "bob_cut", "hair_bun"]
+    },
+    {
+      "id": "skin_color",
+      "slug": "tag_group:skin_color",
+      "canonical_slot": 4,
+      "branch": "visual_characteristics",
+      "description": "Skin tone and complexion descriptors.",
+      "sample_tags": ["pale_skin", "dark_skin", "tan", "colored_skin"]
+    },
+    {
+      "id": "attire",
+      "slug": "tag_group:attire",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Primary clothing, outfits, and garments.",
+      "sample_tags": ["school_uniform", "sailor_uniform", "serafuku", "dress", "shirt", "skirt", "jacket", "hoodie", "kimono", "swimsuit", "maid"]
+    },
+    {
+      "id": "headwear",
+      "slug": "tag_group:headwear",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Hats, caps, helmets, hair ornaments, and head accessories.",
+      "sample_tags": ["hat", "beret", "cap", "hair_ribbon", "hair_bow", "hairclip", "headband", "halo"]
+    },
+    {
+      "id": "eyewear",
+      "slug": "tag_group:eyewear",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Glasses, sunglasses, eyepatches, and monocles.",
+      "sample_tags": ["glasses", "sunglasses", "semi-rimless_eyewear", "eyepatch", "goggles"]
+    },
+    {
+      "id": "neck_and_neckwear",
+      "slug": "tag_group:neck_and_neckwear",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Neckties, bowties, chokers, scarves, and necklaces.",
+      "sample_tags": ["necktie", "bowtie", "choker", "scarf", "ribbon", "necklace"]
+    },
+    {
+      "id": "legwear",
+      "slug": "tag_group:legwear",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Socks, stockings, tights, leggings, and footwear.",
+      "sample_tags": ["thighhighs", "kneehighs", "socks", "pantyhose", "black_thighhighs", "white_thighhighs", "boots", "shoes"]
+    },
+    {
+      "id": "accessories",
+      "slug": "tag_group:accessories",
+      "canonical_slot": 5,
+      "branch": "visual_characteristics",
+      "description": "Secondary bodily and clothing adornments.",
+      "sample_tags": ["earrings", "belt", "bracelet", "wristband", "gloves", "fingerless_gloves"]
+    },
+    {
+      "id": "image_composition",
+      "slug": "tag_group:image_composition",
+      "canonical_slot": 6,
+      "branch": "visual_characteristics",
+      "description": "Camera angles, perspective, and framing shots.",
+      "sample_tags": ["full_body", "upper_body", "cowboy_shot", "portrait", "close-up", "from_above", "from_below", "from_side", "profile", "dynamic_angle", "dutch_angle"]
+    },
+    {
+      "id": "posture",
+      "slug": "tag_group:posture",
+      "canonical_slot": 6,
+      "branch": "visual_characteristics",
+      "description": "Body positions and physical stances.",
+      "sample_tags": ["standing", "sitting", "lying", "kneeling", "leaning", "squatting", "crossed_legs"]
+    },
+    {
+      "id": "gestures",
+      "slug": "tag_group:gestures",
+      "canonical_slot": 6,
+      "branch": "visual_characteristics",
+      "description": "Hand poses, body gestures, and arm motions.",
+      "sample_tags": ["peace_sign", "hand_on_hip", "arms_behind_back", "one_arm_raised", "pointing", "waving", "heart_hands", "clenched_hands"]
+    },
+    {
+      "id": "focus_tags",
+      "slug": "tag_group:focus_tags",
+      "canonical_slot": 6,
+      "branch": "visual_characteristics",
+      "description": "Focal emphasis on specific regions or subjects.",
+      "sample_tags": ["solo_focus", "eye_focus", "foot_focus", "ass_focus", "breasts_focus"]
+    },
+    {
+      "id": "holding_tags",
+      "slug": "tag_group:holding_tags",
+      "canonical_slot": 6,
+      "branch": "visual_characteristics",
+      "description": "Items, objects, or weapons held by characters.",
+      "sample_tags": ["holding_sword", "holding_weapon", "holding_book", "holding_wand", "holding_cup", "holding_flower", "holding_umbrella"]
+    },
+    {
+      "id": "backgrounds",
+      "slug": "tag_group:backgrounds",
+      "canonical_slot": 7,
+      "branch": "visual_characteristics",
+      "description": "Background complexity, transparency, and simple backdrops.",
+      "sample_tags": ["simple_background", "white_background", "black_background", "detailed_background", "transparent_background"]
+    },
+    {
+      "id": "locations",
+      "slug": "tag_group:locations",
+      "canonical_slot": 7,
+      "branch": "visual_characteristics",
+      "description": "Settings, environments, interior rooms, and outdoor scenery.",
+      "sample_tags": ["indoors", "outdoors", "classroom", "bedroom", "street", "city", "sky", "cloud", "night_sky", "forest", "beach", "ocean", "ruins", "cyberpunk"]
+    },
+    {
+      "id": "objects",
+      "slug": "tag_group:objects",
+      "canonical_slot": 7,
+      "branch": "visual_characteristics",
+      "description": "Inanimate environment props, furniture, and technology.",
+      "sample_tags": ["window", "chair", "table", "curtains", "clock", "computer", "book", "lamp", "car"]
+    },
+    {
+      "id": "lighting",
+      "slug": "tag_group:lighting",
+      "canonical_slot": 8,
+      "branch": "visual_characteristics",
+      "description": "Illumination sources, shadow dynamics, and optical atmospheric effects.",
+      "sample_tags": ["sunlight", "moonlight", "backlighting", "cinematic_lighting", "volumetric_lighting", "lens_flare", "rim_light", "dimly_lit", "dappled_sunlight"]
+    },
+    {
+      "id": "visual_aesthetic",
+      "slug": "tag_group:visual_aesthetic",
+      "canonical_slot": 8,
+      "branch": "visual_characteristics",
+      "description": "Artistic rendering styles, visual aesthetics, and finishing moods.",
+      "sample_tags": ["depth_of_field", "blurry_background", "bokeh", "sparkles", "glowing", "retro_artstyle", "monochrome"]
+    },
+    {
+      "id": "metatags",
+      "slug": "tag_group:metatags",
+      "canonical_slot": 1,
+      "branch": "metatags",
+      "description": "Resolution indicators and quality modifiers.",
+      "sample_tags": ["highres", "absurdres", "superabsurdres"]
+    }
+  ]
+}

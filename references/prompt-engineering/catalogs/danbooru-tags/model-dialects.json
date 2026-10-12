@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Model Dialects and Prompt Profiles",
+  "description": "Cross-model translation rules, quality token placement, strip tags, and negative bundles for diffusion backends",
+  "dialects": {
+    "illustrious_xl": {
+      "name": "Illustrious XL",
+      "description": "SDXL-derived anime illustration model using native Danbooru tags and leading quality anchors.",
+      "quality_anchor_position": "head",
+      "quality_tokens": ["masterpiece", "best_quality", "very_aesthetic", "absurdres"],
+      "negative_tokens": [
+        "lowres", "worst_quality", "low_quality", "bad_anatomy", "bad_hands",
+        "missing_fingers", "extra_digit", "fewer_digits", "text", "error",
+        "cropped", "signature", "watermark", "username", "blurry"
+      ],
+      "strip_tokens": ["score_9", "score_8_up", "score_7_up", "score_6_up", "score_5_up", "score_4_up", "rating_safe", "source_anime"],
+      "artist_support": true,
+      "clip_skip": 1,
+      "slot_order": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "pony_v6_xl": {
+      "name": "Pony Diffusion V6 XL",
+      "description": "SDXL model steered by explicit score and rating tokens. Rejects traditional quality and artist tags.",
+      "quality_anchor_position": "head",
+      "quality_tokens": ["score_9", "score_8_up", "score_7_up", "score_6_up", "score_5_up", "score_4_up"],
+      "source_token_default": "source_anime",
+      "rating_token_default": "rating_safe",
+      "negative_tokens": [
+        "score_6", "score_5", "score_4", "rating_explicit", "bad_anatomy",
+        "bad_hands", "missing_fingers", "extra_digit", "fewer_digits"
+      ],
+      "strip_tokens": [
+        "masterpiece", "best_quality", "very_aesthetic", "absurdres", "highres",
+        "masterpiece,", "best quality", "high quality", "ultra detailed"
+      ],
+      "artist_support": false,
+      "clip_skip": 2,
+      "slot_order": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "animagine_xl_v3": {
+      "name": "Animagine XL 3.1 / 4.0",
+      "description": "Strictly structured SDXL model placing quality tokens and aesthetic anchors at the TAIL of the prompt.",
+      "quality_anchor_position": "tail",
+      "quality_tokens": ["masterpiece", "high score", "great score", "absurdres"],
+      "negative_tokens": [
+        "lowres", "bad anatomy", "bad hands", "text", "error", "missing fingers",
+        "extra digit", "fewer digits", "cropped", "worst quality", "low quality",
+        "normal quality", "jpeg artifacts", "signature", "watermark", "username",
+        "blurry", "artist name"
+      ],
+      "strip_tokens": ["score_9", "score_8_up", "score_7_up", "score_6_up", "source_anime"],
+      "artist_support": true,
+      "clip_skip": 1,
+      "slot_order": [2, 3, 4, 5, 6, 7, 1]
+    },
+    "novelai_v3": {
+      "name": "NovelAI Diffusion V3",
+      "description": "Anime-focused model with strong Danbooru tag conditioning and curly-brace weighting.",
+      "quality_anchor_position": "head",
+      "quality_tokens": ["masterpiece", "best quality", "very aesthetic", "absurdres"],
+      "negative_tokens": ["lowres", "bad anatomy", "bad hands", "text", "error", "missing fingers", "extra digits", "fewer digits", "cropped", "worst quality", "low quality"],
+      "strip_tokens": ["score_9", "score_8_up", "source_anime"],
+      "artist_support": true,
+      "clip_skip": 1,
+      "slot_order": [1, 2, 3, 4, 5, 6, 7, 8]
+    },
+    "wan_video": {
+      "name": "Wan 2.1 / 2.2 Video",
+      "description": "Diffusion Transformer (DiT) text-to-video pipeline. Benefits from structured composition, lighting, and action slots.",
+      "quality_anchor_position": "head",
+      "quality_tokens": ["masterpiece", "cinematic", "high quality"],
+      "negative_tokens": ["blurry", "low quality", "distorted", "worst quality", "bad anatomy", "flickering"],
+      "strip_tokens": ["score_9", "score_8_up", "rating_safe"],
+      "artist_support": true,
+      "clip_skip": 1,
+      "slot_order": [1, 2, 3, 4, 5, 6, 7, 8]
+    }
+  }
+}
