@@ -924,8 +924,163 @@ def cmd_prompt(args: argparse.Namespace) -> int:
         if getattr(args, "json", False):
             compile_argv.append("--json")
         return compile_main(compile_argv)
+    elif prompt_cmd == "refine":
+        from tools.prompt_evaluator import main as refine_main
+        refine_argv = ["--prompt", args.prompt, "--model", getattr(args, "model", "wan_video")]
+        if getattr(args, "negative", None):
+            refine_argv.extend(["--negative", args.negative])
+        if getattr(args, "json", False):
+            refine_argv.append("--json")
+        return refine_main(refine_argv)
     else:
-        print("Usage: harness prompt compile --prompt <tags> [--model <model>]")
+        print("Usage: harness prompt {compile,refine} [options]")
+        return 2
+
+
+def cmd_video(args: argparse.Namespace) -> int:
+    import json
+    from tools.test_comfy_video import (
+        ComfyVideoClient,
+        DEFAULT_NEGATIVE_PROMPT,
+        DEFAULT_PROMPT,
+        run_test,
+    )
+
+    video_cmd = getattr(args, "video_cmd", None)
+    if video_cmd == "status":
+        server = getattr(args, "server", "127.0.0.1:8188")
+        client = ComfyVideoClient(server=server)
+        try:
+            q = client.get_queue()
+            prompt_id = getattr(args, "prompt_id", None)
+            history_entry = None
+            if prompt_id:
+                h = client.get_history(prompt_id)
+                history_entry = h.get(prompt_id)
+            if getattr(args, "json", False):
+                print(json.dumps({"queue": q, "history": history_entry}, indent=2))
+                return 0
+            running = q.get("queue_running", [])
+            pending = q.get("queue_pending", [])
+            print(f"=== ComfyUI Video Queue ({server}) ===")
+            print(f"Running Tasks: {len(running)}")
+            for item in running:
+                print(f"  - Prompt ID: {item[1]}")
+            print(f"Pending Tasks: {len(pending)}")
+            for item in pending:
+                print(f"  - Prompt ID: {item[1]}")
+            if history_entry:
+                status_str = history_entry.get("status", {}).get("status_str", "unknown")
+                print(f"\nPrompt {prompt_id} Status: {status_str}")
+            return 0
+        except Exception as e:
+            print(f"Error querying ComfyUI status: {e}", file=sys.stderr)
+            return 1
+
+    elif video_cmd == "models":
+        models_dir = Path(getattr(args, "models_dir", r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models"))
+        if not models_dir.exists():
+            print(f"Models directory not found: {models_dir}", file=sys.stderr)
+            return 1
+        categorized = {"diffusion_models": [], "loras": [], "text_encoders": [], "vae": []}
+        for cat in categorized:
+            p = models_dir / cat
+            if p.exists():
+                for root, _, files in os.walk(p):
+                    for f in files:
+                        if f.endswith((".safetensors", ".ckpt", ".pt", ".bin")):
+                            full_p = Path(root) / f
+                            rel_p = full_p.relative_to(p)
+                            size_gb = round(full_p.stat().st_size / (1024**3), 2)
+                            categorized[cat].append({"name": str(rel_p).replace("\\", "/"), "size_gb": size_gb})
+        if getattr(args, "json", False):
+            print(json.dumps(categorized, indent=2))
+            return 0
+        print("=== Local Wan Models & Components ===")
+        for cat, items in categorized.items():
+            print(f"\n{cat.upper()} ({len(items)}):")
+            for item in items:
+                print(f"  - {item['name']} ({item['size_gb']} GB)")
+        return 0
+
+    elif video_cmd == "generate":
+        prompt = getattr(args, "prompt", DEFAULT_PROMPT)
+        negative_prompt = getattr(args, "negative_prompt", None) or DEFAULT_NEGATIVE_PROMPT
+        length = getattr(args, "length", 17)
+        width = getattr(args, "width", 640)
+        height = getattr(args, "height", 640)
+        steps = getattr(args, "steps", 4)
+        fps = getattr(args, "fps", 16.0)
+        seed = getattr(args, "seed", None)
+        output_dir = getattr(args, "output_dir", "results/video")
+        server = getattr(args, "server", "127.0.0.1:8188")
+        no_wait = getattr(args, "no_wait", False)
+        compile_tags = getattr(args, "compile", False)
+        refine_llm = getattr(args, "refine_llm", False)
+        dialect = getattr(args, "dialect", "wan_video")
+
+        try:
+            res = run_test(
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                length=length,
+                width=width,
+                height=height,
+                steps=steps,
+                fps=fps,
+                seed=seed,
+                output_dir=output_dir,
+                wait=not no_wait,
+                server=server,
+                compile_tags=compile_tags,
+                refine_with_llm=refine_llm,
+                model_dialect=dialect,
+            )
+            if getattr(args, "json", False):
+                print(json.dumps(res, indent=2))
+                return 0
+            print("\n=== Video Generation Result ===")
+            print(f"Status:    {res.get('status')}")
+            print(f"Prompt ID: {res.get('prompt_id')}")
+            if res.get("downloaded_files"):
+                print("Generated Video File(s):")
+                for f in res["downloaded_files"]:
+                    print(f"  => {f}")
+            elif no_wait:
+                print(f"Non-blocking job submitted. Check status with: harness video status --prompt-id {res.get('prompt_id')}")
+            return 0
+        except Exception as e:
+            print(f"Error during video generation: {e}", file=sys.stderr)
+            return 1
+
+    elif video_cmd == "purge":
+        from tools.purge_media_history import main as purge_main
+        purge_argv = []
+        if getattr(args, "all", False):
+            purge_argv.append("--all")
+        if getattr(args, "comfy_history", False):
+            purge_argv.append("--comfy-history")
+        if getattr(args, "strip_metadata", False):
+            purge_argv.append("--strip-metadata")
+        if getattr(args, "delete_videos", False):
+            purge_argv.append("--delete-videos")
+        if getattr(args, "shell_history", False):
+            purge_argv.append("--shell-history")
+        if getattr(args, "dry_run", False):
+            purge_argv.append("--dry-run")
+        if getattr(args, "json", False):
+            purge_argv.append("--json")
+        server = getattr(args, "server", None)
+        if server:
+            purge_argv.extend(["--server", server])
+        if getattr(args, "target_dir", None):
+            for td in args.target_dir:
+                purge_argv.extend(["--target-dir", td])
+        return purge_main(purge_argv)
+
+    else:
+        print("Usage: harness video {generate,status,models,purge} [options]")
+        return 2
         return 2
 
 
@@ -1026,6 +1181,47 @@ def build_parser() -> argparse.ArgumentParser:
     p_pr_compile.add_argument("--model", "-m", default="illustrious_xl", choices=["illustrious_xl", "pony_v6_xl", "animagine_xl_v3", "wan_video", "novelai_v3"], help="Target model dialect")
     p_pr_compile.add_argument("--negative", "-n", default=None, help="Additional negative tags")
 
+    p_pr_refine = pr_sub.add_parser("refine", help="Use local LLM to evaluate natural language and expand Danbooru tags", parents=[shared])
+    p_pr_refine.add_argument("--prompt", "-p", required=True, help="Natural language description or rough tags")
+    p_pr_refine.add_argument("--model", "-m", default="wan_video", choices=["illustrious_xl", "pony_v6_xl", "animagine_xl_v3", "wan_video", "novelai_v3"], help="Target model dialect")
+    p_pr_refine.add_argument("--negative", "-n", default=None, help="Additional negative tags")
+
+    # video
+    p_video = sub.add_parser("video", help="Interact with local ComfyUI Wan 2.1/2.2 video generation", parents=[shared])
+    v_sub = p_video.add_subparsers(dest="video_cmd")
+
+    p_v_gen = v_sub.add_parser("generate", help="Trigger text-to-video generation", parents=[shared])
+    p_v_gen.add_argument("--prompt", "-p", default="A glowing blue futuristic digital cube rotating slowly on a dark reflective surface, 4k, cinematic", help="Video prompt description")
+    p_v_gen.add_argument("--negative-prompt", "-n", default=None, help="Negative prompt")
+    p_v_gen.add_argument("--length", type=int, default=17, help="Frame count (e.g. 17 or 81, default: 17)")
+    p_v_gen.add_argument("--width", type=int, default=640, help="Frame width (default: 640)")
+    p_v_gen.add_argument("--height", type=int, default=640, help="Frame height (default: 640)")
+    p_v_gen.add_argument("--steps", type=int, default=4, help="Sampling steps (default: 4)")
+    p_v_gen.add_argument("--fps", type=float, default=16.0, help="Video FPS (default: 16)")
+    p_v_gen.add_argument("--seed", type=int, default=None, help="Random seed")
+    p_v_gen.add_argument("--output-dir", default="results/video", help="Directory to save generated video")
+    p_v_gen.add_argument("--no-wait", "--async", dest="no_wait", action="store_true", help="Non-blocking queue submission")
+    p_v_gen.add_argument("--server", default="127.0.0.1:8188", help="ComfyUI server address")
+    p_v_gen.add_argument("--compile", action="store_true", help="Compile tags into canonical sequence")
+    p_v_gen.add_argument("--refine-llm", action="store_true", help="Use local LLM to evaluate and expand tags")
+    p_v_gen.add_argument("--dialect", default="wan_video", help="Model dialect for compilation")
+
+    p_v_status = v_sub.add_parser("status", help="Check ComfyUI video queue status", parents=[shared])
+    p_v_status.add_argument("--prompt-id", default=None, help="Optional prompt ID to check")
+    p_v_status.add_argument("--server", default="127.0.0.1:8188", help="ComfyUI server address")
+
+    p_v_models = v_sub.add_parser("models", help="List installed Wan models, LoRAs, and VAEs", parents=[shared])
+    p_v_models.add_argument("--models-dir", default=r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models", help="Path to models directory")
+
+    p_v_purge = v_sub.add_parser("purge", help="Purge ComfyUI history, prompt metadata, or video artifacts", parents=[shared])
+    p_v_purge.add_argument("--all", action="store_true", help="Purge all: ComfyUI history, metadata, and videos")
+    p_v_purge.add_argument("--comfy-history", action="store_true", help="Purge ComfyUI in-memory generation history")
+    p_v_purge.add_argument("--strip-metadata", action="store_true", help="Losslessly strip embedded prompt metadata from MP4/WEBM")
+    p_v_purge.add_argument("--delete-videos", action="store_true", help="Delete generated video files from results/video and ComfyUI output")
+    p_v_purge.add_argument("--shell-history", action="store_true", help="Remove generation commands from PowerShell history")
+    p_v_purge.add_argument("--server", default="127.0.0.1:8188", help="ComfyUI server address")
+    p_v_purge.add_argument("--target-dir", action="append", help="Specific directory to purge (can be passed multiple times)")
+
     return parser
 
 
@@ -1066,6 +1262,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_tui(args)
     if args.cmd == "prompt":
         return cmd_prompt(args)
+    if args.cmd == "video":
+        return cmd_video(args)
+
+    return 2
 
     return 2
 

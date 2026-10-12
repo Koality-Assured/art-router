@@ -32,6 +32,28 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
   - Created scripts/tools/compile_prompt.py CLI and harness prompt compile with 100% test coverage
   - Created danbooru-tagging Schema V2 skill and regenerated routing index
 
+### 2026-10-11 — Add media-history-purge skill and harness video purge command
+
+- **Requesting user:** Robbie
+- **AI agent:** artistic-production
+- **User request:** Store a skill for cleanup that does all this in the art router then.
+- **Summary:**
+  - Created media-history-purge Schema V2 skill in art-router
+  - Created purge_media_history tool with ComfyUI memory, ffmpeg metadata strip, artifact deletion, and shell history scrub
+  - Integrated harness video purge CLI command and regenerated routing dispatch
+
+### 2026-10-11 — Integrate ComfyUI Wan 2.2 video generation into art-router harness
+
+- **Requesting user:** Distasteful
+- **AI agent:** antigravity
+- **User request:** Make sure ComfyUI Wan 2.2 video generation is integrated into art harness
+- **Summary:**
+  - Ported ComfyVideoClient scripts/tools/test_comfy_video.py with WebSocket progress streaming and auto MP4 download
+  - Integrated harness video generate/status/models command into art-router harness.py
+  - Added stdio MCP server scripts/tools/comfy_video_mcp_server.py exposing video tools to coding agents
+  - Created video-generation skill in ai-tooling/skills/artistic/video-generation/SKILL.md with Schema V2 validation
+  - Added test_comfy_video_integration.py and supporting/comfyui/ documentation
+
 ### 2026-10-08 — Summarize art bundle routes in text output
 
 - **Requesting user:** Robbie
