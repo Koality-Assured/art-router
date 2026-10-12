@@ -27,10 +27,8 @@ logger = logging.getLogger("media_purge")
 
 DEFAULT_SERVER = "127.0.0.1:8188"
 DEFAULT_OUTPUT_DIRS = [
+    Path.home() / "Videos" / "Generated",
     Path(r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\output"),
-    Path(r"C:\Code\KA\ai-router\results\video"),
-    Path(r"C:\Code\KA\art-router\results\video"),
-    Path(__file__).resolve().parents[2] / "results" / "video",
 ]
 PS_HISTORY_PATH = (
     Path(os.environ.get("APPDATA", ""))
@@ -77,7 +75,7 @@ def strip_video_metadata(
     """Strip embedded prompt and workflow metadata from MP4/video files using ffmpeg."""
     target_dirs = directories or DEFAULT_OUTPUT_DIRS
     ffmpeg_exe = shutil.which("ffmpeg")
-    if not ffmpeg_exe:
+    if not ffmpeg_exe and not dry_run:
         logger.warning("ffmpeg executable not found in PATH; cannot strip metadata.")
         return []
 

@@ -44,6 +44,20 @@ DEFAULT_NEGATIVE_PROMPT = (
 )
 
 
+def get_default_output_dir() -> str:
+    """Return default output directory for generated video assets outside git repos."""
+    env_dir = os.environ.get("COMFY_VIDEO_OUTPUT_DIR")
+    if env_dir:
+        p = Path(env_dir)
+    else:
+        p = Path.home() / "Videos" / "Generated"
+    p.mkdir(parents=True, exist_ok=True)
+    return str(p)
+
+
+DEFAULT_OUTPUT_DIR = get_default_output_dir()
+
+
 class ComfyVideoClient:
     """HTTP & WebSocket client for ComfyUI video generation workflows."""
 
@@ -354,13 +368,13 @@ class ComfyVideoClient:
         self,
         history: dict[str, Any],
         prompt_id: str,
-        output_dir: Path | str = "results/video",
+        output_dir: Path | str | None = None,
     ) -> list[Path]:
         """Extract output video files from history entry and download them locally."""
-        out_dir = Path(output_dir)
+        target_dir = output_dir or DEFAULT_OUTPUT_DIR
+        out_dir = Path(target_dir)
         if not out_dir.is_absolute():
-            repo_root = Path(__file__).resolve().parents[2]
-            out_dir = (repo_root / out_dir).resolve()
+            out_dir = (Path(DEFAULT_OUTPUT_DIR) / out_dir).resolve()
         out_dir.mkdir(parents=True, exist_ok=True)
 
         prompt_history = history.get(prompt_id, {})
@@ -401,7 +415,7 @@ def run_test(
     steps: int = 4,
     fps: float = 16.0,
     seed: int | None = None,
-    output_dir: str = "results/video",
+    output_dir: str | None = None,
     wait: bool = True,
     server: str = DEFAULT_SERVER,
     compile_tags: bool = False,
@@ -409,6 +423,7 @@ def run_test(
     model_dialect: str = "wan_video",
 ) -> dict[str, Any]:
     """Execute end-to-end test run against ComfyUI instance."""
+    effective_out_dir = output_dir or DEFAULT_OUTPUT_DIR
     if refine_with_llm:
         try:
             from tools.prompt_evaluator import LocalPromptEvaluator
@@ -465,12 +480,12 @@ def run_test(
     logger.info("Waiting for execution and streaming progress over WebSocket...")
     history = asyncio.run(client.stream_progress_and_wait(prompt_id, client_id=client_id))
 
-    downloaded = client.download_output_video(history, prompt_id, output_dir=output_dir)
+    downloaded = client.download_output_video(history, prompt_id, output_dir=effective_out_dir)
     return {
         "status": "completed",
         "prompt_id": prompt_id,
         "downloaded_files": [str(p) for p in downloaded],
-        "output_dir": output_dir,
+        "output_dir": effective_out_dir,
     }
 
 
@@ -484,7 +499,7 @@ def main() -> int:
     parser.add_argument("--steps", type=int, default=4, help="Sampling steps (default: 4 for lightx2v LoRA)")
     parser.add_argument("--fps", type=float, default=16.0, help="Output video frames per second")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
-    parser.add_argument("--output-dir", default="results/video", help="Directory to save output video")
+    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR, help="Directory to save output video (default: ~/Videos/Generated)")
     parser.add_argument("--server", default=DEFAULT_SERVER, help="ComfyUI server address (default: 127.0.0.1:8188)")
     parser.add_argument("--no-wait", action="store_true", help="Queue the prompt and return immediately without waiting")
     parser.add_argument("--status", action="store_true", help="Check queue status and exit")
