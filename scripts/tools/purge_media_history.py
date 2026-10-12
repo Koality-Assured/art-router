@@ -29,7 +29,7 @@ DEFAULT_SERVER = "127.0.0.1:8188"
 DEFAULT_COMFY_OUTPUT = (
     Path(os.environ["COMFY_OUTPUT_DIR"])
     if "COMFY_OUTPUT_DIR" in os.environ
-    else Path(r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\output")
+    else Path.home() / "ComfyUI" / "output"
 )
 DEFAULT_OUTPUT_DIRS = [
     Path(os.environ.get("COMFY_VIDEO_OUTPUT_DIR", Path.home() / "Videos" / "Generated")),
@@ -159,6 +159,7 @@ def clean_powershell_history(
     history_file: Path | None = None,
     patterns: list[str] | None = None,
     dry_run: bool = False,
+    auto_confirm: bool = False,
 ) -> dict[str, Any]:
     """Remove command history lines containing local video prompts or execution flags."""
     target_file = history_file or PS_HISTORY_PATH
@@ -202,7 +203,18 @@ def clean_powershell_history(
         }
 
     if removed_count > 0:
+        if not auto_confirm:
+            ans = input(f"Are you sure you want to remove {removed_count} lines from {target_file}? [y/N] ")
+            if ans.lower() not in ("y", "yes"):
+                logger.info("Operation aborted by user.")
+                return {"status": "aborted"}
+
         try:
+            # Create backup first
+            backup_file = target_file.with_name(f"{target_file.name}.bak")
+            shutil.copy2(target_file, backup_file)
+            logger.info("Created backup at %s", backup_file)
+
             temp_history = target_file.with_name(f"{target_file.name}.{os.getpid()}.tmp")
             temp_history.write_text("\n".join(kept_lines) + ("\n" if kept_lines else ""), encoding="utf-8")
             os.replace(temp_history, target_file)
@@ -227,11 +239,12 @@ def purge_all(
     directories: list[Path] | None = None,
     delete_videos: bool = False,
     dry_run: bool = False,
+    auto_confirm: bool = False,
 ) -> dict[str, Any]:
     """Execute complete cleanup: ComfyUI in-memory queue, file metadata/deletion, and PowerShell history."""
     report: dict[str, Any] = {
         "comfy_queue": clear_comfy_history(server=server, dry_run=dry_run),
-        "shell_history": clean_powershell_history(dry_run=dry_run),
+        "shell_history": clean_powershell_history(dry_run=dry_run, auto_confirm=auto_confirm),
     }
     if delete_videos:
         report["deleted_videos"] = delete_generated_videos(directories=directories, dry_run=dry_run)
@@ -250,6 +263,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--delete-videos", action="store_true", help="Delete generated video files from output folders")
     parser.add_argument("--shell-history", action="store_true", help="Clean video prompt entries from PowerShell history")
     parser.add_argument("--dry-run", action="store_true", help="Simulate cleanup without modifying state or deleting files")
+    parser.add_argument("--yes", action="store_true", help="Automatically confirm prompts")
     parser.add_argument("--server", default=DEFAULT_SERVER, help="ComfyUI server address (default: 127.0.0.1:8188)")
     parser.add_argument("--target-dir", action="append", help="Specific directory to purge (can be passed multiple times)")
     parser.add_argument("--json", action="store_true", help="Format output as JSON")
@@ -266,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     report: dict[str, Any] = {}
 
     if args.all:
-        report = purge_all(server=args.server, directories=target_dirs, delete_videos=args.delete_videos, dry_run=args.dry_run)
+        report = purge_all(server=args.server, directories=target_dirs, delete_videos=args.delete_videos, dry_run=args.dry_run, auto_confirm=args.yes)
     else:
         if args.comfy_history:
             report["comfy_queue"] = clear_comfy_history(server=args.server, dry_run=args.dry_run)
@@ -275,7 +289,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.strip_metadata:
             report["stripped_metadata"] = strip_video_metadata(directories=target_dirs, dry_run=args.dry_run)
         if args.shell_history:
-            report["shell_history"] = clean_powershell_history(dry_run=args.dry_run)
+            report["shell_history"] = clean_powershell_history(dry_run=args.dry_run, auto_confirm=args.yes)
 
     if args.json:
         print(json.dumps(report, indent=2))

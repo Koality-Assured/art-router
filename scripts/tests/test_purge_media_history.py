@@ -49,7 +49,7 @@ class TestPurgeMediaHistory(unittest.TestCase):
             self.assertEqual(dry_res.get("kept_lines"), 4)
 
             # Mutating run
-            run_res = clean_powershell_history(history_file=history_file, dry_run=False)
+            run_res = clean_powershell_history(history_file=history_file, dry_run=False, auto_confirm=True)
             self.assertEqual(run_res.get("status"), "purged")
             self.assertEqual(run_res.get("removed_lines"), 2)
 

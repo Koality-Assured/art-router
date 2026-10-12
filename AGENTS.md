@@ -93,11 +93,12 @@ Non-negotiable for this agent and every sub-agent. Skills cannot waive these.
 3. **Compress bulky dumps** — Headroom when available; else summarize or truncate via `scripts/_lib/tool_output.py`. Keep structural facts after compress. [`supporting/headroom/`](./supporting/headroom/)
 4. **Measure** — `python scripts/cost-layers/validate_cost_layers.py` when asked for dry-run / savings / accuracy.
 5. **Sectional Subtree Extraction** — For large corpus or standards docs, extract only the relevant heading subtree or line-bounded range; avoid dumping full files.
-6. **Inherit on spawn** — do not instruct specialists to dump corpus or skip compression; spawn with clean-slate context.
+6. **Clean-slate spawn boundary** — Every specialist spawned through Codex collaboration API MUST explicitly set `fork_turns: "none"` (API defaults to `"all"`; never omit or set `"all"`). Payload MUST restate delegated authority, exact scope, relevant facts, and explicit user approval. Never pass parent conversation transcripts or history. Follow [`A2A protocol`](./ai-tooling/a2a/interaction-protocol.md) and [`context-management standard`](./docs/standards/context-management.md).
+7. **Child cost-layer instructions** — Every child task MUST retain root Critical qmd, ast-grep, and Headroom requirements; never instruct specialists to dump corpus or skip compression.
 
 ### Isolation (mutating work)
 
-Before create/edit for **new** work: `spawn_worktree.py check` → `add` → hand worktree to specialist. Disjoint areas may parallel; overlapping must not. Full SoT: [`ai-tooling/skills/isolate-work/SKILL.md`](ai-tooling/skills/meta/isolate-work/SKILL.md) and `python scripts/routing/spawn_worktree.py`.
+Before mutating, create a unique task worktree with `python scripts/routing/spawn_worktree.py create --slug <task>`. After authorized merge, preview `python scripts/cli/harness.py clean --pr <number>`; apply after checks pass. Apply archives it and unregisters it; files and branch remain. Never force-remove. See [`isolate-work`](ai-tooling/skills/meta/isolate-work/SKILL.md).
 
 ### Specialist dispatch
 

@@ -461,11 +461,10 @@ class TestAuthCLICommands(unittest.TestCase):
         self.assertIn("No stored credentials found for 'gemini'", capture.getvalue())
 
     def test_auth_login_api_key_warning(self) -> None:
-        err_capture = io.StringIO()
-        with patch("sys.stderr", err_capture):
+        with self.assertLogs("harness", level="WARNING") as cm:
             ret = main(["auth", "login", "openai", "--api-key", "sk-proj-testkey1234567890abcdef123456"])
         self.assertEqual(ret, 0)
-        self.assertIn("warning: providing secrets via the '--api-key' CLI argument", err_capture.getvalue())
+        self.assertTrue(any("DEPRECATED: the '--api-key' CLI argument is deprecated" in msg for msg in cm.output))
 
 
 class TestLoopbackAndOAuthSecurity(unittest.TestCase):
