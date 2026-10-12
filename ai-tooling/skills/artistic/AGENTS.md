@@ -16,3 +16,5 @@ Portable workflows for creating artwork and reviewing requests, representation r
 - [`representation-routing/`](./representation-routing/) selects representation rows and cross-cutting controls.
 - [`request-contract/`](./request-contract/) preserves request parameters, negotiates host capabilities, and checks execution drift.
 - [`production-workflow/`](./production-workflow/) creates artwork and packages output under declared host capabilities.
+- [`video-generation/`](./video-generation/) generates local Wan 2.1/2.2 video clips via ComfyUI upon explicit operator request.
+- [`media-history-purge/`](./media-history-purge/) purges ComfyUI memory, strips prompt metadata, and cleans local media artifacts.

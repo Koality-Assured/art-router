@@ -1023,8 +1023,30 @@ def cmd_video(args: argparse.Namespace) -> int:
             print(f"Error during video generation: {e}", file=sys.stderr)
             return 1
 
+    elif video_cmd == "purge":
+        from tools.purge_media_history import main as purge_main
+        purge_argv = []
+        if getattr(args, "all", False):
+            purge_argv.append("--all")
+        if getattr(args, "comfy_history", False):
+            purge_argv.append("--comfy-history")
+        if getattr(args, "strip_metadata", False):
+            purge_argv.append("--strip-metadata")
+        if getattr(args, "delete_videos", False):
+            purge_argv.append("--delete-videos")
+        if getattr(args, "shell_history", False):
+            purge_argv.append("--shell-history")
+        if getattr(args, "dry_run", False):
+            purge_argv.append("--dry-run")
+        if getattr(args, "json", False):
+            purge_argv.append("--json")
+        server = getattr(args, "server", None)
+        if server:
+            purge_argv.extend(["--server", server])
+        return purge_main(purge_argv)
+
     else:
-        print("Usage: harness video {generate,status,models} [options]")
+        print("Usage: harness video {generate,status,models,purge} [options]")
         return 2
 
 
@@ -1140,6 +1162,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_v_models = v_sub.add_parser("models", help="List installed Wan models, LoRAs, and VAEs", parents=[shared])
     p_v_models.add_argument("--models-dir", default=r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models", help="Path to models directory")
+
+    p_v_purge = v_sub.add_parser("purge", help="Purge ComfyUI history, prompt metadata, or video artifacts", parents=[shared])
+    p_v_purge.add_argument("--all", action="store_true", help="Purge all: ComfyUI history, metadata, and videos")
+    p_v_purge.add_argument("--comfy-history", action="store_true", help="Purge ComfyUI in-memory generation history")
+    p_v_purge.add_argument("--strip-metadata", action="store_true", help="Losslessly strip embedded prompt metadata from MP4/WEBM")
+    p_v_purge.add_argument("--delete-videos", action="store_true", help="Delete generated video files from results/video and ComfyUI output")
+    p_v_purge.add_argument("--shell-history", action="store_true", help="Remove generation commands from PowerShell history")
+    p_v_purge.add_argument("--server", default="127.0.0.1:8188", help="ComfyUI server address")
 
     return parser
 

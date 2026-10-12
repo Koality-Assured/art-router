@@ -9,6 +9,17 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-10-11 — Add media-history-purge skill and harness video purge command
+
+- **Requesting user:** Robbie
+- **AI agent:** artistic-production
+- **User request:** Store a skill for cleanup that does all this in the art router then.
+- **Summary:**
+  - Created media-history-purge Schema V2 skill in art-router
+  - Created purge_media_history tool with ComfyUI memory, ffmpeg metadata strip, artifact deletion, and shell history scrub
+  - Integrated harness video purge CLI command and regenerated routing dispatch
+
 ### 2026-10-11 — Integrate ComfyUI Wan 2.2 video generation into art-router harness
 
 - **Requesting user:** Distasteful
