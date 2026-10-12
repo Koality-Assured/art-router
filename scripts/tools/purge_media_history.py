@@ -28,6 +28,8 @@ logger = logging.getLogger("media_purge")
 DEFAULT_SERVER = "127.0.0.1:8188"
 DEFAULT_OUTPUT_DIRS = [
     Path(r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\output"),
+    Path(r"C:\Code\KA\ai-router\results\video"),
+    Path(r"C:\Code\KA\art-router\results\video"),
     Path(__file__).resolve().parents[2] / "results" / "video",
 ]
 PS_HISTORY_PATH = (
@@ -214,6 +216,7 @@ def clean_powershell_history(
 
 def purge_all(
     server: str = DEFAULT_SERVER,
+    directories: list[Path] | None = None,
     delete_videos: bool = False,
     dry_run: bool = False,
 ) -> dict[str, Any]:
@@ -223,9 +226,9 @@ def purge_all(
         "shell_history": clean_powershell_history(dry_run=dry_run),
     }
     if delete_videos:
-        report["deleted_videos"] = delete_generated_videos(dry_run=dry_run)
+        report["deleted_videos"] = delete_generated_videos(directories=directories, dry_run=dry_run)
     else:
-        report["stripped_metadata"] = strip_video_metadata(dry_run=dry_run)
+        report["stripped_metadata"] = strip_video_metadata(directories=directories, dry_run=dry_run)
     return report
 
 
@@ -240,6 +243,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--shell-history", action="store_true", help="Clean video prompt entries from PowerShell history")
     parser.add_argument("--dry-run", action="store_true", help="Simulate cleanup without modifying state or deleting files")
     parser.add_argument("--server", default=DEFAULT_SERVER, help="ComfyUI server address (default: 127.0.0.1:8188)")
+    parser.add_argument("--target-dir", action="append", help="Specific directory to purge (can be passed multiple times)")
     parser.add_argument("--json", action="store_true", help="Format output as JSON")
 
     args = parser.parse_args(argv)
@@ -250,17 +254,18 @@ def main(argv: list[str] | None = None) -> int:
         args.dry_run = True
         logger.info("No explicit cleanup flags specified; running in safe --dry-run mode.")
 
+    target_dirs = [Path(p) for p in args.target_dir] if args.target_dir else None
     report: dict[str, Any] = {}
 
     if args.all:
-        report = purge_all(server=args.server, delete_videos=args.delete_videos, dry_run=args.dry_run)
+        report = purge_all(server=args.server, directories=target_dirs, delete_videos=args.delete_videos, dry_run=args.dry_run)
     else:
         if args.comfy_history:
             report["comfy_queue"] = clear_comfy_history(server=args.server, dry_run=args.dry_run)
         if args.delete_videos:
-            report["deleted_videos"] = delete_generated_videos(dry_run=args.dry_run)
+            report["deleted_videos"] = delete_generated_videos(directories=target_dirs, dry_run=args.dry_run)
         elif args.strip_metadata:
-            report["stripped_metadata"] = strip_video_metadata(dry_run=args.dry_run)
+            report["stripped_metadata"] = strip_video_metadata(directories=target_dirs, dry_run=args.dry_run)
         if args.shell_history:
             report["shell_history"] = clean_powershell_history(dry_run=args.dry_run)
 
