@@ -22,7 +22,7 @@ from tool_output import estimate_tokens  # noqa: E402
 
 # Budget ceilings in characters (chars / 4 ~= tokens)
 BUDGET_CEILINGS: dict[str, int] = {
-    "AGENTS.md": 15500,           # Root AGENTS.md ceiling (~3,875 tokens)
+    "AGENTS.md": 14500,           # Root AGENTS.md ceiling (~3,625 tokens)
     "routing/AGENTS.md": 4500,     # Next-step routing index (~1,125 tokens)
     "routing/by-task.md": 10000,   # Intent pattern matrix (~2,500 tokens)
     "routing/area-map.md": 5000,   # Area map (~1,250 tokens)
