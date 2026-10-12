@@ -1,4 +1,4 @@
 pyyaml==6.0.2
-cryptography==43.0.1
+cryptography==50.0.2
 ruff==0.6.9
 bandit==1.7.10
