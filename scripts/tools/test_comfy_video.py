@@ -358,6 +358,9 @@ class ComfyVideoClient:
     ) -> list[Path]:
         """Extract output video files from history entry and download them locally."""
         out_dir = Path(output_dir)
+        if not out_dir.is_absolute():
+            repo_root = Path(__file__).resolve().parents[2]
+            out_dir = (repo_root / out_dir).resolve()
         out_dir.mkdir(parents=True, exist_ok=True)
 
         prompt_history = history.get(prompt_id, {})
