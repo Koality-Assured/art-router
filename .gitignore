@@ -44,6 +44,9 @@ results/**/*.docx
 results/**/*.xlsx
 results/**/*.pdf
 results/**/*.zip
+results/video/
+*.mp4
+*.webm
 
 # Reference full dumps / binaries (keep compact catalogs/*.json)
 references/**/*.pdf

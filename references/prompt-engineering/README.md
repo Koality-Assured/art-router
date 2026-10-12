@@ -9,3 +9,4 @@ Human entry point only. Agents: start at [`../AGENTS.md`](../AGENTS.md) and open
 - [`core-principles.md`](./core-principles.md) — Empirical prompt engineering principles, structured framing, reasoning steering, and degradation anti-patterns.
 - [`context-and-cost-optimization.md`](./context-and-cost-optimization.md) — Prefix caching maximization, context budgeting, token discipline, and reliable cost reduction.
 - [`catalogs/prompt-techniques.json`](./catalogs/prompt-techniques.json) — Structured taxonomy of prompt techniques, empirical token impact, and reliability scores.
+- [`catalogs/danbooru-tags/`](./catalogs/danbooru-tags/) — Machine-readable Danbooru tag ontology, category schemas, tag groups, and diffusion model dialects (`categories.json`, `tag-groups.json`, `model-dialects.json`).

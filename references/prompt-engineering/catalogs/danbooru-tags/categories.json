@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Danbooru Tag Categories",
+  "description": "Native Danbooru database tag category schema IDs and presentation properties",
+  "categories": {
+    "0": {
+      "id": 0,
+      "name": "general",
+      "prefix": "gen:",
+      "display_color": "#0073ff",
+      "description": "Visual descriptors including clothing, physical traits, objects, actions, and settings.",
+      "estimated_corpus_percentage": 90.5
+    },
+    "1": {
+      "id": 1,
+      "name": "artist",
+      "prefix": "art:",
+      "display_color": "#ff0000",
+      "description": "Illustrators, mangaka, animators, and circle creators.",
+      "estimated_corpus_percentage": 4.5
+    },
+    "3": {
+      "id": 3,
+      "name": "copyright",
+      "prefix": "copy:",
+      "display_color": "#c000c0",
+      "description": "Intellectual properties, franchise names, game series, or anime titles.",
+      "estimated_corpus_percentage": 2.5
+    },
+    "4": {
+      "id": 4,
+      "name": "character",
+      "prefix": "char:",
+      "display_color": "#00aa00",
+      "description": "Specific fictional entities, named individuals, and mascots.",
+      "estimated_corpus_percentage": 2.0
+    },
+    "5": {
+      "id": 5,
+      "name": "meta",
+      "prefix": "meta:",
+      "display_color": "#e0a000",
+      "description": "Administrative tags, resolution indicators, image quality modifiers, and source attributes.",
+      "estimated_corpus_percentage": 0.5
+    }
+  }
+}
