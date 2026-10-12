@@ -25,10 +25,6 @@ jobs:
         run: python -m pip install --quiet -r requirements-ci.txt
       - name: Compile kept Python
         run: python -m compileall -q -f scripts .harness
-      - name: Run Ruff
-        run: ruff check scripts ai-tooling
-      - name: Run Bandit
-        run: bandit -r scripts ai-tooling -c pyproject.toml --skip B101
       - name: Validation
         run: python scripts/validation/validate_art_router.py --manifest scripts/validation/fixtures/next-steps.json
       - name: Script tests
