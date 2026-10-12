@@ -405,10 +405,21 @@ def run_test(
     wait: bool = True,
     server: str = DEFAULT_SERVER,
     compile_tags: bool = False,
+    refine_with_llm: bool = False,
     model_dialect: str = "wan_video",
 ) -> dict[str, Any]:
     """Execute end-to-end test run against ComfyUI instance."""
-    if compile_tags:
+    if refine_with_llm:
+        try:
+            from tools.prompt_evaluator import LocalPromptEvaluator
+            evaluator = LocalPromptEvaluator()
+            res = evaluator.evaluate_and_compile(prompt, model_dialect=model_dialect, extra_negative=negative_prompt)
+            prompt = res["compiled"]["prompt"]
+            negative_prompt = res["compiled"]["negative_prompt"]
+            logger.info("Local LLM refined prompt (%s): %s", model_dialect, prompt)
+        except Exception as e:
+            logger.warning("Local LLM refinement failed: %s", e)
+    elif compile_tags:
         try:
             from tools.compile_prompt import PromptCompiler
             compiled = PromptCompiler().compile(prompt, model_dialect=model_dialect, extra_negative=negative_prompt)
@@ -478,6 +489,7 @@ def main() -> int:
     parser.add_argument("--no-wait", action="store_true", help="Queue the prompt and return immediately without waiting")
     parser.add_argument("--status", action="store_true", help="Check queue status and exit")
     parser.add_argument("--compile", action="store_true", help="Compile and optimize Danbooru tag sequence before submission")
+    parser.add_argument("--refine-llm", action="store_true", help="Use local LLM to evaluate intent, translate natural text, and expand tags")
     parser.add_argument("--dialect", default="wan_video", help="Target model dialect for prompt compilation (default: wan_video)")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format")
 
@@ -512,6 +524,7 @@ def main() -> int:
             wait=not args.no_wait,
             server=args.server,
             compile_tags=args.compile,
+            refine_with_llm=args.refine_llm,
             model_dialect=args.dialect,
         )
         if args.json:

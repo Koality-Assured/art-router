@@ -9,6 +9,17 @@ Entries newest first. Append via `python scripts/change-history/append_change_hi
 
 
 
+
+### 2026-10-11 — Add local LLM prompt evaluator pipeline and --refine-llm integration
+
+- **Requesting user:** Robbie
+- **AI agent:** artistic-production
+- **User request:** Hm, perhaps we add a methodology for it to automatically take a prompt and uses a local model to evaluate and adjust that prompt and manage the tags and all that?
+- **Summary:**
+  - Built prompt_evaluator.py connecting local LLM (Ollama/LM Studio/local OpenAI endpoint) to Danbooru 8-slot decomposition
+  - Integrated graceful fallback and unit tests with 100% pass rate
+  - Added --refine-llm to test_comfy_video and global prompt-refine CLI shortcut
+
 ### 2026-10-11 — Incorporate Danbooru tag ontology, prompt ordering standards, catalogs, and compiler into art-router
 
 - **Requesting user:** Robbie
