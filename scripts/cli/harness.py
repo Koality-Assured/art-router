@@ -1084,6 +1084,22 @@ def cmd_video(args: argparse.Namespace) -> int:
         return 2
 
 
+class HarnessArgumentParser(argparse.ArgumentParser):
+    """ArgumentParser ensuring shared flags retain default values across subparsers."""
+
+    def parse_args(self, args: Any = None, namespace: Any = None) -> argparse.Namespace:
+        ns = super().parse_args(args, namespace)
+        if not hasattr(ns, "json"):
+            ns.json = False
+        if not hasattr(ns, "dry_run"):
+            ns.dry_run = False
+        if not hasattr(ns, "force"):
+            ns.force = False
+        if not hasattr(ns, "harness"):
+            ns.harness = None
+        return ns
+
+
 def build_parser() -> argparse.ArgumentParser:
     shared = argparse.ArgumentParser(add_help=False)
     shared.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="Format output as machine-readable JSON")
@@ -1091,7 +1107,7 @@ def build_parser() -> argparse.ArgumentParser:
     shared.add_argument("--force", action="store_true", default=argparse.SUPPRESS, help="Override safety checks")
     shared.add_argument("--harness", default=argparse.SUPPRESS, help="Target specific registered domain harness by ID or path")
 
-    parser = argparse.ArgumentParser(
+    parser = HarnessArgumentParser(
         prog="harness",
         description="Unified Harness CLI Control Plane for domain harnesses and spokes.",
         parents=[shared],
