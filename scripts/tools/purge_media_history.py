@@ -26,9 +26,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("media_purge")
 
 DEFAULT_SERVER = "127.0.0.1:8188"
+DEFAULT_COMFY_OUTPUT = (
+    Path(os.environ["COMFY_OUTPUT_DIR"])
+    if "COMFY_OUTPUT_DIR" in os.environ
+    else Path(r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\output")
+)
 DEFAULT_OUTPUT_DIRS = [
-    Path.home() / "Videos" / "Generated",
-    Path(r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\output"),
+    Path(os.environ.get("COMFY_VIDEO_OUTPUT_DIR", Path.home() / "Videos" / "Generated")),
+    DEFAULT_COMFY_OUTPUT,
 ]
 PS_HISTORY_PATH = (
     Path(os.environ.get("APPDATA", ""))
@@ -107,8 +112,7 @@ def strip_video_metadata(
                     ]
                     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
                     if proc.returncode == 0 and temp_path.exists() and temp_path.stat().st_size > 0:
-                        file_path.unlink()
-                        temp_path.rename(file_path)
+                        os.replace(temp_path, file_path)
                         logger.info("Stripped metadata: %s", file_path.name)
                         results.append({"file": str(file_path), "action": "stripped", "status": "ok"})
                     else:
@@ -117,7 +121,9 @@ def strip_video_metadata(
                         logger.error("Failed to strip metadata from %s: %s", file_path.name, proc.stderr)
                         results.append({"file": str(file_path), "action": "strip_failed", "error": proc.stderr})
                 except Exception as exc:
-                    if temp_path.exists():
+                    if temp_path.exists() and temp_path.stat().st_size > 0 and not file_path.exists():
+                        logger.error("Original file lost but stripped copy preserved at: %s", temp_path)
+                    elif temp_path.exists():
                         temp_path.unlink()
                     logger.error("Exception stripping metadata from %s: %s", file_path, exc)
                     results.append({"file": str(file_path), "action": "error", "error": str(exc)})
@@ -197,9 +203,13 @@ def clean_powershell_history(
 
     if removed_count > 0:
         try:
-            target_file.write_text("\n".join(kept_lines) + ("\n" if kept_lines else ""), encoding="utf-8")
+            temp_history = target_file.with_name(f"{target_file.name}.{os.getpid()}.tmp")
+            temp_history.write_text("\n".join(kept_lines) + ("\n" if kept_lines else ""), encoding="utf-8")
+            os.replace(temp_history, target_file)
             logger.info("Purged %d history entries from %s.", removed_count, target_file)
         except Exception as exc:
+            if "temp_history" in locals() and temp_history.exists():
+                temp_history.unlink()
             logger.error("Failed to write sanitized history file: %s", exc)
             return {"status": "write_error", "error": str(exc)}
 

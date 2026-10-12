@@ -4,6 +4,9 @@
 Parses, normalizes, deduplicates, and reorders tag-based image prompts into
 the canonical 8-slot sequence adhering to docs/standards/prompt-token-ordering.md.
 Translates prompts across diffusion model dialects (Illustrious, Pony, Animagine, Wan).
+
+tags: [prompt, danbooru, tags, compiler, ordering, tools]
+routing_hints: [prompt, compile, danbooru, tags, dialect]
 """
 
 from __future__ import annotations
@@ -158,9 +161,12 @@ class PromptCompiler:
 
         # Parse tags
         if isinstance(raw_prompt, str):
-            token_candidates = [t.strip() for t in raw_prompt.split(",") if t.strip()]
+            raw_items = [raw_prompt]
         else:
-            token_candidates = [str(t).strip() for t in raw_prompt if str(t).strip()]
+            raw_items = [str(t) for t in raw_prompt]
+        token_candidates: list[str] = []
+        for item in raw_items:
+            token_candidates.extend([t.strip() for t in re.split(r"[,，]", item) if t.strip()])
 
         # Resolve aliases and normalize
         normalized_tags: list[str] = []
@@ -169,7 +175,7 @@ class PromptCompiler:
             if not n:
                 continue
             if n in COMMON_ALIASES:
-                aliased = [normalize_tag(a) for a in COMMON_ALIASES[n].split(",") if a.strip()]
+                aliased = [normalize_tag(a) for a in re.split(r"[,，]", COMMON_ALIASES[n]) if a.strip()]
                 normalized_tags.extend(aliased)
             else:
                 normalized_tags.append(n)
@@ -235,10 +241,12 @@ class PromptCompiler:
         # Compile negative prompt
         dialect_negatives = list(dialect_spec.get("negative_tokens", []))
         if extra_negative:
-            extra_list = [normalize_tag(e) for e in extra_negative.split(",") if e.strip()]
+            extra_list = [normalize_tag(e) for e in re.split(r"[,，]", extra_negative) if e.strip()]
+            normalized_dialect_set = {normalize_tag(d) for d in dialect_negatives}
             for e in extra_list:
-                if e not in dialect_negatives:
+                if e not in normalized_dialect_set:
                     dialect_negatives.append(e)
+                    normalized_dialect_set.add(e)
         final_negative = ", ".join(dialect_negatives)
 
         # Estimated CLIP token budget (rough heuristic: 1 tag ≈ 1.25 tokens)
@@ -263,6 +271,11 @@ class PromptCompiler:
 
 
 def main(argv: list[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(
         prog="compile_prompt",
         description="Compile and reorder Danbooru tag prompts into the 8-slot canonical sequence.",

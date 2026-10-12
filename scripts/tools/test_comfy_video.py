@@ -26,6 +26,13 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Callable
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+_TOOLS_DIR = Path(__file__).resolve().parent
+if str(_TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(_TOOLS_DIR))
+
 try:
     import aiohttp
 except ImportError:
@@ -51,7 +58,6 @@ def get_default_output_dir() -> str:
         p = Path(env_dir)
     else:
         p = Path.home() / "Videos" / "Generated"
-    p.mkdir(parents=True, exist_ok=True)
     return str(p)
 
 
@@ -76,7 +82,7 @@ class ComfyVideoClient:
         """Fetch current queue status (running and pending tasks)."""
         url = f"{self.base_url}/queue"
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
     def get_object_info(self, node_class: str | None = None) -> dict[str, Any]:
@@ -85,7 +91,7 @@ class ComfyVideoClient:
         if node_class:
             url += f"/{urllib.parse.quote(node_class)}"
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
     def get_history(self, prompt_id: str | None = None) -> dict[str, Any]:
@@ -94,7 +100,7 @@ class ComfyVideoClient:
         if prompt_id:
             url += f"/{urllib.parse.quote(prompt_id)}"
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
     def build_wan22_prompt(
@@ -111,6 +117,22 @@ class ComfyVideoClient:
         prefix: str = "wan22_t2v",
     ) -> dict[str, Any]:
         """Construct the prompt dictionary targeting the Wan 2.2 dual-UNet 4-step pipeline."""
+        if (length - 1) % 4 != 0:
+            valid_lengths = [17, 33, 49, 65, 81]
+            nearest = min(valid_lengths, key=lambda x: abs(x - length))
+            logger.warning(
+                "Wan 2.1/2.2 VAE requires (length - 1) %% 4 == 0. Snapping length %d to nearest valid: %d",
+                length,
+                nearest,
+            )
+            length = nearest
+
+        if width % 16 != 0 or height % 16 != 0:
+            valid_w = (width // 16) * 16
+            valid_h = (height // 16) * 16
+            logger.warning("Wan dimensions must be divisible by 16. Adjusting %dx%d -> %dx%d", width, height, valid_w, valid_h)
+            width, height = valid_w, valid_h
+
         if seed is None:
             seed = random.randint(1, 2**32 - 1)
 
@@ -283,7 +305,7 @@ class ComfyVideoClient:
         payload = json.dumps({"prompt": prompt, "client_id": client_id}).encode("utf-8")
         req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             err_body = e.read().decode("utf-8", errors="replace")
@@ -303,6 +325,7 @@ class ComfyVideoClient:
 
         ws_url = f"{self.ws_url}?clientId={client_id}"
         start_time = time.time()
+        execution_completed = False
         logger.info("Connecting to WebSocket: %s", ws_url)
 
         async with aiohttp.ClientSession() as session:
@@ -340,6 +363,7 @@ class ComfyVideoClient:
                             p_id = msg_data.get("prompt_id")
                             if node is None and (p_id is None or p_id == prompt_id):
                                 logger.info("Execution completed for prompt %s!", prompt_id)
+                                execution_completed = True
                                 break
                             elif p_id == prompt_id:
                                 logger.info("Executing node ID: %s", node)
@@ -348,6 +372,7 @@ class ComfyVideoClient:
                             p_id = msg_data.get("prompt_id")
                             if p_id == prompt_id:
                                 logger.info("Execution succeeded for prompt %s!", prompt_id)
+                                execution_completed = True
                                 break
 
                         elif msg_type == "execution_error":
@@ -362,7 +387,10 @@ class ComfyVideoClient:
                         break
 
         # Fetch completion history
-        return self.get_history(prompt_id)
+        history = self.get_history(prompt_id)
+        if not execution_completed and prompt_id not in history:
+            raise RuntimeError(f"WebSocket closed before execution completed for prompt {prompt_id}")
+        return history
 
     def download_output_video(
         self,
@@ -372,9 +400,7 @@ class ComfyVideoClient:
     ) -> list[Path]:
         """Extract output video files from history entry and download them locally."""
         target_dir = output_dir or DEFAULT_OUTPUT_DIR
-        out_dir = Path(target_dir)
-        if not out_dir.is_absolute():
-            out_dir = (Path(DEFAULT_OUTPUT_DIR) / out_dir).resolve()
+        out_dir = Path(target_dir).resolve()
         out_dir.mkdir(parents=True, exist_ok=True)
 
         prompt_history = history.get(prompt_id, {})
@@ -391,13 +417,22 @@ class ComfyVideoClient:
                 if not filename:
                     continue
 
+                safe_name = Path(filename).name
+                if not safe_name:
+                    continue
+
+                target_path = (out_dir / safe_name).resolve()
+                try:
+                    target_path.relative_to(out_dir)
+                except ValueError:
+                    raise ValueError(f"Path traversal detected in filename: {filename}")
+
                 view_params = urllib.parse.urlencode({"filename": filename, "subfolder": subfolder, "type": type_})
                 view_url = f"{self.base_url}/view?{view_params}"
-                target_path = out_dir / filename
 
                 logger.info("Downloading generated video from %s -> %s", view_url, target_path)
                 req = urllib.request.Request(view_url)
-                with urllib.request.urlopen(req) as resp, open(target_path, "wb") as f_out:
+                with urllib.request.urlopen(req, timeout=30) as resp, open(target_path, "wb") as f_out:
                     f_out.write(resp.read())
 
                 logger.info("Successfully saved video (%d bytes): %s", target_path.stat().st_size, target_path)
@@ -426,23 +461,31 @@ def run_test(
     effective_out_dir = output_dir or DEFAULT_OUTPUT_DIR
     if refine_with_llm:
         try:
-            from tools.prompt_evaluator import LocalPromptEvaluator
+            try:
+                from tools.prompt_evaluator import LocalPromptEvaluator
+            except ImportError:
+                from prompt_evaluator import LocalPromptEvaluator
             evaluator = LocalPromptEvaluator()
             res = evaluator.evaluate_and_compile(prompt, model_dialect=model_dialect, extra_negative=negative_prompt)
             prompt = res["compiled"]["prompt"]
             negative_prompt = res["compiled"]["negative_prompt"]
             logger.info("Local LLM refined prompt (%s): %s", model_dialect, prompt)
         except Exception as e:
-            logger.warning("Local LLM refinement failed: %s", e)
+            logger.error("Local LLM refinement failed: %s", e)
+            raise RuntimeError(f"Local LLM refinement failed: {e}") from e
     elif compile_tags:
         try:
-            from tools.compile_prompt import PromptCompiler
+            try:
+                from tools.compile_prompt import PromptCompiler
+            except ImportError:
+                from compile_prompt import PromptCompiler
             compiled = PromptCompiler().compile(prompt, model_dialect=model_dialect, extra_negative=negative_prompt)
             prompt = compiled["prompt"]
             negative_prompt = compiled["negative_prompt"]
             logger.info("Compiled prompt tags (%s): %s", model_dialect, prompt)
         except Exception as e:
-            logger.warning("Tag compilation failed, proceeding with raw prompt: %s", e)
+            logger.error("Tag compilation failed: %s", e)
+            raise RuntimeError(f"Tag compilation failed: {e}") from e
 
     client = ComfyVideoClient(server=server)
 

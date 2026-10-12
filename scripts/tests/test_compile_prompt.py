@@ -84,6 +84,20 @@ class TestCompilePrompt(unittest.TestCase):
         self.assertGreater(len(res["warnings"]), 0)
         self.assertIn("exceeds single 75-token chunk boundary", res["warnings"][0])
 
+    def test_chinese_comma_splitting(self) -> None:
+        raw = "1girl，solo，blue_hair，standing"
+        res = self.compiler.compile(raw, model_dialect="illustrious_xl")
+        self.assertIn("1girl", res["prompt"])
+        self.assertIn("solo", res["prompt"])
+        self.assertIn("blue_hair", res["prompt"])
+
+    def test_negative_deduplication(self) -> None:
+        extra_neg = "lowres, bad_anatomy，lowres"
+        res = self.compiler.compile("1girl", model_dialect="illustrious_xl", extra_negative=extra_neg)
+        neg = res["negative_prompt"]
+        self.assertEqual(neg.count("lowres"), 1)
+        self.assertEqual(neg.count("bad_anatomy"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

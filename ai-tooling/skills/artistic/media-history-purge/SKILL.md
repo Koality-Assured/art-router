@@ -104,5 +104,5 @@ Inherits Critical cost layers: qmd for discovery; ast-grep for structured files;
 - Targeted video files verified free of embedded metadata (or deleted if requested).
 - Unit test suite passes cleanly:
   ```powershell
-  pytest scripts/tests/test_purge_media_history.py
+  python -m unittest scripts/tests/test_purge_media_history.py
   ```

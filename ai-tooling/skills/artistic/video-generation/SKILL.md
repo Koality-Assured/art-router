@@ -49,7 +49,7 @@ High: Video generation requires substantial GPU memory allocation (14B parameter
 
 ## Isolation
 
-`mutate`. The parent creates and assigns the task worktree before dispatch. Store generated video outputs in `results/video/` and keep tool execution within bounded local paths.
+`mutate`. The parent creates and assigns the task worktree before dispatch. Store generated video outputs in the default external media directory (`~/Videos/Generated` / `COMFY_VIDEO_OUTPUT_DIR`) outside git repositories, keeping tool execution within bounded local paths.
 
 ## How to use
 
@@ -70,7 +70,7 @@ High: Video generation requires substantial GPU memory allocation (14B parameter
      ```powershell
      python scripts/cli/harness.py video generate --prompt "<description>" --length 81
      ```
-4. Collect the generated MP4 file from `results/video/` and report execution metadata.
+4. Collect the generated MP4 file from `~/Videos/Generated/` (or specified `--output-dir`) and report execution metadata.
 
 ## Dry run
 
