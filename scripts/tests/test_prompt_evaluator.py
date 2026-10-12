@@ -90,6 +90,16 @@ class TestPromptEvaluator(unittest.TestCase):
             self.assertIn("1girl", compiled["prompt"])
             self.assertIn("blue_hair", compiled["prompt"])
 
+    def test_heuristic_fallback_inanimate_scene_does_not_inject_1girl(self) -> None:
+        res = self.evaluator.evaluate_and_compile(
+            raw_prompt="futuristic glowing cube rotating on dark surface",
+            model_dialect="wan_video",
+            force_heuristic=True,
+        )
+        compiled = res["compiled"]
+        self.assertNotIn("1girl", compiled["prompt"])
+        self.assertNotIn("solo", compiled["prompt"])
+
 
 if __name__ == "__main__":
     unittest.main()

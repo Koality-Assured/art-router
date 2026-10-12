@@ -29,8 +29,14 @@ for _p in (str(_LIB_DIR), str(_SCRIPTS_DIR)):
 from tools.test_comfy_video import (
     ComfyVideoClient,
     DEFAULT_NEGATIVE_PROMPT,
+    DEFAULT_OUTPUT_DIR,
     DEFAULT_PROMPT,
     DEFAULT_SERVER,
+)
+
+DEFAULT_COMFY_MODELS_DIR = os.environ.get(
+    "COMFY_MODELS_DIR",
+    r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models",
 )
 
 SERVER_NAME = "comfy-video-mcp-server"
@@ -98,7 +104,7 @@ TOOLS_REGISTRY = [
                 "output_dir": {
                     "type": "string",
                     "description": "Directory where downloaded video files will be stored.",
-                    "default": "results/video",
+                    "default": DEFAULT_OUTPUT_DIR,
                 },
                 "server": {
                     "type": "string",
@@ -136,7 +142,7 @@ TOOLS_REGISTRY = [
                 "models_dir": {
                     "type": "string",
                     "description": "Path to ComfyUI models directory.",
-                    "default": r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models",
+                    "default": DEFAULT_COMFY_MODELS_DIR,
                 },
             },
         },
@@ -158,7 +164,7 @@ def handle_video_generate(arguments: dict[str, Any]) -> dict[str, Any]:
     fps = arguments.get("fps", 16.0)
     seed = arguments.get("seed")
     wait = arguments.get("wait", True)
-    output_dir = arguments.get("output_dir", "results/video")
+    output_dir = arguments.get("output_dir", DEFAULT_OUTPUT_DIR)
 
     client_id = f"mcp_{os.getpid()}"
     prompt_graph = client.build_wan22_prompt(
@@ -218,7 +224,7 @@ def handle_video_status(arguments: dict[str, Any]) -> dict[str, Any]:
 
 def handle_video_list_models(arguments: dict[str, Any]) -> dict[str, Any]:
     """Inspect local models directory for Wan components."""
-    models_dir = Path(arguments.get("models_dir", r"D:\Code\wan22\ComfyUI_windows_portable\ComfyUI\models"))
+    models_dir = Path(arguments.get("models_dir", DEFAULT_COMFY_MODELS_DIR))
     if not models_dir.exists():
         return {"ok": False, "error": f"Models directory not found: {models_dir}"}
 

@@ -4,6 +4,9 @@
 Leverages a local LLM (Ollama, LM Studio, llama-server, or local OpenAI-compatible endpoint)
 to evaluate user intent, translate natural language into canonical Danbooru tags across the 8 slots,
 expand contextual details, and pass the result through the deterministic PromptCompiler.
+
+tags: [prompt, evaluator, local_llm, danbooru, tools]
+routing_hints: [prompt, evaluate, refine, llm, danbooru]
 """
 
 from __future__ import annotations
@@ -73,11 +76,15 @@ class LocalPromptEvaluator:
 
     def query_local_llm(self, prompt: str) -> dict[str, Any]:
         """Send prompt evaluation request to local OpenAI-compatible endpoint."""
+        user_content = (
+            "Translate and refine this user prompt into Danbooru tags:\n"
+            f"<user_prompt>\n{prompt}\n</user_prompt>"
+        )
         payload = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": SYSTEM_EVALUATION_PROMPT},
-                {"role": "user", "content": f"Translate and refine this prompt into Danbooru tags:\n\n{prompt}"},
+                {"role": "user", "content": user_content},
             ],
             "temperature": 0.4,
             "response_format": {"type": "json_object"},
@@ -92,24 +99,22 @@ class LocalPromptEvaluator:
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             body = json.loads(resp.read().decode("utf-8"))
             content = body["choices"][0]["message"]["content"]
-            # Clean possible markdown wrapping if returned
-            clean_json = re.sub(r"^```(json)?\s*", "", content.strip(), flags=re.MULTILINE)
-            clean_json = re.sub(r"\s*```$", "", clean_json.strip(), flags=re.MULTILINE)
+            match = re.search(r"\{.*\}", content, re.DOTALL)
+            if match:
+                clean_json = match.group(0)
+            else:
+                clean_json = content.strip()
             return json.loads(clean_json)
 
     def heuristic_fallback_refine(self, prompt: str) -> dict[str, Any]:
         """Heuristic rule-based extractor when local LLM server is offline."""
-        raw_tokens = [t.strip().lower().replace(" ", "_") for t in re.split(r"[,;.]", prompt) if t.strip()]
+        raw_tokens = [t.strip().lower().replace(" ", "_") for t in re.split(r"[,;.\uFF0C\u3002]", prompt) if t.strip()]
         classified_slots: dict[str, list[str]] = {str(i): [] for i in range(2, 9)}
 
         for tok in raw_tokens:
             slot_id = self.compiler.classify_tag(tok)
             if 2 <= slot_id <= 8:
                 classified_slots[str(slot_id)].append(tok)
-
-        # Ensure minimal subject presence
-        if not classified_slots["2"]:
-            classified_slots["2"].append("1girl")
 
         return {
             "intent_summary": "Heuristic extraction from natural prompt",
@@ -150,7 +155,7 @@ class LocalPromptEvaluator:
         suggested_neg = eval_result.get("suggested_negatives", [])
         combined_negative = list(suggested_neg)
         if extra_negative:
-            for extra in extra_negative.split(","):
+            for extra in re.split(r"[,，]", extra_negative):
                 if extra.strip() and extra.strip() not in combined_negative:
                     combined_negative.append(extra.strip())
         neg_str = ", ".join(combined_negative) if combined_negative else None
@@ -173,6 +178,11 @@ class LocalPromptEvaluator:
 
 
 def main(argv: list[str] | None = None) -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(
         prog="prompt_evaluator",
         description="Evaluate, refine, and compile prompts using local LLM semantic analysis and Danbooru taxonomy.",
